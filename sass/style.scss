@@ -1,0 +1,172 @@
+.console {
+  display: inline-block;
+  box-sizing: border-box;
+  vertical-align: top;
+  width: 100%;
+  height: 100%;
+
+  font-family: "Menlo", "consolas", monospace;
+}
+
+.console__item {
+  display: inline-block;
+  vertical-align: top;
+
+  & .console__item {
+    // margin-left: 10px;
+  }
+
+  &-head * {
+    display: inline;
+  }
+
+  &-content {
+    display: flex;
+    flex-direction: column;
+    margin-left: 12px;
+  }
+}
+
+.object__entry,
+.array__entry {
+  display: flex;
+}
+
+.console__item-head .object,
+.console__item-head .array {
+  &__entry {
+    display: inline-block;
+
+    &:not(:last-child)::after {
+      content: ", ";
+      white-space: pre;
+      margin-left: -1px;
+    }
+  }
+}
+
+.object.object_Object > .console__item-head {
+  &::before {
+    content: '{';
+  }
+
+  &::after {
+    content: '}';
+  }
+}
+
+.object-entry__key::after {
+  content: ": ";
+  white-space: pre;
+}
+
+.array > .console__item-head {
+  &_elements {
+    &::before {
+      content: '[';
+    }
+
+    &::after {
+      content: ']';
+    }
+  }
+}
+
+.array-entry__key::after {
+  content: ": ";
+  white-space: pre;
+}
+
+.function {
+  &__classifier {
+    &_plain::after {
+      content: "f";
+    }
+
+    &_class::after {
+      content: "class";
+    }
+  }
+}
+
+.console__header {
+  margin: 0;
+}
+
+.console__info {
+  font-size: 0.8em;
+  font-family: sans-serif;
+}
+
+.console__row {
+  margin: 5px;
+  padding: 5px;
+
+  background: #f8faf3;
+}
+
+.console__item span {
+  position: relative;
+}
+
+// .console__item span:hover::after {
+//   content: attr(class);
+//   position: absolute;
+//   z-index: 100;
+//
+//   display: inline-block;
+//   margin: -1em 0 0 8px;
+//   padding: 3px 6px;
+//
+//   font-size: .9em;
+//   vertical-align: top;
+//   font-style: italic;
+//
+//   background-color: white;
+//   border: 1px dashed;
+//   border-radius: 4px;
+// }
+
+.console__item.undefined {
+  font-weight: bold;
+  font-style: italic;
+}
+
+.console__item.NaN {
+  font-weight: bold;
+}
+
+.console__item.string {
+  color: green;
+}
+
+.console__item.number {
+  color: darkorange;
+}
+
+.console__item.boolean {
+  color: blue;
+}
+
+.console__item.null {
+  color: magenta;
+}
+
+.console__item.key {
+  color: #5bc0de;
+}
+
+.console__item.error {
+  color: red;
+}
+
+.editor-container {
+  display: inline-block;
+  box-sizing: border-box;
+  width: 50%;
+  height: 300px;
+
+  vertical-align: top;
+
+  border: 5px solid #ffd20d;
+}

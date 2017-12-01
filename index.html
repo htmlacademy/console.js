@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>js-console example</title>
+    <link href="css/style.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="console"></div>
+    <script src="js/main.js"></script>
+
+    <script>
+      window.jsConsole = jsConsoleInit(document.querySelector('.console'));
+    </script>
+
+    <script>
+      jsConsole.log(undefined);
+
+      jsConsole.log(NaN);
+
+      jsConsole.log(null);
+
+      jsConsole.log(true);
+
+      jsConsole.log(100);
+
+      jsConsole.log(Infinity);
+
+      jsConsole.log(-Infinity);
+
+      jsConsole.log('Here is console log');
+
+      jsConsole.log("current year: ", (new Date()).getFullYear());
+
+      jsConsole.log([
+        {key1: 'value1'},
+        {key2: 'value2'}
+      ]);
+
+      var a = {};
+      a.b = {a: a};
+      jsConsole.log(a);
+
+      var s1 = {a:1, b:'', d: [1, 2, "", [1, 2, ""]], n: function (test = 123, bar) {return test;}, e: {b:1}};
+      jsConsole.log(s1, [1,2,3]);
+
+      var arr = [1, 2, 3];
+      arr.test = 123;
+      jsConsole.log(arr);
+
+      class Person {
+        constructor(val) {
+          this._bar = val;
+          if (val === 123) {
+            this._bar = val;
+              }
+        }
+        get [Symbol.species]() { this.constructor = Array; }
+      }
+
+      class bar {
+        constructor(va) {
+          console.log(va)
+        }
+      }
+
+      const fn = (bar = 123) => {console.log(456); return 123;};
+      const fn1 = (bar = 123) => {'sssssssssssssssssssssssssssssssssssssssss'};
+      const fn2 = (bar = 123) => {'sssssssssssssssssssssssssssssssssssssssssss'};
+      function test (bar456 = 123) {console.log(456); return 123;}
+      const test1 = function (bar1 = 123) {console.log(456); return 123;}
+      const test2 = function named (bar2 = 123) {console.log(456); return 123;}
+
+      var s2 = { Person, bar, fn, fn1, fn2, test, test1, test2};
+      jsConsole.log(Person);
+      jsConsole.log(bar);
+      jsConsole.log(fn);
+      jsConsole.log(fn1);
+      jsConsole.log(fn2);
+      jsConsole.log(test);
+      jsConsole.log(test1);
+      jsConsole.log(test2);
+      jsConsole.log(s2);
+      jsConsole.log(new Number(1));
+
+      var num = new Number(123);
+      var str = new String('qwe');
+      var s3 = {num, str};
+      jsConsole.log(s3);
+
+      var div = document.querySelector('div');
+      jsConsole.log(div);
+
+      jsConsole.log(function () {
+        var testVariable = 'method code';
+      });
+
+      jsConsole.log([1, function () {
+        var testVariable = 'method code';
+      }]);
+
+      jsConsole.log({
+        method: function () {
+          var testVariable = 'method code';
+        }
+      });
+
+      jsConsole.log({
+        cat: {
+          name: 'Сергей Сергеевич',
+          kittens: [{
+            name: 'Иван Васильич',
+            kittens: [
+              {name: 'Пётр Иванович'}
+            ]
+          }]
+        }
+      });
+
+      // jsConsole.error('Ошибка!');
+      var err = new TypeError('LOLOLO');
+      jsConsole.error(err);
+
+      // throw new TypeError('test');
+
+      jsConsole.log([[1,2,3],[1,2,3]]);
+
+
+    </script>
+  </body>
+</html>
