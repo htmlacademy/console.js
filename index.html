@@ -66,8 +66,27 @@
       function test (bar456 = 123) {console.log(456); return 123;}
       const test1 = function (bar1 = 123) {console.log(456); return 123;}
       const test2 = function named (bar2 = 123) {console.log(456); return 123;}
+      const s2 = { Person, bar, fn, fn1, fn2, test, test1, test2};
 
-      var s2 = { Person, bar, fn, fn1, fn2, test, test1, test2};
+      jsConsole.dir(Person);
+      jsConsole.dir(bar);
+      jsConsole.dir(fn);
+      jsConsole.dir(fn1);
+      jsConsole.dir(fn2);
+      jsConsole.dir(test);
+      jsConsole.dir(test1);
+      jsConsole.dir(test2);
+      jsConsole.dir(s2);
+      jsConsole.dir(new Number(1));
+console.dir(Person)
+console.dir(bar)
+console.dir(fn)
+console.dir(fn1)
+console.dir(fn2)
+console.dir(test)
+console.dir(test1)
+console.dir(test2)
+
       jsConsole.log(Person);
       jsConsole.log(bar);
       jsConsole.log(fn);
@@ -78,18 +97,32 @@
       jsConsole.log(test2);
       jsConsole.log(s2);
       jsConsole.log(new Number(1));
+console.log(Person)
+console.log(bar)
+console.log(fn)
+console.log(fn1)
+console.log(fn2)
+console.log(test)
+console.log(test1)
+console.log(test2)
+console.log(s2)
 
       var num = new Number(123);
       var str = new String('qwe');
       var s3 = {num, str};
       jsConsole.log(s3);
+      jsConsole.dir(s3);
 
       var div = document.querySelector('div');
       jsConsole.log(div);
+      jsConsole.dir(div);
+      console.log(div)
+      console.dir(div)
 
       jsConsole.log(function () {
         var testVariable = 'method code';
       });
+
 
       jsConsole.log([1, function () {
         var testVariable = 'method code';
@@ -116,6 +149,8 @@
       // jsConsole.error('Ошибка!');
       var err = new TypeError('LOLOLO');
       jsConsole.error(err);
+
+      jsConsole.error(123)
 
       // throw new TypeError('test');
 
@@ -176,7 +211,7 @@ class UserView {
 }
 
 window.addEventListener(`error`, (err) => {
-  console.dir(err.error)
+  console.dir(err)
   jsConsole.error(err.error);
 });
 class ViewModel {
