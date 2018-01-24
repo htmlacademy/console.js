@@ -121,6 +121,99 @@
 
       jsConsole.log([[1,2,3],[1,2,3]]);
 
+      class UserModel {
+  constructor(data) {
+    this.listeners = new Set();
+    this.data = data;
+  }
+
+  subscribe(listener) {
+    this.listeners.add(listener);
+  }
+
+  notifyAll() {
+    for (const listener of this.listeners) {
+      listener(this);
+    }
+  }
+
+  get name() {
+    return this.data.name;
+  }
+
+  set name(name) {
+    this.data.name = name;
+    this.notifyAll();
+  }
+
+  get familyName() {
+    return this.data.familyName;
+  }
+}
+
+class UserView {
+  constructor(binder) {
+    this.binder = binder;
+  }
+
+  get template() {
+    return `
+<div>
+  <span>Name:</span><span>\${user.name}</span> <span>\${user.familyName}</span>
+</div>
+<div>
+  <label>Name:<input value="\${user.name}"></label>
+</div>
+`;
+  }
+
+  get element() {
+    if (!this._el) {
+      this._el = this.binder.compile(this.template);
+    }
+    return this._el;
+  }
+}
+
+window.addEventListener(`error`, (err) => {
+  console.dir(err.error)
+  jsConsole.error(err.error);
+});
+class ViewModel {
+  constructor() {
+    this.binder = new window.mvvm.Binder();
+    this.model = new UserModel({
+      name: `Luigi`,
+      familyName: `Mario`
+    });
+  }
+
+  init() {
+    this.view = new UserView(this.binder);
+    const element = this.view.element;
+    const userModel = this.model;
+    this.binder.bind({
+      user: {
+        get name() {
+          return userModel.name;
+        },
+
+        set name(newName) {
+          console.log(newName);
+          userModel.name = newName;
+        },
+
+        familyName: userModel.familyName
+      }
+    });
+    const body = document.body;
+    body.insertBefore(element, body.children[0]);
+  }
+}
+
+const viewModel = new ViewModel();
+viewModel.init();
+
 
     </script>
   </body>
