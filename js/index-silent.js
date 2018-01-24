@@ -1,6 +1,6 @@
 import jsConsoleInit from './main';
 
-const CSS_URL = `//htmlacademy.github.io/console.js/style.css`;
+const CSS_URL = `//htmlacademy.github.io/console.js/css/style.css`;
 
 const errors = [];
 const collectErr = function (...rest) {
@@ -31,9 +31,9 @@ const init = function () {
   messages.forEach(function (args) {
     jsConsole.log(jsConsole, ...args);
   });
-  window.onerror = function (error) {
-    jsConsole.error(error);
-  };
+  window.addEventListener(`error`, (evt) => {
+    jsConsole.error(evt.error);
+  });
 };
 
 const loadStyles = function () {
@@ -43,5 +43,7 @@ const loadStyles = function () {
   window.document.head.appendChild(link);
 };
 
-init();
-loadStyles();
+window.addEventListener(`DOMContentLoaded`, function () {
+  init();
+  loadStyles();
+});

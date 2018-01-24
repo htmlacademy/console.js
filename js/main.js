@@ -42,12 +42,12 @@ const jsConsoleInit = (cont) => {
     }
   };
 
-  logger.error = function (errOrMessage) {
+  logger.error = function (errOrSmth) {
     const el = getElement(`<div class="console__row"></div>`);
-    if (errOrMessage instanceof Error) {
-      el.appendChild(createTypedView(errOrMessage, Mode.ERROR).el);
-    } else if (typeof errOrMessage === `string`) {
-      el.appendChild(createTypedView(new Error(errOrMessage), Mode.ERROR).el);
+    if (errOrSmth instanceof Error) {
+      el.appendChild(createTypedView(errOrSmth, Mode.ERROR).el);
+    } else {
+      el.appendChild(createTypedView(new Error(errOrSmth), Mode.ERROR).el);
     }
     cont.appendChild(el);
   };

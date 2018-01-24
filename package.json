@@ -8,7 +8,6 @@
     "build": "gulp build",
     "start": "gulp serve",
     "test": "gulp test && npm run eslint",
-    "release": "gulp assemble",
     "build:examples": "gulp examples",
     "deploy": "gh-pages -d build/"
   },

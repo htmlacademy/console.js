@@ -31,9 +31,14 @@ export default class FunctionView extends TypeView {
       case Mode.PREVIEW:
         tpl += `f`;
         break;
+      case Mode.PROP:
+        tpl += `\
+<div class="${Class.CONSOLE_ITEM_HEAD}">${this._getHeadPropMarkup()}</div>\
+<div class="${Class.CONSOLE_ITEM_CONTENT_CONTAINTER}"></div>`;
+        break;
       case Mode.DIR:
         tpl += `\
-<div class="${Class.CONSOLE_ITEM_HEAD}">${this._getHeadMarkup()}</div>\
+<div class="${Class.CONSOLE_ITEM_HEAD}">${this._getHeadDirMarkup()}</div>\
 <div class="${Class.CONSOLE_ITEM_CONTENT_CONTAINTER}"></div>`;
         break;
       case Mode.LOG:
@@ -45,20 +50,22 @@ export default class FunctionView extends TypeView {
   }
 
   bind() {
-    if (this._mode === Mode.DIR) {
-      this._contentContainerEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_CONTENT_CONTAINTER}`);
-      const previewEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_HEAD}`);
-      // previewEl.appendChild(this.createPreview(this.value, true));
-
-      previewEl.addEventListener(`click`, () => {
-        if (this._isOpened) {
-          this._hideContent();
-        } else {
-          this._showContent();
-        }
-        this._isOpened = !this._isOpened;
-      });
+    if (this._mode !== Mode.DIR) {
+      return;
     }
+
+    this._contentContainerEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_CONTENT_CONTAINTER}`);
+    const previewEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_HEAD}`);
+    // previewEl.appendChild(this.createPreview(this.value, true));
+
+    previewEl.addEventListener(`click`, () => {
+      if (this._isOpened) {
+        this._hideContent();
+      } else {
+        this._showContent();
+      }
+      this._isOpened = !this._isOpened;
+    });
   }
 
   _showContent() {
@@ -74,7 +81,7 @@ export default class FunctionView extends TypeView {
     this._contentContainerEl.innerHTML = ``;
   }
 
-  _getHeadMarkup() {
+  _getHeadPropMarkup() {
     const {name, params, lines} = this._parseFunction(this.value);
     const joinedLines = lines.join(`\n`);
 
@@ -91,6 +98,18 @@ ${this._fnType === FnType.ARROW ? ` => ` : ` `}`;
 }`;
     }
     markup += `</span>`;
+    return markup;
+  }
+
+  _getHeadDirMarkup() {
+    const {name, params} = this._parseFunction(this.value);
+
+    let markup = `\
+  <span>\
+  ${this._fnType === FnType.CLASS ? `class ` : ``}\
+  ${this._fnType === FnType.PLAIN ? `f ` : ``}\
+  ${name ? name : ``}\
+  ${this._fnType !== FnType.CLASS ? `(${params.join(`, `)})` : ``}</span>`;
     return markup;
   }
 
@@ -169,7 +188,7 @@ ${lines.join(`\n`)}
       str = fnOrString.toString();
     }
     return {
-      name: this._parseName(str),
+      name: fnOrString.name, // this._parseName(str),
       params: this._parseParams(str),
       lines: this._parseBody(str)
     };

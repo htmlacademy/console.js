@@ -2,6 +2,7 @@ export const Mode = {
   LOG: `log`,
   DIR: `dir`,
   PREVIEW: `preview`,
+  PROP: `prop`,
   ERROR: `error`
 };
 

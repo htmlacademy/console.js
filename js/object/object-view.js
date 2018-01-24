@@ -31,7 +31,7 @@ export default class ObjectView extends TypeView {
     } else {
       headEl.innerHTML = elOrStr;
     }
-    if (this._mode === Mode.PREVIEW) {
+    if (this._mode === Mode.PREVIEW || this._mode === Mode.ERROR) {
       return;
     }
 
@@ -72,14 +72,16 @@ export default class ObjectView extends TypeView {
     } else if (this._mode === Mode.PREVIEW) {
       return this._getHeadDirContent();
     } else if (this._mode === Mode.ERROR) {
-      return this._getHeadDirContent();
+      return this._getHeadErrorContent();
     }
     return ``;
   }
 
   _getHeadPreviewContent() {}
   _getHeadLogContent() {}
-  _getHeadErrorContent() {}
+  _getHeadErrorContent() {
+    return `<pre>${this.value.stack}</pre>`;
+  }
   _getHeadDirContent() {
     if (this.value instanceof HTMLElement) {
       let str = this.value.tagName.toLowerCase();
