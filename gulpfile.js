@@ -43,7 +43,7 @@ gulp.task(`style`, () => {
 });
 
 gulp.task(`scripts`, () => {
-  return gulp.src(`js/main.js`)
+  return gulp.src([`js/index.js`, `js/index-silent.js`])
       .pipe(plumber())
       .pipe(sourcemaps.init())
       .pipe(rollup({

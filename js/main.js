@@ -83,4 +83,5 @@ const jsConsoleInit = (cont) => {
   return logger;
 };
 
-window.jsConsoleInit = jsConsoleInit;
+// window.jsConsoleInit = jsConsoleInit;
+export default jsConsoleInit;

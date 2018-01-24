@@ -1,5 +1,4 @@
 import AbstractView from './abstract-view';
-import {getElement} from './utils';
 
 export default class TypeView extends AbstractView {
   constructor(value, type, isPrimitive) {

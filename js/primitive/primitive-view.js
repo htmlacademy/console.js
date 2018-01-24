@@ -1,5 +1,4 @@
 import TypeView from '../type-view';
-import {getElement} from '../utils';
 
 export default class PrimitiveView extends TypeView {
   constructor(value, type) {
@@ -9,40 +8,40 @@ export default class PrimitiveView extends TypeView {
   get template() {
     const type = this.type;
     const value = this.value;
-    let html = '';
+    let html = ``;
     switch (type) {
-      case 'undefined':
-        html = '<div class="console__item ' + type + '">' + type + '</div>';
+      case `undefined`:
+        html = `<div class="console__item ` + type + `">` + type + `</div>`;
         break;
 
-      case 'number':
-        if (window.isNaN(value)) {
-          html = '<div class="console__item NaN">NaN</div>';
+      case `number`:
+        if (isNaN(value)) {
+          html = `<div class="console__item NaN">NaN</div>`;
         } else if ((value === Infinity || value === -Infinity)) {
-          html = '<div class="console__item number">' + (value === -Infinity ? '-' : '') + 'Infinity</div>';
+          html = `<div class="console__item number">` + (value === -Infinity ? `-` : ``) + `Infinity</div>`;
         } else {
-          html = '<div class="console__item ' + type + '">' + value + '</div>';
+          html = `<div class="console__item ` + type + `">` + value + `</div>`;
         }
         break;
 
-      case 'string':
-        html = '<div class="console__item ' + type + '">"' + value + '"</div>';
+      case `string`:
+        html = `<div class="console__item ` + type + `">"` + value + `"</div>`;
         break;
 
-      case 'null':
-      case 'boolean':
-        html = '<div class="console__item ' + type + '">' + value + '</div>';
+      case `null`:
+      case `boolean`:
+        html = `<div class="console__item ` + type + `">` + value + `</div>`;
         break;
-      case 'symbol':
-        html = '<div class="console__item ' + type + '">' + value.toString() + '</div>';
+      case `symbol`:
+        html = `<div class="console__item ` + type + `">` + value.toString() + `</div>`;
         break;
 
-      case 'object':
+      case `object`:
         if (value === null) {
-          html = '<div class="console__item null">' + value + '</div>';
+          html = `<div class="console__item null">` + value + `</div>`;
           break;
         }
     }
     return html;
   }
-};
+}

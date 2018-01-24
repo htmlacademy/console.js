@@ -8,7 +8,9 @@
     "build": "gulp build",
     "start": "gulp serve",
     "test": "gulp test && npm run eslint",
-    "build:examples": "gulp examples"
+    "release": "gulp assemble",
+    "build:examples": "gulp examples",
+    "deploy": "gh-pages -d build/"
   },
   "devDependencies": {
     "autoprefixer": "6.7.7",
