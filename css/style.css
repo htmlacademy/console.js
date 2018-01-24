@@ -9,6 +9,8 @@
 .console__item {
   display: inline-block;
   vertical-align: top; }
+  .console__item ~ .console__item {
+    margin-left: 10px; }
   .console__item-head * {
     display: inline; }
   .console__item-content {
