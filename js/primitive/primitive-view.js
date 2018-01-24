@@ -25,7 +25,7 @@ export default class PrimitiveView extends TypeView {
         break;
 
       case `string`:
-        html = `<div class="console__item ` + type + `">"` + value + `"</div>`;
+        html = `<div class="console__item ` + type + `"><pre>"` + value + `"</pre></div>`;
         break;
 
       case `null`:
