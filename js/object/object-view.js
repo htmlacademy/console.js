@@ -92,6 +92,9 @@ export default class ObjectView extends TypeView {
     } else if (this.value instanceof Error) {
       return this.value.stack;
     }
+    // else if (this.value.constructor === GeneratorFunction) {
+    //   return this
+    // }
     return this.value.constructor.name;
   }
 

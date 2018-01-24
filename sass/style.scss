@@ -12,6 +12,10 @@
   display: inline-block;
   vertical-align: top;
 
+  & pre {
+    margin: 0;
+  }
+
   & ~ .console__item {
     margin-left: 10px;
   }
