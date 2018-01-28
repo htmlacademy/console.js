@@ -8,13 +8,12 @@ export default class ObjectView extends TypeView {
     super(value, `object`, false);
     this._mode = mode;
     this._entries = new Map();
-    this._instanceOfOther = value.toString() !== `[object Object]`;
     this._isOpened = false;
   }
 
   get template() {
     return `
-<div class="object ${!this._instanceOfOther ? `object_Object` : ``} ${this._mode === Mode.ERROR ? `${this._mode}` : ``} console__item">\
+<div class="console__item object ${this.value.constructor.name} ${this._mode === Mode.ERROR ? `${this._mode}` : ``}">\
   <div class="${Class.CONSOLE_ITEM_HEAD}"></div>\
   <div class="${Class.CONSOLE_ITEM_CONTENT_CONTAINTER}"></div>\
 </div>`;
@@ -59,7 +58,7 @@ export default class ObjectView extends TypeView {
   }
 
   _getHeadContent() {
-    if (!this._instanceOfOther) {
+    if (this.value.constructor === Object) {
       if (this._mode !== Mode.PREVIEW) {
         return this.createContent(this.value, true);
       }

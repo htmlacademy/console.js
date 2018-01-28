@@ -49,7 +49,7 @@
   }
 }
 
-.object.object_Object > .console__item-head {
+.object.Object > .console__item-head {
   &::before {
     content: '{';
   }

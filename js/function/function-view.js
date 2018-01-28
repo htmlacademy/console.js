@@ -26,7 +26,7 @@ export default class FunctionView extends TypeView {
   }
 
   get template() {
-    let tpl = `<div class="function console__item">`;
+    let tpl = `<div class="console__item function">`;
     switch (this._mode) {
       case Mode.PREVIEW:
         tpl += `f`;

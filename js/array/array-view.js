@@ -13,7 +13,7 @@ export default class ArrayView extends TypeView {
 
   get template() {
     return `\
-<div class="array console__item">
+<div class="console__item array">
   <div class="${Class.CONSOLE_ITEM_HEAD} \
 ${this._mode === Mode.PREVIEW ? Class.CONSOLE_ITEM_HEAD_SIZE : Class.CONSOLE_ITEM_HEAD_ELEMENTS}">\
 ${this._mode === Mode.PREVIEW ? `Array(${this._arr.length})` : ``}</div>\

@@ -11,7 +11,9 @@ export default class PrimitiveView extends TypeView {
     let html = ``;
     switch (type) {
       case `undefined`:
-        html = `<div class="console__item ` + type + `">` + type + `</div>`;
+      case `null`:
+      case `boolean`:
+        html = `<div class="console__item ` + type + `">` + value + `</div>`;
         break;
 
       case `number`:
@@ -26,11 +28,6 @@ export default class PrimitiveView extends TypeView {
 
       case `string`:
         html = `<div class="console__item ` + type + `"><pre>"` + value + `"</pre></div>`;
-        break;
-
-      case `null`:
-      case `boolean`:
-        html = `<div class="console__item ` + type + `">` + value + `</div>`;
         break;
       case `symbol`:
         html = `<div class="console__item ` + type + `">` + value.toString() + `</div>`;
