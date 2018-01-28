@@ -5,7 +5,7 @@ export const Mode = {
   PROP: `prop`,
   ERROR: `error`
 };
-
+console.log(1233);
 export const Class = {
   CONSOLE_ITEM_HEAD: `console__item-head`,
   CONSOLE_ITEM_HEAD_SIZE: `console__item-head_size`,
