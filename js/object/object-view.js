@@ -103,7 +103,7 @@ export default class ObjectView extends TypeView {
     for (let key in obj) {
       keys.add(key);
       const value = obj[key];
-      const view = createTypedView(value, isPreview ? Mode.PREVIEW : Mode.DIR);
+      const view = createTypedView(value, isPreview ? Mode.PREVIEW : Mode.PROP);
       const entryEl = ObjectView.createEntryEl(key, view.el);
       fragment.appendChild(entryEl);
     }
@@ -112,7 +112,7 @@ export default class ObjectView extends TypeView {
         continue;
       }
       const value = obj[key];
-      const view = createTypedView(value, isPreview ? Mode.PREVIEW : Mode.DIR);
+      const view = createTypedView(value, isPreview ? Mode.PREVIEW : Mode.PROP);
       const entryEl = ObjectView.createEntryEl(key, view.el);
       fragment.appendChild(entryEl);
     }

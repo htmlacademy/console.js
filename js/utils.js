@@ -45,11 +45,11 @@ export const createTypedView = (val, mode) => {
           view = new ObjectView(val, mode);
         }
       } else {
-        view = new PrimitiveView(val, type);
+        view = new PrimitiveView(val, mode, type);
       }
       break;
     default:
-      view = new PrimitiveView(val, type);
+      view = new PrimitiveView(val, mode, type);
       break;
   }
   return view;

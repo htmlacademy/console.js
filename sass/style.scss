@@ -5,12 +5,20 @@
   width: 100%;
   height: 100%;
 
-  font-family: "Menlo", "consolas", monospace;
+  font-family: "Menlo", "consolas", sans-serif;
+  font-size: 0.8em;
+}
+
+.console {
+  & pre, & code {
+    font-family: "Menlo", "consolas", sans-serif;
+  }
 }
 
 .console__item {
   display: inline-block;
   vertical-align: top;
+  // max-width: 100%;
 
   & pre {
     margin: 0;
@@ -29,6 +37,8 @@
     flex-direction: column;
     margin-left: 12px;
   }
+
+  &_primitive {}
 }
 
 .object__entry,
@@ -142,6 +152,10 @@
 
 .console__item.string {
   color: green;
+
+  &_collapsed {
+    white-space: nowrap;
+  }
 }
 
 .console__item.number {

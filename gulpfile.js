@@ -130,7 +130,7 @@ gulp.task(`serve`, gulp.series(`assemble`, () => {
   gulp.watch(`sass/**/*.{scss,sass}`, gulp.series(`style`));
   gulp.watch(`*.html`).on(`change`, (e) => {
     if (e.type !== `deleted`) {
-      gulp.start(`copy-html`);
+      gulp.series(`copy-html`);
     }
   });
   gulp.watch(`js/**/*.js`, gulp.series(`js-watch`));
