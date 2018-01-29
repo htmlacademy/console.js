@@ -5,13 +5,14 @@
   width: 100%;
   height: 100%;
 
-  font-family: "Menlo", "consolas", sans-serif;
-  font-size: 0.8em;
+  // font-family: "Menlo", "consolas", sans-serif;
+  // font-size: 0.8em;
+  font-family: monospace;
 }
 
 .console {
   & pre, & code {
-    font-family: "Menlo", "consolas", sans-serif;
+    // font-family: "Menlo", "consolas", sans-serif;
   }
 }
 
