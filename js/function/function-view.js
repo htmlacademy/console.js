@@ -71,6 +71,7 @@ export default class FunctionView extends TypeView {
   _showContent() {
     if (!this._proxiedContentEl) {
       this._proxiedContentEl = getElement(`<div class="console__item-content"></div>`);
+      this._proxiedContentEl.appendChild(this.createContent(this.value));
       this._contentContainerEl.appendChild(this._proxiedContentEl);
       this._displayVal = this._proxiedContentEl.style.display;
     }
