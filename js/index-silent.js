@@ -20,6 +20,7 @@ window.console.debug = collectMsg;
 
 const init = function () {
   const div = window.document.createElement(`div`);
+  div.classList.add(`console`);
   const jsConsole = jsConsoleInit(div);
   window.document.body.appendChild(div);
 

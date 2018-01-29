@@ -12,11 +12,14 @@ export default class ObjectView extends TypeView {
   }
 
   get template() {
+    const className = Object.prototype.toString.call(this.value).slice(8, -1);
     return `
-<div class="console__item object ${this.value.constructor.name} ${this._mode === Mode.ERROR ? `${this._mode}` : ``}">\
+<div class="console__item object ${className} ${this._mode === Mode.ERROR ? `${this._mode}` : ``}">\
   <div class="${Class.CONSOLE_ITEM_HEAD}"></div>\
   <div class="${Class.CONSOLE_ITEM_CONTENT_CONTAINTER}"></div>\
 </div>`;
+
+//${className !== `Object` ? className : ``} Добавить в хед, возможно добавить внутрь див для имени.
   }
 
   bind() {
@@ -58,7 +61,7 @@ export default class ObjectView extends TypeView {
   }
 
   _getHeadContent() {
-    if (this.value.constructor === Object) {
+    if (Object.prototype.toString.call(this.value) === `[object Object]`) {
       if (this._mode !== Mode.PREVIEW) {
         return this.createContent(this.value, true);
       }
