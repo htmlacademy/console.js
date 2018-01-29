@@ -150,6 +150,26 @@ console.log(s2)
         }
       });
 
+      class Cat {
+        constructor(name, age = 0, male = true) {
+        this.name = name;
+        this.age = age;
+        this.male = male;
+        }
+
+        eat(food) {
+        console.log(`${this.name} ate ${food}`);
+        }
+
+        meow() {
+        return `Мяу!`;
+        }
+      }
+
+      jsConsole.log(new Cat(`Кекс`));
+      jsConsole.log(new Cat(`Кекс`, 7));
+      jsConsole.log(new Cat(`Кексинка`, 4, true));
+
       // jsConsole.error('Ошибка!');
       var err = new TypeError('LOLOLO');
       jsConsole.error(err);
@@ -161,98 +181,97 @@ console.log(s2)
       jsConsole.log([[1,2,3],[1,2,3]]);
 
       class UserModel {
-  constructor(data) {
-    this.listeners = new Set();
-    this.data = data;
-  }
+        constructor(data) {
+          this.listeners = new Set();
+          this.data = data;
+        }
 
-  subscribe(listener) {
-    this.listeners.add(listener);
-  }
+        subscribe(listener) {
+          this.listeners.add(listener);
+        }
 
-  notifyAll() {
-    for (const listener of this.listeners) {
-      listener(this);
-    }
-  }
+        notifyAll() {
+          for (const listener of this.listeners) {
+            listener(this);
+          }
+        }
 
-  get name() {
-    return this.data.name;
-  }
-
-  set name(name) {
-    this.data.name = name;
-    this.notifyAll();
-  }
-
-  get familyName() {
-    return this.data.familyName;
-  }
-}
-
-class UserView {
-  constructor(binder) {
-    this.binder = binder;
-  }
-
-  get template() {
-    return `
-<div>
-  <span>Name:</span><span>\${user.name}</span> <span>\${user.familyName}</span>
-</div>
-<div>
-  <label>Name:<input value="\${user.name}"></label>
-</div>
-`;
-  }
-
-  get element() {
-    if (!this._el) {
-      this._el = this.binder.compile(this.template);
-    }
-    return this._el;
-  }
-}
-
-window.addEventListener(`error`, (err) => {
-  console.dir(err)
-  jsConsole.error(err.error);
-});
-class ViewModel {
-  constructor() {
-    this.binder = new window.mvvm.Binder();
-    this.model = new UserModel({
-      name: `Luigi`,
-      familyName: `Mario`
-    });
-  }
-
-  init() {
-    this.view = new UserView(this.binder);
-    const element = this.view.element;
-    const userModel = this.model;
-    this.binder.bind({
-      user: {
         get name() {
-          return userModel.name;
-        },
+          return this.data.name;
+        }
 
-        set name(newName) {
-          console.log(newName);
-          userModel.name = newName;
-        },
+        set name(name) {
+          this.data.name = name;
+          this.notifyAll();
+        }
 
-        familyName: userModel.familyName
+        get familyName() {
+          return this.data.familyName;
+        }
       }
-    });
-    const body = document.body;
-    body.insertBefore(element, body.children[0]);
-  }
-}
 
-const viewModel = new ViewModel();
-viewModel.init();
+      class UserView {
+        constructor(binder) {
+          this.binder = binder;
+        }
 
+        get template() {
+          return `
+      <div>
+        <span>Name:</span><span>\${user.name}</span> <span>\${user.familyName}</span>
+      </div>
+      <div>
+        <label>Name:<input value="\${user.name}"></label>
+      </div>
+      `;
+        }
+
+        get element() {
+          if (!this._el) {
+            this._el = this.binder.compile(this.template);
+          }
+          return this._el;
+        }
+      }
+
+      window.addEventListener(`error`, (err) => {
+        console.dir(err)
+        jsConsole.error(err.error);
+      });
+      class ViewModel {
+        constructor() {
+          this.binder = new window.mvvm.Binder();
+          this.model = new UserModel({
+            name: `Luigi`,
+            familyName: `Mario`
+          });
+        }
+
+        init() {
+          this.view = new UserView(this.binder);
+          const element = this.view.element;
+          const userModel = this.model;
+          this.binder.bind({
+            user: {
+              get name() {
+                return userModel.name;
+              },
+
+              set name(newName) {
+                console.log(newName);
+                userModel.name = newName;
+              },
+
+              familyName: userModel.familyName
+            }
+          });
+          const body = document.body;
+          body.insertBefore(element, body.children[0]);
+        }
+      }
+
+      const viewModel = new ViewModel();
+        viewModel.init();
 
     </script>
   </body>

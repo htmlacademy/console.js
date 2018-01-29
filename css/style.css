@@ -4,13 +4,13 @@
   vertical-align: top;
   width: 100%;
   height: 100%;
-  font-family: monospace; }
+  font-family: monospace;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-tap-highlight-color: transparent; }
 
 .console__item {
   display: inline-block;
   vertical-align: top; }
-  .console__item pre {
-    margin: 0; }
   .console__item ~ .console__item {
     margin-left: 10px; }
   .console__item-head * {
@@ -82,7 +82,12 @@
   font-weight: bold; }
 
 .console__item.string {
+  margin: 0;
   color: green; }
+  .console__item.string::before {
+    content: '"'; }
+  .console__item.string::after {
+    content: '"'; }
   .console__item.string_collapsed {
     white-space: nowrap; }
 
