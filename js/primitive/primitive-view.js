@@ -13,8 +13,14 @@ export default class PrimitiveView extends TypeView {
 
   get template() {
     const type = this.type;
-    const value = this.value;
+    let value = this.value;
     let html = ``;
+    if (type === `string` || type === `symbol`) {
+      if (type === `symbol`) {
+        value = value.toString();
+      }
+      value = this.escapeHtml(value);
+    }
     switch (type) {
       case `undefined`:
       case `null`:
@@ -33,11 +39,10 @@ export default class PrimitiveView extends TypeView {
         break;
 
       case `string`:
-        const escaped = this.escapeHtml(value);
-        html = `<pre class="console__item console__item_primitive string ${this._mode === Mode.PROP ? Class.STRING_COLLAPSED : ``}">${escaped}</pre>`;
+        html = `<pre class="console__item console__item_primitive string ${this._mode === Mode.PROP ? Class.STRING_COLLAPSED : ``}">${value}</pre>`;
         break;
       case `symbol`:
-        html = `<div class="console__item console__item_primitive ` + type + `">` + value.toString() + `</div>`;
+        html = `<div class="console__item console__item_primitive ` + type + `">` + value + `</div>`;
         break;
 
       case `object`:
@@ -50,7 +55,7 @@ export default class PrimitiveView extends TypeView {
   }
 
   bind() {
-    if (this.type === `string`) {
+    if (this._mode === Mode.PROP && this.type === `string`) {
       this.el.addEventListener(`click`, (evt) => {
         evt.preventDefault();
         this.el.classList.toggle(Class.STRING_COLLAPSED);

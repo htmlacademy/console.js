@@ -51,13 +51,15 @@ export default class ObjectView extends TypeView {
     if (!this._proxiedContentEl) {
       this._proxiedContentEl = getElement(`<div class="console__item-content"></div>`);
       this._proxiedContentEl.appendChild(this.createContent(this.value, false));
+      this._contentContainerEl.appendChild(this._proxiedContentEl);
+      this._displayVal = this._proxiedContentEl.style.display;
     }
 
-    this._contentContainerEl.appendChild(this._proxiedContentEl);
+    this._proxiedContentEl.style.display = this._displayVal;
   }
 
   _hideContent() {
-    this._contentContainerEl.innerHTML = ``;
+    this._proxiedContentEl.style.display = `none`;
   }
 
   _getHeadContent() {

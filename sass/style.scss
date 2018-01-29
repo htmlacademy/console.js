@@ -8,6 +8,9 @@
   // font-family: "Menlo", "consolas", sans-serif;
   // font-size: 0.8em;
   font-family: monospace;
+
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: transparent;
 }
 
 .console {
@@ -20,10 +23,6 @@
   display: inline-block;
   vertical-align: top;
   // max-width: 100%;
-
-  & pre {
-    margin: 0;
-  }
 
   & ~ .console__item {
     margin-left: 10px;
@@ -152,7 +151,16 @@
 }
 
 .console__item.string {
+  margin: 0;
   color: green;
+
+  &::before {
+    content: '"';
+  }
+
+  &::after {
+    content: '"';
+  }
 
   &_collapsed {
     white-space: nowrap;
