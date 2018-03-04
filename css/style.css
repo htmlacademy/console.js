@@ -8,12 +8,15 @@
   -webkit-tap-highlight-color: transparent;
   -webkit-tap-highlight-color: transparent; }
 
+.console pre, .console code {
+  margin: 0; }
+
 .console__item {
   display: inline-block;
   vertical-align: top; }
   .console__item ~ .console__item {
     margin-left: 10px; }
-  .console__item-head * {
+  .console__item-head-elements, .console__item-head-info {
     display: inline; }
   .console__item-content {
     display: flex;
@@ -27,26 +30,29 @@
 .console__item-head .object__entry,
 .console__item-head .array__entry {
   display: inline-block; }
-  .console__item-head .object__entry:not(:last-child)::after,
-  .console__item-head .array__entry:not(:last-child)::after {
-    content: ", ";
-    white-space: pre;
-    margin-left: -1px; }
+  .console__item-head .object__entry:not(:first-child)::before,
+  .console__item-head .array__entry:not(:first-child)::before {
+    content: ",";
+    white-space: pre; }
 
-.object.Object > .console__item-head::before {
+.console__item.object > .console__item-head > .console__item-head-info {
+  display: none;
+  color: #83878c; }
+
+.console__item.object > .console__item-head_braced > .console__item-head-elements:not(:empty)::before {
   content: '{'; }
 
-.object.Object > .console__item-head::after {
+.console__item.object > .console__item-head_braced > .console__item-head-elements:not(:empty)::after {
   content: '}'; }
 
 .object-entry__key::after {
   content: ": ";
   white-space: pre; }
 
-.array > .console__item-head_elements::before {
+.console__item.array > .console__item-head > .console__item-head-elements:not(:empty)::before {
   content: '['; }
 
-.array > .console__item-head_elements::after {
+.console__item.array > .console__item-head > .console__item-head-elements:not(:empty)::after {
   content: ']'; }
 
 .array-entry__key::after {
