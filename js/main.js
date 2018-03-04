@@ -60,9 +60,11 @@ const jsConsoleInit = (cont) => {
     return cont.innerHTML;
   };
 
-  logger.dir = function (...rest) {
-    cont.appendChild(getRowEl(rest, Mode.DIR));
-
+  logger.dir = function (val, ...rest) {
+    // cont.appendChild(getRowEl(val, Mode.DIR));
+    const el = getElement(`<div class="console__row"></div>`);
+    el.appendChild(createTypedView(val, Mode.DIR).el);
+    cont.appendChild(el);
     if (typeof logger.onlog === `function`) {
       logger.onlog(rest);
     }

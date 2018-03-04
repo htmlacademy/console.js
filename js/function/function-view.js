@@ -50,7 +50,7 @@ export default class FunctionView extends TypeView {
   }
 
   bind() {
-    if (this._mode !== Mode.DIR) {
+    if (this._mode !== Mode.DIR && this._mode !== Mode.PROP) {
       return;
     }
 
@@ -95,9 +95,7 @@ ${name ? name : ``}\
 ${this._fnType !== FnType.CLASS ? `(${params.join(`, `)})` : ``}\
 ${this._fnType === FnType.ARROW ? ` => ` : ` `}`;
     if (this._fnType !== FnType.CLASS) {
-      markup += `{\
-  ${joinedLines.length <= MAX_PREVIEW_FN_BODY_LENGTH ? joinedLines : `...`}\
-}`;
+      markup += `{${joinedLines.length <= MAX_PREVIEW_FN_BODY_LENGTH ? joinedLines : `...`}}`;
     }
     markup += `</span>`;
     return markup;

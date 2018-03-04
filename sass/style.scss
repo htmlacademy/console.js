@@ -15,6 +15,7 @@
 
 .console {
   & pre, & code {
+    margin: 0;
     // font-family: "Menlo", "consolas", sans-serif;
   }
 }
@@ -28,9 +29,16 @@
     margin-left: 10px;
   }
 
-  &-head * {
-    display: inline;
+  &-head {
+    &-elements,
+    &-info {
+      display: inline;
+    }
   }
+
+  // &-head * {
+  //   display: inline;
+  // }
 
   &-content {
     display: flex;
@@ -51,21 +59,26 @@
   &__entry {
     display: inline-block;
 
-    &:not(:last-child)::after {
-      content: ", ";
+    &:not(:first-child)::before {
+      content: ",";
       white-space: pre;
-      margin-left: -1px;
     }
   }
 }
 
-.object.Object > .console__item-head {
-  &::before {
-    content: '{';
+.console__item.object > .console__item-head {
+  > .console__item-head-info {
+    display: none;
+    color: #83878c;
   }
+  &_braced > .console__item-head-elements:not(:empty) {
+    &::before {
+      content: '{';
+    }
 
-  &::after {
-    content: '}';
+    &::after {
+      content: '}';
+    }
   }
 }
 
@@ -74,8 +87,8 @@
   white-space: pre;
 }
 
-.array > .console__item-head {
-  &_elements {
+.console__item.array > .console__item-head {
+  > .console__item-head-elements:not(:empty) {
     &::before {
       content: '[';
     }

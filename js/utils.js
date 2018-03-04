@@ -39,7 +39,7 @@ export const createTypedView = (val, mode) => {
     case `object`:
       // TODO: check instanceof Date, String, Boolean, Number
       if (val !== null) {
-        if (Array.isArray(val)) {
+        if (Array.isArray(val)) { // TODO: typedarrays, arraybuffer, etc
           view = new ArrayView(val, mode);
         } else {
           view = new ObjectView(val, mode);

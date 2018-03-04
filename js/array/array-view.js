@@ -14,9 +14,12 @@ export default class ArrayView extends TypeView {
   get template() {
     return `\
 <div class="console__item array">
-  <div class="${Class.CONSOLE_ITEM_HEAD} \
-${this._mode === Mode.PREVIEW ? Class.CONSOLE_ITEM_HEAD_SIZE : Class.CONSOLE_ITEM_HEAD_ELEMENTS}">\
-${this._mode === Mode.PREVIEW ? `Array(${this._arr.length})` : ``}</div>\
+  <div class="${Class.CONSOLE_ITEM_HEAD}">
+    <div class="${Class.CONSOLE_ITEM_HEAD_INFO}">
+      ${this._mode === Mode.PREVIEW || this._mode === Mode.DIR ? `${this._arr.constructor.name}(${this._arr.length})` : `(${this._arr.length})`}
+    </div>
+    <div class="${Class.CONSOLE_ITEM_HEAD_ELEMENTS}"></div>
+  </div>
   <div class="${Class.CONSOLE_ITEM_CONTENT_CONTAINTER}"></div>
 </div>`;
   }
@@ -27,8 +30,10 @@ ${this._mode === Mode.PREVIEW ? `Array(${this._arr.length})` : ``}</div>\
     }
     this._contentContainerEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_CONTENT_CONTAINTER}`);
     const previewEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_HEAD}`);
-    previewEl.appendChild(this.createContent(this.value, true));
-
+    const headElementsEl = previewEl.querySelector(`.${Class.CONSOLE_ITEM_HEAD_ELEMENTS}`);
+    if (this._mode !== Mode.DIR) {
+      headElementsEl.appendChild(this.createContent(this.value, true));
+    }
     previewEl.addEventListener(`click`, () => {
       if (this._isOpened) {
         this._hideContent();
@@ -64,7 +69,7 @@ ${this._mode === Mode.PREVIEW ? `Array(${this._arr.length})` : ``}</div>\
       if (isPreview && indexInKeys === -1) {
         continue;
       }
-      const view = createTypedView(value, isPreview ? Mode.PREVIEW : Mode.DIR);
+      const view = createTypedView(value, isPreview ? Mode.PREVIEW : Mode.PROP);
       const entryEl = ArrayView.createEntryEl(key, view.el, isPreview ? !isKeyNaN : isPreview);
       // if (!isPreview) {
       //   this._elements.set(entryEl, view);
