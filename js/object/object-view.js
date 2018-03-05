@@ -47,7 +47,7 @@ export default class ObjectView extends TypeView {
       return;
     }
     if (!isOpeningDisabled) {
-      this._setHeadClickHandler(headEl);
+      this.setHeadClickHandler(headEl);
     }
   }
 

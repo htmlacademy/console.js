@@ -24,60 +24,45 @@ export default class ArrayView extends TypeView {
 
   bind() {
     this._contentContainerEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_CONTENT_CONTAINTER}`);
-    const headEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_HEAD}`);
-    const headInfoEl = headEl.querySelector(`.${Class.CONSOLE_ITEM_HEAD_INFO}`);
-    const headElementsEl = headEl.querySelector(`.${Class.CONSOLE_ITEM_HEAD_ELEMENTS}`);
-    const headElementsLengthEl = headEl.querySelector(`.${Class.CONSOLE_ITEM_HEAD_ELEMENTS_LENGTH}`);
+    this.headEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_HEAD}`);
+    this.headInfoEl = this.headEl.querySelector(`.${Class.CONSOLE_ITEM_HEAD_INFO}`);
+    this.headElementsEl = this.headEl.querySelector(`.${Class.CONSOLE_ITEM_HEAD_ELEMENTS}`);
+    this.headElementsLengthEl = this.headEl.querySelector(`.${Class.CONSOLE_ITEM_HEAD_ELEMENTS_LENGTH}`);
     const {isShowConstructor, isShowElements, isShowLength} = this._getHeadContent();
     if (isShowConstructor) {
-      this._showHideConstructor(headInfoEl, true);
+      this._toggleConstructor(this.headInfoEl, true);
     }
     if (isShowElements) {
-      headElementsEl.appendChild(this.createContent(this.value, true));
-      this._showHideElements(headElementsEl, true);
+      this.headElementsEl.appendChild(this.createContent(this.value, true));
+      this._toggleHeadElements(this.headElementsEl, true);
     }
     if (isShowLength) {
-      this._showHideLength(headElementsLengthEl, true);
+      this._toggleLength(this.headElementsLengthEl, true);
     }
     if (this._mode === Mode.PREVIEW) {
       return;
     }
-    this._setHeadClickHandler(headEl);
+    this.setHeadClickHandler(this.headEl);
   }
 
-  _showHideConstructor(headInfoEl, isShow) {
-    if (isShow) {
-      headInfoEl.classList.add(Class.CONSOLE_ITEM_HEAD_SHOW);
+  additionHeadClickHandler() {
+    if (this._mode === Mode.PROP) {
+      this._toggleConstructor();
+      this._toggleHeadElements();
     }
   }
 
-  _showHideLength(headElementsLengthEl, isShow) {
-    if (isShow) {
-      headElementsLengthEl.classList.add(Class.CONSOLE_ITEM_HEAD_ELEMENTS_LENGTH_SHOW);
-    }
+  _toggleConstructor() {
+    this.headInfoEl.classList.toggle(Class.CONSOLE_ITEM_HEAD_SHOW);
   }
 
-  _showHideElements(headElementsEl, isShow) {
-    if (isShow) {
-      headElementsEl.classList.add(Class.CONSOLE_ITEM_HEAD_ELEMENTS_SHOW);
-    }
+  _toggleLength() {
+    this.headElementsLengthEl.classList.toggle(Class.CONSOLE_ITEM_HEAD_ELEMENTS_LENGTH_SHOW);
   }
 
-  // _setHeadClickHandler(headEl) {
-  //   headEl.addEventListener(`click`, () => {
-  //     if (this._isOpened) {
-  //       this._hideContent();
-  //     } else {
-  //       if (this._mode === Mode.PROP) {
-  //         this._showHideConstructor(true);
-  //         this._showHideLength(true);
-  //         this._showHideElements(false);
-  //       }
-  //       this._showContent();
-  //     }
-  //     this._isOpened = !this._isOpened;
-  //   });
-  // }
+  _toggleHeadElements() {
+    this.headElementsEl.classList.toggle(Class.CONSOLE_ITEM_HEAD_ELEMENTS_SHOW);
+  }
 
   _getHeadContent() {
     let isShowConstructor = false;

@@ -44,11 +44,14 @@ export default class TypeView extends AbstractView {
     this._proxiedContentEl.style.display = `none`;
   }
 
-  _setHeadClickHandler(headEl) {
+  additionHeadClickHandler() {}
+
+  setHeadClickHandler(headEl) {
     this._setCursorPointer();
     headEl.addEventListener(`click`, (evt) => {
       evt.preventDefault();
       this._toggleContent();
+      this.additionHeadClickHandler();
     });
   }
 
