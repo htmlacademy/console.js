@@ -5,7 +5,6 @@ import {Mode, Class} from '../enums';
 export default class ArrayView extends TypeView {
   constructor(arr, mode) {
     super(arr, `array`, false);
-    this._arr = arr;
     this._mode = mode;
     this._elements = new Map();
     this._isOpened = false;
@@ -13,49 +12,86 @@ export default class ArrayView extends TypeView {
 
   get template() {
     return `\
-<div class="console__item array">
+<div class="console__item console__item_array">
   <div class="${Class.CONSOLE_ITEM_HEAD}">
-    <div class="${Class.CONSOLE_ITEM_HEAD_INFO}">
-      ${this._mode === Mode.PREVIEW || this._mode === Mode.DIR ? `${this._arr.constructor.name}(${this._arr.length})` : `(${this._arr.length})`}
-    </div>
-    <div class="${Class.CONSOLE_ITEM_HEAD_ELEMENTS}"></div>
+    <span class="${Class.CONSOLE_ITEM_HEAD_INFO}">${this.value.constructor.name}</span>
+    <span class="${Class.CONSOLE_ITEM_HEAD_ELEMENTS_LENGTH}">${this.value.length}</span>
+    <div class="${Class.CONSOLE_ITEM_HEAD_ELEMENTS} entry-container entry-container_head"></div>
   </div>
-  <div class="${Class.CONSOLE_ITEM_CONTENT_CONTAINTER}"></div>
+  <div class="${Class.CONSOLE_ITEM_CONTENT_CONTAINTER} entry-container"></div>
 </div>`;
   }
 
   bind() {
+    this._contentContainerEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_CONTENT_CONTAINTER}`);
+    const headEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_HEAD}`);
+    const headInfoEl = headEl.querySelector(`.${Class.CONSOLE_ITEM_HEAD_INFO}`);
+    const headElementsEl = headEl.querySelector(`.${Class.CONSOLE_ITEM_HEAD_ELEMENTS}`);
+    const headElementsLengthEl = headEl.querySelector(`.${Class.CONSOLE_ITEM_HEAD_ELEMENTS_LENGTH}`);
+    const {isShowConstructor, isShowElements, isShowLength} = this._getHeadContent();
+    if (isShowConstructor) {
+      headInfoEl.style.display = `inline`;
+    }
+    if (isShowElements) {
+      headElementsEl.appendChild(this.createContent(this.value, true));
+    }
+    if (isShowLength) {
+      headElementsLengthEl.style.display = `inline`;
+    }
     if (this._mode === Mode.PREVIEW) {
       return;
     }
-    this._contentContainerEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_CONTENT_CONTAINTER}`);
-    const previewEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_HEAD}`);
-    const headElementsEl = previewEl.querySelector(`.${Class.CONSOLE_ITEM_HEAD_ELEMENTS}`);
-    if (this._mode !== Mode.DIR) {
-      headElementsEl.appendChild(this.createContent(this.value, true));
-    }
-    previewEl.addEventListener(`click`, () => {
-      if (this._isOpened) {
-        this._hideContent();
-      } else {
-        this._showContent();
-      }
-      this._isOpened = !this._isOpened;
-    });
+    this._setHeadClickHandler(headEl);
   }
 
-  _showContent() {
-    if (!this._proxiedContentEl) {
-      this._proxiedContentEl = getElement(`<div class="console__item-content"></div>`);
-      this._proxiedContentEl.appendChild(this.createContent(this.value, false));
-      this._contentContainerEl.appendChild(this._proxiedContentEl);
-      this._displayVal = this._proxiedContentEl.style.display;
-    }
-    this._proxiedContentEl.style.display = this._displayVal;
-  }
+  // _showHideConstructor(headInfoEl, isShow) {
+  //   headInfoEl.style.display = isShow ? `inline` : `none`;
+  // }
+  //
+  // _showHideLength(headElementsLengthEl, isShow) {
+  //   headElementsLengthEl.style.display = isShow ? `inline` : `none`;
+  // }
+  //
+  // _showHideElements(headElementsEl, isShow) {
+  //   headElementsEl.style.display = isShow ? `inline` : `none`;
+  // }
 
-  _hideContent() {
-    this._proxiedContentEl.style.display = `none`;
+  // _setHeadClickHandler(headEl) {
+  //   headEl.addEventListener(`click`, () => {
+  //     if (this._isOpened) {
+  //       this._hideContent();
+  //     } else {
+  //       if (this._mode === Mode.PROP) {
+  //         this._showHideConstructor(true);
+  //         this._showHideLength(true);
+  //         this._showHideElements(false);
+  //       }
+  //       this._showContent();
+  //     }
+  //     this._isOpened = !this._isOpened;
+  //   });
+  // }
+
+  _getHeadContent() {
+    let isShowConstructor = false;
+    let isShowElements = true;
+    let isShowLength = this.value.length > 1;
+    if (this._mode === Mode.DIR) {
+      isShowConstructor = true;
+      isShowElements = false;
+    // } else if (this._mode === Mode.PROP) {
+    } else if (this._mode === Mode.PREVIEW) {
+      isShowConstructor = true;
+      isShowElements = false;
+      isShowLength = true;
+    } else if (this._mode === Mode.ERROR) {
+      return this._getHeadErrorContent();
+    }
+    return {
+      isShowConstructor,
+      isShowElements,
+      isShowLength
+    };
   }
 
   createContent(arr, isPreview) {
@@ -77,16 +113,5 @@ export default class ArrayView extends TypeView {
       fragment.appendChild(entryEl);
     }
     return fragment;
-  }
-
-  static createEntryEl(index, valueEl, withKey) {
-    const entryEl = getElement(`\
-<span class="array__entry array-entry">\
-  ${withKey ? `` : `<span class="array-entry__key">${index}</span>`}<span class="array-entry__value-container"></span>\
-</span>`);
-    const valueContEl = entryEl.querySelector(`.array-entry__value-container`);
-    valueContEl.appendChild(valueEl);
-
-    return entryEl;
   }
 }

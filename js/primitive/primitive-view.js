@@ -25,7 +25,7 @@ export default class PrimitiveView extends TypeView {
       case `undefined`:
       case `null`:
       case `boolean`:
-        html = `<div class="console__item console__item_primitive ` + type + `">` + value + `</div>`;
+        html = `<div class="console__item console__item_primitive ${value}">${value}</div>`;
         break;
 
       case `number`:
@@ -56,6 +56,7 @@ export default class PrimitiveView extends TypeView {
 
   bind() {
     if (this._mode === Mode.PROP && this.type === `string`) {
+      this._setCursorPointer();
       this.el.addEventListener(`click`, (evt) => {
         evt.preventDefault();
         this.el.classList.toggle(Class.STRING_COLLAPSED);
