@@ -1,5 +1,5 @@
 import TypeView from '../type-view';
-import {getElement, createTypedView} from '../utils';
+import {createTypedView} from '../utils';
 import {Mode, Class} from '../enums';
 
 export default class ArrayView extends TypeView {
@@ -30,13 +30,14 @@ export default class ArrayView extends TypeView {
     const headElementsLengthEl = headEl.querySelector(`.${Class.CONSOLE_ITEM_HEAD_ELEMENTS_LENGTH}`);
     const {isShowConstructor, isShowElements, isShowLength} = this._getHeadContent();
     if (isShowConstructor) {
-      headInfoEl.style.display = `inline`;
+      this._showHideConstructor(headInfoEl, true);
     }
     if (isShowElements) {
       headElementsEl.appendChild(this.createContent(this.value, true));
+      this._showHideElements(headElementsEl, true);
     }
     if (isShowLength) {
-      headElementsLengthEl.style.display = `inline`;
+      this._showHideLength(headElementsLengthEl, true);
     }
     if (this._mode === Mode.PREVIEW) {
       return;
@@ -44,17 +45,23 @@ export default class ArrayView extends TypeView {
     this._setHeadClickHandler(headEl);
   }
 
-  // _showHideConstructor(headInfoEl, isShow) {
-  //   headInfoEl.style.display = isShow ? `inline` : `none`;
-  // }
-  //
-  // _showHideLength(headElementsLengthEl, isShow) {
-  //   headElementsLengthEl.style.display = isShow ? `inline` : `none`;
-  // }
-  //
-  // _showHideElements(headElementsEl, isShow) {
-  //   headElementsEl.style.display = isShow ? `inline` : `none`;
-  // }
+  _showHideConstructor(headInfoEl, isShow) {
+    if (isShow) {
+      headInfoEl.classList.add(Class.CONSOLE_ITEM_HEAD_SHOW);
+    }
+  }
+
+  _showHideLength(headElementsLengthEl, isShow) {
+    if (isShow) {
+      headElementsLengthEl.classList.add(Class.CONSOLE_ITEM_HEAD_ELEMENTS_LENGTH_SHOW);
+    }
+  }
+
+  _showHideElements(headElementsEl, isShow) {
+    if (isShow) {
+      headElementsEl.classList.add(Class.CONSOLE_ITEM_HEAD_ELEMENTS_SHOW);
+    }
+  }
 
   // _setHeadClickHandler(headEl) {
   //   headEl.addEventListener(`click`, () => {

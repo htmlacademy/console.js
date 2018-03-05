@@ -114,13 +114,24 @@
 }
 
 .console__item-head {
-  &-elements {
-    display: inline;
-  }
-
+  &-elements,
   &-elements-length,
   &-info {
     display: none;
+  }
+
+  &-elements_show,
+  &-elements-length_show,
+  &_show {
+    display: inline;
+  }
+}
+
+.console__item-content-container {
+  display: none;
+
+  &_show {
+    display: block;
   }
 }
 

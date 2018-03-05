@@ -31,14 +31,13 @@ export default class TypeView extends AbstractView {
     };
   }
 
-  _showContent() {
+  _toggleContent() {
     if (!this._proxiedContentEl) {
       this._proxiedContentEl = getElement(`<div class="console__item-content"></div>`);
       this._proxiedContentEl.appendChild(this.createContent(this.value, false));
       this._contentContainerEl.appendChild(this._proxiedContentEl);
-      this._displayVal = this._proxiedContentEl.style.display;
     }
-    this._proxiedContentEl.style.display = this._displayVal;
+    this._contentContainerEl.classList.toggle(Class.CONSOLE_ITEM_CONTENT_CONTAINTER_SHOW);
   }
 
   _hideContent() {
@@ -47,13 +46,9 @@ export default class TypeView extends AbstractView {
 
   _setHeadClickHandler(headEl) {
     this._setCursorPointer();
-    headEl.addEventListener(`click`, () => {
-      if (this._isOpened) {
-        this._hideContent();
-      } else {
-        this._showContent();
-      }
-      this._isOpened = !this._isOpened;
+    headEl.addEventListener(`click`, (evt) => {
+      evt.preventDefault();
+      this._toggleContent();
     });
   }
 

@@ -1,6 +1,6 @@
 /* eslint guard-for-in: "off"*/
 import TypeView from '../type-view';
-import {getElement, createTypedView} from '../utils';
+import {createTypedView} from '../utils';
 import {Mode, Class} from '../enums';
 
 export default class ObjectView extends TypeView {
@@ -12,7 +12,6 @@ export default class ObjectView extends TypeView {
   }
 
   get template() {
-    // const className = Object.prototype.toString.call(this.value).slice(8, -1);
     return `\
 <div class="console__item console__item_object ${this._mode === Mode.ERROR ? `${this._mode}` : ``}">\
   <div class="${Class.CONSOLE_ITEM_HEAD}">
@@ -28,14 +27,13 @@ export default class ObjectView extends TypeView {
     const headElementsEl = headEl.querySelector(`.${Class.CONSOLE_ITEM_HEAD_ELEMENTS}`);
     const headInfoEl = headEl.querySelector(`.${Class.CONSOLE_ITEM_HEAD_INFO}`);
     this._contentContainerEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_CONTENT_CONTAINTER}`);
-    // headEl.appendChild(this.createContent(this.value, true));
 
     const {elOrStr, isShowConstructor, isShowElements, isBraced, isOpeningDisabled} = this._getHeadContent();
     if (isBraced) {
       headEl.classList.add(Class.CONSOLE_ITEM_HEAD_BRACED);
     }
     if (isShowConstructor) {
-      headInfoEl.style.display = `inline`;
+      headInfoEl.classList.add(Class.CONSOLE_ITEM_HEAD_SHOW);
     }
     if (isShowElements) {
       if (elOrStr instanceof HTMLElement || elOrStr instanceof DocumentFragment) {
@@ -43,6 +41,7 @@ export default class ObjectView extends TypeView {
       } else {
         headElementsEl.innerHTML = elOrStr;
       }
+      headElementsEl.classList.add(Class.CONSOLE_ITEM_HEAD_ELEMENTS_SHOW);
     }
     if (this._mode === Mode.PREVIEW || this._mode === Mode.ERROR) {
       return;
@@ -81,13 +80,7 @@ export default class ObjectView extends TypeView {
     let isShowConstructor = false;
     let isBraced = true;
     let isOpeningDisabled = false;
-    // if (Object.prototype.toString.call(this.value) === `[object Object]`) {
-    // // if (this.value instanceof Object) {
-    //   val = this.createContent(this.value, true);
-    //   if (this.value.constructor !== Object) {
-    //     isShowConstructor = true;
-    //   }
-    // } else
+
     if (this.value instanceof HTMLElement) {
       return this._getHeadDirContent();
     } else if (this.value instanceof Error) {
@@ -125,13 +118,7 @@ export default class ObjectView extends TypeView {
       isOpeningDisabled
     };
   }
-  // _getHeadErrorContent() {
-  //   return {
-  //     elOrStr: `<pre>${this.value.stack}</pre>`,
-  //     isShowConstructor: false,
-  //     isShowElements: true
-  //   };
-  // }
+
   _getHeadDirContent() {
     let val;
     let isShowConstructor = false;
