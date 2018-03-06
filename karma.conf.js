@@ -10,7 +10,7 @@ module.exports = function (config) {
       `node_modules/babel-polyfill/browser.js`,
       // `node_modules/babel-polyfill/dist/polyfill.js`,
     ],
-    browsers: [`Chrome`, `ChromeHeadless`, `ChromeHeadlessNoSandbox`],
+    browsers: [`ChromeHeadless`],
     customLaunchers: {
       ChromeHeadlessNoSandbox: {
         base: `ChromeHeadless`,
