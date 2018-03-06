@@ -42,10 +42,10 @@ export default class ArrayView extends TypeView {
     if (this._mode === Mode.PREVIEW) {
       return;
     }
-    this.setHeadClickHandler(this.headEl);
+    this._setHeadClickHandler(this.headEl);
   }
 
-  additionHeadClickHandler() {
+  _additionHeadClickHandler() {
     if (this._mode === Mode.PROP) {
       this._toggleConstructor();
       this._toggleHeadElements();

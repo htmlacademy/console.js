@@ -57,7 +57,7 @@ export default class FunctionView extends TypeView {
     this._contentContainerEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_CONTENT_CONTAINTER}`);
     const headEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_HEAD}`);
     // previewEl.appendChild(this.createPreview(this.value, true));
-    this.setHeadClickHandler(headEl);
+    this._setHeadClickHandler(headEl);
   }
 
   _getHeadPropMarkup() {
