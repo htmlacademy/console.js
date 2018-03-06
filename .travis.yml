@@ -4,6 +4,7 @@ node_js:
   - "9.4"
 
 dist: trusty
+sudo: required
 addons:
   chrome: stable
 before_install:
