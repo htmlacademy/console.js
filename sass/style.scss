@@ -141,9 +141,12 @@
     #{$parent}__entry {
       display: inline-block;
 
-      &:not(:first-child)::before {
-        content: ",";
-        white-space: pre;
+      &:not(:last-child) {
+        margin-right: 5px;
+        &::after {
+          content: ",";
+          white-space: pre;
+        }
       }
     }
   }
