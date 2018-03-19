@@ -17,7 +17,7 @@ const commonjs = require(`rollup-plugin-commonjs`);
 const rollup = require(`gulp-better-rollup`);
 const uglify = require(`gulp-uglify`);
 const sourcemaps = require(`gulp-sourcemaps`);
-const mocha = require(`gulp-mocha`);
+// const mocha = require(`gulp-mocha`);
 const debug = require(`gulp-debug`);
 const Server = require(`karma`).Server;
 
@@ -45,7 +45,7 @@ gulp.task(`style`, () => {
 });
 
 gulp.task(`scripts`, () => {
-  return gulp.src([`js/index.js`, `js/index-silent.js`, `js/test/**/*.js`])
+  return gulp.src([`js/index.js`, `js/index-silent.js`, `js/tests/**/*.js`])
       .pipe(debug({title: `debug`}))
       .pipe(plumber())
       .pipe(sourcemaps.init())

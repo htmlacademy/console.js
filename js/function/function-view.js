@@ -1,5 +1,5 @@
 import TypeView from '../type-view';
-import {getElement, createTypedView} from '../utils';
+import {createTypedView} from '../utils';
 import {Mode, Class} from '../enums';
 
 const MAX_PREVIEW_FN_BODY_LENGTH = 43;
