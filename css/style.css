@@ -5,65 +5,12 @@
   width: 100%;
   height: 100%;
   font-family: monospace;
+  cursor: default;
   -webkit-tap-highlight-color: transparent;
   -webkit-tap-highlight-color: transparent; }
 
 .console pre, .console code {
   margin: 0; }
-
-.console__item {
-  display: inline-block;
-  vertical-align: top; }
-  .console__item ~ .console__item {
-    margin-left: 10px; }
-  .console__item-head-elements, .console__item-head-info {
-    display: inline; }
-  .console__item-content {
-    display: flex;
-    flex-direction: column;
-    margin-left: 12px; }
-
-.object__entry,
-.array__entry {
-  display: flex; }
-
-.console__item-head .object__entry,
-.console__item-head .array__entry {
-  display: inline-block; }
-  .console__item-head .object__entry:not(:first-child)::before,
-  .console__item-head .array__entry:not(:first-child)::before {
-    content: ",";
-    white-space: pre; }
-
-.console__item.object > .console__item-head > .console__item-head-info {
-  display: none;
-  color: #83878c; }
-
-.console__item.object > .console__item-head_braced > .console__item-head-elements:not(:empty)::before {
-  content: '{'; }
-
-.console__item.object > .console__item-head_braced > .console__item-head-elements:not(:empty)::after {
-  content: '}'; }
-
-.object-entry__key::after {
-  content: ": ";
-  white-space: pre; }
-
-.console__item.array > .console__item-head > .console__item-head-elements:not(:empty)::before {
-  content: '['; }
-
-.console__item.array > .console__item-head > .console__item-head-elements:not(:empty)::after {
-  content: ']'; }
-
-.array-entry__key::after {
-  content: ": ";
-  white-space: pre; }
-
-.function__classifier_plain::after {
-  content: "f"; }
-
-.function__classifier_class::after {
-  content: "class"; }
 
 .console__header {
   margin: 0; }
@@ -77,39 +24,87 @@
   padding: 5px;
   background: #f8faf3; }
 
-.console__item span {
-  position: relative; }
+.console__item {
+  display: inline-block;
+  vertical-align: top; }
+  .console__item ~ .console__item {
+    margin-left: 10px; }
+  .console__item_array > .console__item-head > .console__item-head-elements-length::before {
+    content: '('; }
+  .console__item_array > .console__item-head > .console__item-head-elements-length::after {
+    content: ')'; }
+  .console__item_array > .console__item-head > .console__item-head-elements:not(:empty)::before {
+    content: '['; }
+  .console__item_array > .console__item-head > .console__item-head-elements:not(:empty)::after {
+    content: ']'; }
+  .console__item_object > .console__item-head_braced > .console__item-head-elements:not(:empty)::before {
+    content: '{'; }
+  .console__item_object > .console__item-head_braced > .console__item-head-elements:not(:empty)::after {
+    content: '}'; }
+  .console__item_function__classifier_plain::after {
+    content: "f"; }
+  .console__item_function__classifier_class::after {
+    content: "class"; }
+  .console__item_pointer .console__item_primitive,
+  .console__item_pointer .console__item-head {
+    cursor: pointer; }
 
-.console__item.undefined {
+.console__item-content {
+  display: flex;
+  flex-direction: column;
+  margin-left: 12px; }
+
+.console__item-head-elements, .console__item-head-elements-length, .console__item-head-info {
+  display: none; }
+
+.console__item-head-elements_show, .console__item-head-elements-length_show, .console__item-head_show {
+  display: inline; }
+
+.console__item-content-container {
+  display: none; }
+  .console__item-content-container_show {
+    display: block; }
+
+.entry-container_head .entry-container__entry {
+  display: inline-block; }
+  .entry-container_head .entry-container__entry:not(:first-child)::before {
+    content: ",";
+    white-space: pre; }
+
+.entry-container__key::after {
+  content: ": ";
+  white-space: pre; }
+
+.undefined {
   font-weight: bold;
   font-style: italic; }
 
-.console__item.NaN {
+.NaN {
   font-weight: bold; }
 
-.console__item.string {
+.string {
   margin: 0;
   color: green; }
-  .console__item.string::before {
+  .string::before {
     content: '"'; }
-  .console__item.string::after {
+  .string::after {
     content: '"'; }
-  .console__item.string_collapsed {
+  .string_collapsed {
     white-space: nowrap; }
 
-.console__item.number {
+.number {
   color: darkorange; }
 
-.console__item.boolean {
+.boolean {
   color: blue; }
 
-.console__item.null {
+.null {
   color: magenta; }
 
-.console__item.key {
+.key {
   color: #5bc0de; }
 
-.console__item.error {
+.error {
   color: red; }
 
 .editor-container {
