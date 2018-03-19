@@ -1,6 +1,6 @@
 /* eslint guard-for-in: "off"*/
 import TypeView from '../type-view';
-import {getElement, createTypedView} from '../utils';
+import {createTypedView} from '../utils';
 import {Mode, Class} from '../enums';
 
 export default class ObjectView extends TypeView {
@@ -12,14 +12,13 @@ export default class ObjectView extends TypeView {
   }
 
   get template() {
-    const className = Object.prototype.toString.call(this.value).slice(8, -1);
-    return `
-<div class="console__item object ${className} ${this._mode === Mode.ERROR ? `${this._mode}` : ``}">\
+    return `\
+<div class="console__item console__item_object ${this._mode === Mode.ERROR ? `${this._mode}` : ``}">\
   <div class="${Class.CONSOLE_ITEM_HEAD}">
     <span class="${Class.CONSOLE_ITEM_HEAD_INFO}">${this.value.constructor.name}</span>
-    <div class="${Class.CONSOLE_ITEM_HEAD_ELEMENTS}"></div>
+    <div class="${Class.CONSOLE_ITEM_HEAD_ELEMENTS} entry-container entry-container_head"></div>
   </div>
-  <div class="${Class.CONSOLE_ITEM_CONTENT_CONTAINTER}"></div>
+  <div class="${Class.CONSOLE_ITEM_CONTENT_CONTAINTER} entry-container"></div>
 </div>`;
   }
 
@@ -28,14 +27,13 @@ export default class ObjectView extends TypeView {
     const headElementsEl = headEl.querySelector(`.${Class.CONSOLE_ITEM_HEAD_ELEMENTS}`);
     const headInfoEl = headEl.querySelector(`.${Class.CONSOLE_ITEM_HEAD_INFO}`);
     this._contentContainerEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_CONTENT_CONTAINTER}`);
-    // headEl.appendChild(this.createContent(this.value, true));
 
-    const {elOrStr, isShowConstructor, isShowElements, isBraced} = this._getHeadContent();
+    const {elOrStr, isShowConstructor, isShowElements, isBraced, isOpeningDisabled} = this._getHeadContent();
     if (isBraced) {
       headEl.classList.add(Class.CONSOLE_ITEM_HEAD_BRACED);
     }
     if (isShowConstructor) {
-      headInfoEl.style.display = `inline`;
+      headInfoEl.classList.add(Class.CONSOLE_ITEM_HEAD_SHOW);
     }
     if (isShowElements) {
       if (elOrStr instanceof HTMLElement || elOrStr instanceof DocumentFragment) {
@@ -43,34 +41,14 @@ export default class ObjectView extends TypeView {
       } else {
         headElementsEl.innerHTML = elOrStr;
       }
+      headElementsEl.classList.add(Class.CONSOLE_ITEM_HEAD_ELEMENTS_SHOW);
     }
     if (this._mode === Mode.PREVIEW || this._mode === Mode.ERROR) {
       return;
     }
-
-    headEl.addEventListener(`click`, () => {
-      if (this._isOpened) {
-        this._hideContent();
-      } else {
-        this._showContent();
-      }
-      this._isOpened = !this._isOpened;
-    });
-  }
-
-  _showContent() {
-    if (!this._proxiedContentEl) {
-      this._proxiedContentEl = getElement(`<div class="console__item-content"></div>`);
-      this._proxiedContentEl.appendChild(this.createContent(this.value, false));
-      this._contentContainerEl.appendChild(this._proxiedContentEl);
-      this._displayVal = this._proxiedContentEl.style.display;
+    if (!isOpeningDisabled) {
+      this._setHeadClickHandler(headEl);
     }
-
-    this._proxiedContentEl.style.display = this._displayVal;
-  }
-
-  _hideContent() {
-    this._proxiedContentEl.style.display = `none`;
   }
 
   _getHeadContent() {
@@ -101,14 +79,12 @@ export default class ObjectView extends TypeView {
     let val;
     let isShowConstructor = false;
     let isBraced = true;
-    if (Object.prototype.toString.call(this.value) === `[object Object]`) {
-      val = this.createContent(this.value, true);
-      if (this.value.constructor !== Object) {
-        isShowConstructor = true;
-      }
-    } else if (this.value instanceof HTMLElement) {
+    let isOpeningDisabled = false;
+
+    if (this.value instanceof HTMLElement) {
       return this._getHeadDirContent();
     } else if (this.value instanceof Error) {
+      isBraced = false;
       val = this.value.stack;
     } else if (this.value instanceof Number) {
       const view = createTypedView(Number.parseInt(this.value, 10), Mode.PREVIEW);
@@ -121,9 +97,15 @@ export default class ObjectView extends TypeView {
     } else if (this.value instanceof Date) {
       val = this.value.toString();
       isBraced = false;
+    } else if (this.value instanceof RegExp) {
+      val = `/${this.value.source}/${this.value.flags}`;
+      isOpeningDisabled = true;
+      isBraced = false;
     } else {
       val = this.createContent(this.value, true);
-      isShowConstructor = true;
+      if (this.value.constructor !== Object) {
+        isShowConstructor = true;
+      }
     }
     // else if (this.value.constructor === GeneratorFunction) {
     //   return this
@@ -132,17 +114,11 @@ export default class ObjectView extends TypeView {
       elOrStr: val,
       isShowConstructor,
       isShowElements: true,
-      isBraced
+      isBraced,
+      isOpeningDisabled
     };
   }
-  _getHeadErrorContent() {
 
-    return {
-      elOrStr: `<pre>${this.value.stack}</pre>`,
-      isShowConstructor: false,
-      isShowElements: true
-    };
-  }
   _getHeadDirContent() {
     let val;
     let isShowConstructor = false;
@@ -157,6 +133,8 @@ export default class ObjectView extends TypeView {
       val = str;
     } else if (this.value instanceof Date) {
       val = this.value.toString();
+    } else if (this.value instanceof RegExp) {
+      val = `/${this.value.source}/${this.value.flags}`;
     } else if (this.value instanceof Error) {
       val = this.value.stack;
     } else {
@@ -196,16 +174,5 @@ export default class ObjectView extends TypeView {
       fragment.appendChild(entryEl);
     }
     return fragment;
-  }
-
-  static createEntryEl(key, valueEl) {
-    const entryEl = getElement(`\
-<span class="object__entry object-entry">
-  <span class="object-entry__key">${key}</span><span class="object-entry__value-container"></span>
-</span>`);
-    const valueContEl = entryEl.querySelector(`.object-entry__value-container`);
-    valueContEl.appendChild(valueEl);
-
-    return entryEl;
   }
 }

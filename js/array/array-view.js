@@ -1,11 +1,10 @@
 import TypeView from '../type-view';
-import {getElement, createTypedView} from '../utils';
+import {createTypedView} from '../utils';
 import {Mode, Class} from '../enums';
 
 export default class ArrayView extends TypeView {
   constructor(arr, mode) {
     super(arr, `array`, false);
-    this._arr = arr;
     this._mode = mode;
     this._elements = new Map();
     this._isOpened = false;
@@ -13,49 +12,78 @@ export default class ArrayView extends TypeView {
 
   get template() {
     return `\
-<div class="console__item array">
+<div class="console__item console__item_array">
   <div class="${Class.CONSOLE_ITEM_HEAD}">
-    <div class="${Class.CONSOLE_ITEM_HEAD_INFO}">
-      ${this._mode === Mode.PREVIEW || this._mode === Mode.DIR ? `${this._arr.constructor.name}(${this._arr.length})` : `(${this._arr.length})`}
-    </div>
-    <div class="${Class.CONSOLE_ITEM_HEAD_ELEMENTS}"></div>
+    <span class="${Class.CONSOLE_ITEM_HEAD_INFO}">${this.value.constructor.name}</span>
+    <span class="${Class.CONSOLE_ITEM_HEAD_ELEMENTS_LENGTH}">${this.value.length}</span>
+    <div class="${Class.CONSOLE_ITEM_HEAD_ELEMENTS} entry-container entry-container_head"></div>
   </div>
-  <div class="${Class.CONSOLE_ITEM_CONTENT_CONTAINTER}"></div>
+  <div class="${Class.CONSOLE_ITEM_CONTENT_CONTAINTER} entry-container"></div>
 </div>`;
   }
 
   bind() {
+    this._contentContainerEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_CONTENT_CONTAINTER}`);
+    this.headEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_HEAD}`);
+    this.headInfoEl = this.headEl.querySelector(`.${Class.CONSOLE_ITEM_HEAD_INFO}`);
+    this.headElementsEl = this.headEl.querySelector(`.${Class.CONSOLE_ITEM_HEAD_ELEMENTS}`);
+    this.headElementsLengthEl = this.headEl.querySelector(`.${Class.CONSOLE_ITEM_HEAD_ELEMENTS_LENGTH}`);
+    const {isShowConstructor, isShowElements, isShowLength} = this._getHeadContent();
+    if (isShowConstructor) {
+      this._toggleConstructor(this.headInfoEl, true);
+    }
+    if (isShowElements) {
+      this.headElementsEl.appendChild(this.createContent(this.value, true));
+      this._toggleHeadElements(this.headElementsEl, true);
+    }
+    if (isShowLength) {
+      this._toggleLength(this.headElementsLengthEl, true);
+    }
     if (this._mode === Mode.PREVIEW) {
       return;
     }
-    this._contentContainerEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_CONTENT_CONTAINTER}`);
-    const previewEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_HEAD}`);
-    const headElementsEl = previewEl.querySelector(`.${Class.CONSOLE_ITEM_HEAD_ELEMENTS}`);
-    if (this._mode !== Mode.DIR) {
-      headElementsEl.appendChild(this.createContent(this.value, true));
-    }
-    previewEl.addEventListener(`click`, () => {
-      if (this._isOpened) {
-        this._hideContent();
-      } else {
-        this._showContent();
-      }
-      this._isOpened = !this._isOpened;
-    });
+    this._setHeadClickHandler(this.headEl);
   }
 
-  _showContent() {
-    if (!this._proxiedContentEl) {
-      this._proxiedContentEl = getElement(`<div class="console__item-content"></div>`);
-      this._proxiedContentEl.appendChild(this.createContent(this.value, false));
-      this._contentContainerEl.appendChild(this._proxiedContentEl);
-      this._displayVal = this._proxiedContentEl.style.display;
+  _additionHeadClickHandler() {
+    if (this._mode === Mode.PROP) {
+      this._toggleConstructor();
+      this._toggleHeadElements();
     }
-    this._proxiedContentEl.style.display = this._displayVal;
   }
 
-  _hideContent() {
-    this._proxiedContentEl.style.display = `none`;
+  _toggleConstructor() {
+    this.headInfoEl.classList.toggle(Class.CONSOLE_ITEM_HEAD_SHOW);
+  }
+
+  _toggleLength() {
+    this.headElementsLengthEl.classList.toggle(Class.CONSOLE_ITEM_HEAD_ELEMENTS_LENGTH_SHOW);
+  }
+
+  _toggleHeadElements() {
+    this.headElementsEl.classList.toggle(Class.CONSOLE_ITEM_HEAD_ELEMENTS_SHOW);
+  }
+
+  _getHeadContent() {
+    let isShowConstructor = false;
+    let isShowElements = true;
+    let isShowLength = this.value.length > 1;
+    if (this._mode === Mode.DIR) {
+      isShowConstructor = true;
+      isShowElements = false;
+    // } else if (this._mode === Mode.PROP) {
+    } else if (this._mode === Mode.PREVIEW) {
+      isShowConstructor = true;
+      isShowElements = false;
+      isShowLength = true;
+    } else if (this._mode === Mode.ERROR) {
+      return this._getHeadErrorContent();
+    }
+    return {
+      isShowConstructor,
+      isShowElements,
+      isShowLength
+    };
   }
 
   createContent(arr, isPreview) {
@@ -77,16 +105,5 @@ export default class ArrayView extends TypeView {
       fragment.appendChild(entryEl);
     }
     return fragment;
-  }
-
-  static createEntryEl(index, valueEl, withKey) {
-    const entryEl = getElement(`\
-<span class="array__entry array-entry">\
-  ${withKey ? `` : `<span class="array-entry__key">${index}</span>`}<span class="array-entry__value-container"></span>\
-</span>`);
-    const valueContEl = entryEl.querySelector(`.array-entry__value-container`);
-    valueContEl.appendChild(valueEl);
-
-    return entryEl;
   }
 }

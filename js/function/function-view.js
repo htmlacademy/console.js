@@ -1,5 +1,5 @@
 import TypeView from '../type-view';
-import {getElement, createTypedView} from '../utils';
+import {createTypedView} from '../utils';
 import {Mode, Class} from '../enums';
 
 const MAX_PREVIEW_FN_BODY_LENGTH = 43;
@@ -26,7 +26,7 @@ export default class FunctionView extends TypeView {
   }
 
   get template() {
-    let tpl = `<div class="console__item function">`;
+    let tpl = `<div class="console__item console__item_function">`;
     switch (this._mode) {
       case Mode.PREVIEW:
         tpl += `f`;
@@ -34,12 +34,12 @@ export default class FunctionView extends TypeView {
       case Mode.PROP:
         tpl += `\
 <div class="${Class.CONSOLE_ITEM_HEAD}">${this._getHeadPropMarkup()}</div>\
-<div class="${Class.CONSOLE_ITEM_CONTENT_CONTAINTER}"></div>`;
+<div class="${Class.CONSOLE_ITEM_CONTENT_CONTAINTER} entry-container"></div>`;
         break;
       case Mode.DIR:
         tpl += `\
 <div class="${Class.CONSOLE_ITEM_HEAD}">${this._getHeadDirMarkup()}</div>\
-<div class="${Class.CONSOLE_ITEM_CONTENT_CONTAINTER}"></div>`;
+<div class="${Class.CONSOLE_ITEM_CONTENT_CONTAINTER} entry-container"></div>`;
         break;
       case Mode.LOG:
         tpl += this._getLogMarkup();
@@ -55,32 +55,9 @@ export default class FunctionView extends TypeView {
     }
 
     this._contentContainerEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_CONTENT_CONTAINTER}`);
-    const previewEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_HEAD}`);
+    const headEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_HEAD}`);
     // previewEl.appendChild(this.createPreview(this.value, true));
-
-    previewEl.addEventListener(`click`, () => {
-      if (this._isOpened) {
-        this._hideContent();
-      } else {
-        this._showContent();
-      }
-      this._isOpened = !this._isOpened;
-    });
-  }
-
-  _showContent() {
-    if (!this._proxiedContentEl) {
-      this._proxiedContentEl = getElement(`<div class="console__item-content"></div>`);
-      this._proxiedContentEl.appendChild(this.createContent(this.value));
-      this._contentContainerEl.appendChild(this._proxiedContentEl);
-      this._displayVal = this._proxiedContentEl.style.display;
-    }
-
-    this._proxiedContentEl.style.display = this._displayVal;
-  }
-
-  _hideContent() {
-    this._proxiedContentEl.style.display = `none`;
+    this._setHeadClickHandler(headEl);
   }
 
   _getHeadPropMarkup() {
@@ -209,16 +186,5 @@ ${lines.join(`\n`)}
       fragment.appendChild(entryEl);
     }
     return fragment;
-  }
-
-  static createEntryEl(key, valueEl) {
-    const entryEl = getElement(`\
-<span class="object__entry object-entry">
-  <span class="object-entry__key">${key}</span><span class="object-entry__value-container"></span>
-</span>`);
-    const valueContEl = entryEl.querySelector(`.object-entry__value-container`);
-    valueContEl.appendChild(valueEl);
-
-    return entryEl;
   }
 }

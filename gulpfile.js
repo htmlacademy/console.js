@@ -17,8 +17,9 @@ const commonjs = require(`rollup-plugin-commonjs`);
 const rollup = require(`gulp-better-rollup`);
 const uglify = require(`gulp-uglify`);
 const sourcemaps = require(`gulp-sourcemaps`);
-const mocha = require(`gulp-mocha`);
+// const mocha = require(`gulp-mocha`);
 const debug = require(`gulp-debug`);
+const Server = require(`karma`).Server;
 
 gulp.task(`style`, () => {
   return gulp.src(`sass/style.scss`)
@@ -44,7 +45,7 @@ gulp.task(`style`, () => {
 });
 
 gulp.task(`scripts`, () => {
-  return gulp.src([`js/index.js`, `js/index-silent.js`])
+  return gulp.src([`js/index.js`, `js/index-silent.js`, `js/tests/**/*.js`])
       .pipe(debug({title: `debug`}))
       .pipe(plumber())
       .pipe(sourcemaps.init())
@@ -69,15 +70,19 @@ gulp.task(`scripts`, () => {
       .pipe(gulp.dest(`build/js`));
 });
 
-gulp.task(`test`, function () {
-  return gulp
-      .src([`js/**/*.test.js`], {
-        read: false
-      })
-      .pipe(mocha({
-        compilers: [`js:babel-register`],
-        reporter: `spec`
-      }));
+gulp.task(`test`, function (done) {
+  // return gulp
+  //     .src([`js/**/*.test.js`], {
+  //       read: false
+  //     })
+  //     .pipe(mocha({
+  //       compilers: [`js:babel-register`],
+  //       reporter: `spec`
+  //     }));
+  new Server({
+    configFile: __dirname + `/karma.conf.js`,
+    singleRun: true
+  }, done).start();
 });
 
 gulp.task(`copy-html`, () => {

@@ -8,6 +8,7 @@
   // font-family: "Menlo", "consolas", sans-serif;
   // font-size: 0.8em;
   font-family: monospace;
+  cursor: default;
 
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-tap-highlight-color: transparent;
@@ -18,152 +19,150 @@
     margin: 0;
     // font-family: "Menlo", "consolas", sans-serif;
   }
+
+  &__header {
+    margin: 0;
+  }
+
+  &__info {
+    font-size: 0.8em;
+    font-family: sans-serif;
+  }
+
+  &__row {
+    margin: 5px;
+    padding: 5px;
+
+    background: #f8faf3;
+  }
 }
 
 .console__item {
+  $parent: &;
   display: inline-block;
   vertical-align: top;
   // max-width: 100%;
+  //
 
   & ~ .console__item {
     margin-left: 10px;
   }
 
-  &-head {
-    &-elements,
-    &-info {
-      display: inline;
+  &_array {
+    & > .console__item-head {
+      & > .console__item-head-elements-length {
+        &::before {
+          content: '(';
+        }
+
+        &::after {
+          content: ')';
+        }
+      }
+      & > .console__item-head-elements:not(:empty) {
+        &::before {
+          content: '[';
+        }
+
+        &::after {
+          content: ']';
+        }
+      }
     }
   }
 
-  // &-head * {
-  //   display: inline;
-  // }
+  &_object {
+    & > .console__item-head {
+      &_braced > .console__item-head-elements:not(:empty) {
+        &::before {
+          content: '{';
+        }
 
-  &-content {
-    display: flex;
-    flex-direction: column;
-    margin-left: 12px;
+        &::after {
+          content: '}';
+        }
+      }
+    }
+  }
+
+  &_function {
+    &__classifier {
+      &_plain::after {
+        content: "f";
+      }
+
+      &_class::after {
+        content: "class";
+      }
+    }
+  }
+
+  &_pointer {
+    #{$parent}_primitive,
+    #{$parent}-head {
+      cursor: pointer;
+    }
   }
 
   &_primitive {}
 }
 
-.object__entry,
-.array__entry {
+.console__item-content {
   display: flex;
+  flex-direction: column;
+  margin-left: 12px;
 }
 
-.console__item-head .object,
-.console__item-head .array {
-  &__entry {
-    display: inline-block;
-
-    &:not(:first-child)::before {
-      content: ",";
-      white-space: pre;
-    }
-  }
-}
-
-.console__item.object > .console__item-head {
-  > .console__item-head-info {
+.console__item-head {
+  &-elements,
+  &-elements-length,
+  &-info {
     display: none;
-    color: #83878c;
   }
-  &_braced > .console__item-head-elements:not(:empty) {
-    &::before {
-      content: '{';
-    }
 
-    &::after {
-      content: '}';
-    }
+  &-elements_show,
+  &-elements-length_show,
+  &_show {
+    display: inline;
   }
 }
 
-.object-entry__key::after {
-  content: ": ";
-  white-space: pre;
-}
+.console__item-content-container {
+  display: none;
 
-.console__item.array > .console__item-head {
-  > .console__item-head-elements:not(:empty) {
-    &::before {
-      content: '[';
-    }
-
-    &::after {
-      content: ']';
-    }
+  &_show {
+    display: block;
   }
 }
 
-.array-entry__key::after {
-  content: ": ";
-  white-space: pre;
-}
+.entry-container {
+  $parent: &;
+  &_head {
+    #{$parent}__entry {
+      display: inline-block;
 
-.function {
-  &__classifier {
-    &_plain::after {
-      content: "f";
+      &:not(:first-child)::before {
+        content: ",";
+        white-space: pre;
+      }
     }
-
-    &_class::after {
-      content: "class";
-    }
+  }
+  &__key::after {
+    content: ": ";
+    white-space: pre;
   }
 }
 
-.console__header {
-  margin: 0;
-}
-
-.console__info {
-  font-size: 0.8em;
-  font-family: sans-serif;
-}
-
-.console__row {
-  margin: 5px;
-  padding: 5px;
-
-  background: #f8faf3;
-}
-
-.console__item span {
-  position: relative;
-}
-
-// .console__item span:hover::after {
-//   content: attr(class);
-//   position: absolute;
-//   z-index: 100;
-//
-//   display: inline-block;
-//   margin: -1em 0 0 8px;
-//   padding: 3px 6px;
-//
-//   font-size: .9em;
-//   vertical-align: top;
-//   font-style: italic;
-//
-//   background-color: white;
-//   border: 1px dashed;
-//   border-radius: 4px;
-// }
-
-.console__item.undefined {
+.undefined {
   font-weight: bold;
   font-style: italic;
 }
 
-.console__item.NaN {
+.NaN {
   font-weight: bold;
 }
 
-.console__item.string {
+.string {
   margin: 0;
   color: green;
 
@@ -180,23 +179,23 @@
   }
 }
 
-.console__item.number {
+.number {
   color: darkorange;
 }
 
-.console__item.boolean {
+.boolean {
   color: blue;
 }
 
-.console__item.null {
+.null {
   color: magenta;
 }
 
-.console__item.key {
+.key {
   color: #5bc0de;
 }
 
-.console__item.error {
+.error {
   color: red;
 }
 
