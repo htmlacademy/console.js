@@ -67,9 +67,11 @@
 
 .entry-container_head .entry-container__entry {
   display: inline-block; }
-  .entry-container_head .entry-container__entry:not(:first-child)::before {
-    content: ",";
-    white-space: pre; }
+  .entry-container_head .entry-container__entry:not(:last-child) {
+    margin-right: 5px; }
+    .entry-container_head .entry-container__entry:not(:last-child)::after {
+      content: ",";
+      white-space: pre; }
 
 .entry-container__key::after {
   content: ": ";
