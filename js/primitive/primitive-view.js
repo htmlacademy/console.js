@@ -1,9 +1,7 @@
 import TypeView from '../type-view';
 import {Mode} from '../enums';
 
-const Class = {
-  STRING_COLLAPSED: `string_collapsed`
-};
+const STRING_COLLAPSED = `string_collapsed`;
 
 export default class PrimitiveView extends TypeView {
   constructor(value, mode, type) {
@@ -25,29 +23,29 @@ export default class PrimitiveView extends TypeView {
       case `undefined`:
       case `null`:
       case `boolean`:
-        html = `<div class="console__item console__item_primitive ${value}">${value}</div>`;
+        html = `<div class="console__item console__item_primitive ${type}">${value}</div>`;
         break;
 
       case `number`:
-        if (isNaN(value)) {
+        if (Number.isNaN(value)) {
           html = `<div class="console__item console__item_primitive NaN">NaN</div>`;
         } else if ((value === Infinity || value === -Infinity)) {
-          html = `<div class="console__item console__item_primitive number">` + (value === -Infinity ? `-` : ``) + `Infinity</div>`;
+          html = `<div class="console__item console__item_primitive number">${(value === -Infinity ? `-` : ``)}Infinity</div>`;
         } else {
-          html = `<div class="console__item console__item_primitive ` + type + `">` + value + `</div>`;
+          html = `<div class="console__item console__item_primitive ${type}">${value}</div>`;
         }
         break;
 
       case `string`:
-        html = `<pre class="console__item console__item_primitive string ${this._mode === Mode.PROP ? Class.STRING_COLLAPSED : ``}">${value}</pre>`;
+        html = `<pre class="console__item console__item_primitive string ${this._mode === Mode.PROP ? STRING_COLLAPSED : ``}">${value}</pre>`;
         break;
       case `symbol`:
-        html = `<div class="console__item console__item_primitive ` + type + `">` + value + `</div>`;
+        html = `<div class="console__item console__item_primitive symbol">${value}</div>`;
         break;
 
       case `object`:
         if (value === null) {
-          html = `<div class="console__item console__item_primitive null">` + value + `</div>`;
+          html = `<div class="console__item console__item_primitive null">${value}</div>`;
           break;
         }
     }
@@ -59,7 +57,7 @@ export default class PrimitiveView extends TypeView {
       this._setCursorPointer();
       this.el.addEventListener(`click`, (evt) => {
         evt.preventDefault();
-        this.el.classList.toggle(Class.STRING_COLLAPSED);
+        this.el.classList.toggle(STRING_COLLAPSED);
       });
     }
   }

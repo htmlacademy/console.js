@@ -61,7 +61,7 @@ export default class FunctionView extends TypeView {
   }
 
   _getHeadPropMarkup() {
-    const {name, params, lines} = this._parseFunction(this.value);
+    const {name, params, lines} = this.parseFunction(this.value);
     const joinedLines = lines.join(`\n`);
 
     let markup = `\
@@ -79,7 +79,7 @@ ${this._fnType === FnType.ARROW ? ` => ` : ` `}`;
   }
 
   _getHeadDirMarkup() {
-    const {name, params} = this._parseFunction(this.value);
+    const {name, params} = this.parseFunction(this.value);
 
     let markup = `\
   <span>\
@@ -92,7 +92,7 @@ ${this._fnType === FnType.ARROW ? ` => ` : ` `}`;
 
   _getLogMarkup() {
     return `<pre>${this.value.toString()}</pre>`;
-    // const {name, params, lines} = this._parseFunction(this.value);
+    // const {name, params, lines} = this.parseFunction(this.value);
     /* return `\
 <pre>\
 ${this._fnType === FnType.CLASS ? `class ` : ``}\
@@ -119,7 +119,7 @@ ${lines.join(`\n`)}
     return FnType.PLAIN;
   }
 
-  _parseParams(funString) {
+  parseParams(funString) {
     const paramsStart = funString.indexOf(`(`);
     const paramsEnd = funString.indexOf(`)`);
 
@@ -128,7 +128,7 @@ ${lines.join(`\n`)}
     return paramsContent ? paramsContent.split(`,`).map((it) => it.trim()) : [];
   }
 
-  _parseName(funString) {
+  parseName(funString) {
     let endingChar;
     if (this._fnType === FnType.CLASS) {
       endingChar = `{`;
@@ -144,7 +144,7 @@ ${lines.join(`\n`)}
     return name;
   }
 
-  _parseBody(funString) {
+  parseBody(funString) {
     const bodyStart = funString.indexOf(`{`);
     const bodyEnd = funString.lastIndexOf(`}`);
 
@@ -159,15 +159,15 @@ ${lines.join(`\n`)}
     });
   }
 
-  _parseFunction(fnOrString) {
+  parseFunction(fnOrString) {
     let str;
     if (typeof fnOrString !== `string`) {
       str = fnOrString.toString();
     }
     return {
-      name: fnOrString.name, // this._parseName(str),
-      params: this._parseParams(str),
-      lines: this._parseBody(str)
+      name: fnOrString.name, // this.parseName(str),
+      params: this.parseParams(str),
+      lines: this.parseBody(str)
     };
   }
 
