@@ -35,52 +35,28 @@
 
     background: #f8faf3;
   }
+
+  &__item {
+    display: inline-block;
+    vertical-align: top;
+  }
+
+  &__item ~ &__item {
+    margin-left: 10px;
+  }
 }
 
 .console__item {
   $parent: &;
-  display: inline-block;
-  vertical-align: top;
-  // max-width: 100%;
-  //
-
-  & ~ .console__item {
-    margin-left: 10px;
-  }
 
   &_array {
-    & > .console__item-head {
-      & > .console__item-head-elements-length {
-        &::before {
-          content: '(';
-        }
-
-        &::after {
-          content: ')';
-        }
+    #{$parent}-head-elements-length {
+      &::before {
+        content: '(';
       }
-      & > .console__item-head-elements:not(:empty) {
-        &::before {
-          content: '[';
-        }
 
-        &::after {
-          content: ']';
-        }
-      }
-    }
-  }
-
-  &_object {
-    & > .console__item-head {
-      &_braced > .console__item-head-elements:not(:empty) {
-        &::before {
-          content: '{';
-        }
-
-        &::after {
-          content: '}';
-        }
+      &::after {
+        content: ')';
       }
     }
   }
@@ -148,6 +124,34 @@
           white-space: pre;
         }
       }
+    }
+  }
+
+  &_braced {
+    &#{$parent}_type_object {
+      &::before {
+        content: '{';
+      }
+
+      &::after {
+        content: '}';
+      }
+    }
+
+    &#{$parent}_type_array {
+      &::before {
+        content: '[';
+      }
+
+      &::after {
+        content: ']';
+      }
+    }
+  }
+
+  &_type_object {
+    #{$parent}__entry:not(:nth-child(-n+5)) {
+      display: none;
     }
   }
   &__key::after {

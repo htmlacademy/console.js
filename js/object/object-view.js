@@ -11,14 +11,23 @@ export default class ObjectView extends TypeView {
     this._isOpened = false;
   }
 
+  /**
+   * Шаблон
+   * @override
+   * Чтобы окружить фигурными скобками тело объекта, добавьте к элемену с классом
+   * Class.CONSOLE_ITEM_CONTENT_CONTAINTER
+   * класс
+   * Class.ENTRY_CONTAINER_BRACED
+   *
+   **/
   get template() {
     return `\
 <div class="console__item console__item_object ${this._mode === Mode.ERROR ? `${this._mode}` : ``}">\
   <div class="${Class.CONSOLE_ITEM_HEAD}">
     <span class="${Class.CONSOLE_ITEM_HEAD_INFO}">${this.value.constructor.name}</span>
-    <div class="${Class.CONSOLE_ITEM_HEAD_ELEMENTS} entry-container entry-container_head"></div>
+    <div class="${Class.CONSOLE_ITEM_HEAD_ELEMENTS} entry-container entry-container_head entry-container_type_object"></div>
   </div>
-  <div class="${Class.CONSOLE_ITEM_CONTENT_CONTAINTER} entry-container"></div>
+  <div class="${Class.CONSOLE_ITEM_CONTENT_CONTAINTER} entry-container entry-container_type_object"></div>
 </div>`;
   }
 
@@ -30,7 +39,7 @@ export default class ObjectView extends TypeView {
 
     const {elOrStr, isShowConstructor, isShowElements, isBraced, isOpeningDisabled} = this._getHeadContent();
     if (isBraced) {
-      headEl.classList.add(Class.CONSOLE_ITEM_HEAD_BRACED);
+      headElementsEl.classList.add(Class.ENTRY_CONTAINER_BRACED);
     }
     if (isShowConstructor) {
       headInfoEl.classList.add(Class.CONSOLE_ITEM_HEAD_SHOW);

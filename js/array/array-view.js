@@ -10,15 +10,24 @@ export default class ArrayView extends TypeView {
     this._isOpened = false;
   }
 
+  /**
+   * Шаблон
+   * @override
+   * Чтобы окружить квадратными скобками тело объекта, добавьте к элемену с классом
+   * Class.CONSOLE_ITEM_CONTENT_CONTAINTER
+   * класс
+   * Class.ENTRY_CONTAINER_BRACED
+   *
+   **/
   get template() {
     return `\
 <div class="console__item console__item_array">
   <div class="${Class.CONSOLE_ITEM_HEAD}">
     <span class="${Class.CONSOLE_ITEM_HEAD_INFO}">${this.value.constructor.name}</span>
     <span class="${Class.CONSOLE_ITEM_HEAD_ELEMENTS_LENGTH}">${this.value.length}</span>
-    <div class="${Class.CONSOLE_ITEM_HEAD_ELEMENTS} entry-container entry-container_head"></div>
+    <div class="${Class.CONSOLE_ITEM_HEAD_ELEMENTS} entry-container entry-container_head entry-container_braced entry-container_type_array"></div>
   </div>
-  <div class="${Class.CONSOLE_ITEM_CONTENT_CONTAINTER} entry-container"></div>
+  <div class="${Class.CONSOLE_ITEM_CONTENT_CONTAINTER} entry-container entry-container_type_array"></div>
 </div>`;
   }
 
