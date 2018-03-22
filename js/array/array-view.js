@@ -21,7 +21,7 @@ export default class ArrayView extends TypeView {
    **/
   get template() {
     return `\
-<div class="console__item console__item_array">
+<div class="console__item item item_array">
   <div class="${Class.CONSOLE_ITEM_HEAD}">
     <span class="${Class.CONSOLE_ITEM_HEAD_INFO}">${this.value.constructor.name}</span>
     <span class="${Class.CONSOLE_ITEM_HEAD_ELEMENTS_LENGTH}">${this.value.length}</span>

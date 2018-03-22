@@ -22,7 +22,7 @@ export default class ObjectView extends TypeView {
    **/
   get template() {
     return `\
-<div class="console__item console__item_object ${this._mode === Mode.ERROR ? `${this._mode}` : ``}">\
+<div class="console__item item item_object ${this._mode === Mode.ERROR ? `${this._mode}` : ``}">\
   <div class="${Class.CONSOLE_ITEM_HEAD}">
     <span class="${Class.CONSOLE_ITEM_HEAD_INFO}">${this.value.constructor.name}</span>
     <div class="${Class.CONSOLE_ITEM_HEAD_ELEMENTS} entry-container entry-container_head entry-container_type_object"></div>
