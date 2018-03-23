@@ -1,4 +1,4 @@
-import jsConsoleInit from './main';
+import Console from './main';
 
 const CSS_URL = `//htmlacademy.github.io/console.js/css/style.css`;
 
@@ -28,7 +28,7 @@ window.console.dir = collectDirs;
 const init = function () {
   const div = window.document.createElement(`div`);
   div.classList.add(`console`);
-  const jsConsole = jsConsoleInit(div);
+  const jsConsole = new Console(div);
   window.document.body.appendChild(div);
 
   jsConsole.extend(window.console);

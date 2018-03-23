@@ -1,11 +1,10 @@
 import TypeView from '../type-view';
-import {createTypedView} from '../utils';
+// import {createTypedView} from '../utils';
 import {Mode, Class} from '../enums';
 
 export default class ArrayView extends TypeView {
-  constructor(arr, mode) {
-    super(arr, `array`, false);
-    this._mode = mode;
+  constructor({val, mode}, consoleExemplar) {
+    super({val, mode}, consoleExemplar);
     this._elements = new Map();
     this._isOpened = false;
   }
@@ -106,7 +105,7 @@ export default class ArrayView extends TypeView {
       if (isPreview && indexInKeys === -1) {
         continue;
       }
-      const view = createTypedView(value, isPreview ? Mode.PREVIEW : Mode.PROP);
+      const view = this._consoleExemplar.createTypedView(value, isPreview ? Mode.PREVIEW : Mode.PROP);
       const entryEl = ArrayView.createEntryEl(key, view.el, isPreview ? !isKeyNaN : isPreview);
       // if (!isPreview) {
       //   this._elements.set(entryEl, view);

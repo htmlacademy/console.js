@@ -1,3 +1,3 @@
-import jsConsoleInit from './main';
+import Console from './main';
 
-window.jsConsole = jsConsoleInit(document.querySelector(`.console`));
+window.jsConsole = new Console(document.querySelector(`.console`));

@@ -1,8 +1,10 @@
 /* eslint no-undefined: 0 */
 
 // import FunctionView from '../function/function-view';
-import {createTypedView} from '../utils';
+import Console from '../main';
 import {Mode} from '../enums';
+
+const cons = new Console(document.body);
 
 // declare consts here
 //
@@ -94,20 +96,20 @@ describe(`Check primitives: `, () => {
   const defaultMode = Mode.LOG;
   it(`any primitive has class "item_primitive"`, () => {
     const primitiveEls = [
-      createTypedView(str1, defaultMode).el,
-      createTypedView(primitiveNumber, defaultMode).el,
-      createTypedView(sym, defaultMode).el,
-      createTypedView(NaN, defaultMode).el,
-      createTypedView(null, defaultMode).el,
-      createTypedView(true, defaultMode).el,
-      createTypedView(undefined, defaultMode).el
+      cons.createTypedView(str1, defaultMode).el,
+      cons.createTypedView(primitiveNumber, defaultMode).el,
+      cons.createTypedView(sym, defaultMode).el,
+      cons.createTypedView(NaN, defaultMode).el,
+      cons.createTypedView(null, defaultMode).el,
+      cons.createTypedView(true, defaultMode).el,
+      cons.createTypedView(undefined, defaultMode).el
     ];
     assert(primitiveEls.every((el) => {
       return el.classList.contains(`item_primitive`);
     }));
   });
   it(`string`, () => {
-    const el = createTypedView(str1, defaultMode).el;
+    const el = cons.createTypedView(str1, defaultMode).el;
     assert(
         el.classList.contains(`item_primitive`) &&
         el.classList.contains(`string`) &&
@@ -115,7 +117,7 @@ describe(`Check primitives: `, () => {
     );
   });
   it(`string prop mode`, () => {
-    const el = createTypedView(str1, Mode.PROP).el;
+    const el = cons.createTypedView(str1, Mode.PROP).el;
     assert(
         el.classList.contains(`item_primitive`) &&
         el.classList.contains(`string`) &&
@@ -124,7 +126,7 @@ describe(`Check primitives: `, () => {
     );
   });
   it(`multiline string`, () => {
-    const el = createTypedView(str2, defaultMode).el;
+    const el = cons.createTypedView(str2, defaultMode).el;
     assert(
         el.classList.contains(`item_primitive`) &&
         el.classList.contains(`string`) &&
@@ -132,7 +134,7 @@ describe(`Check primitives: `, () => {
     );
   });
   it(`number`, () => {
-    const el = createTypedView(primitiveNumber, defaultMode).el;
+    const el = cons.createTypedView(primitiveNumber, defaultMode).el;
     assert(
         el.classList.contains(`item_primitive`) &&
         el.classList.contains(`number`) &&
@@ -140,7 +142,7 @@ describe(`Check primitives: `, () => {
     );
   });
   it(`symbol`, () => {
-    const el = createTypedView(sym, defaultMode).el;
+    const el = cons.createTypedView(sym, defaultMode).el;
     assert(
         el.classList.contains(`item_primitive`) &&
         el.classList.contains(`symbol`) &&
@@ -148,7 +150,7 @@ describe(`Check primitives: `, () => {
     );
   });
   it(`NaN`, () => {
-    const el = createTypedView(NaN, defaultMode).el;
+    const el = cons.createTypedView(NaN, defaultMode).el;
     assert(
         el.classList.contains(`item_primitive`) &&
         el.classList.contains(`NaN`) &&
@@ -156,7 +158,7 @@ describe(`Check primitives: `, () => {
     );
   });
   it(`null`, () => {
-    const el = createTypedView(null, defaultMode).el;
+    const el = cons.createTypedView(null, defaultMode).el;
     assert(
         el.classList.contains(`item_primitive`) &&
         el.classList.contains(`null`) &&
@@ -164,7 +166,7 @@ describe(`Check primitives: `, () => {
     );
   });
   it(`boolean`, () => {
-    const el = createTypedView(true, defaultMode).el;
+    const el = cons.createTypedView(true, defaultMode).el;
     assert(
         el.classList.contains(`item_primitive`) &&
         el.classList.contains(`boolean`) &&
@@ -172,7 +174,7 @@ describe(`Check primitives: `, () => {
     );
   });
   it(`undefined`, () => {
-    const el = createTypedView(undefined, defaultMode).el;
+    const el = cons.createTypedView(undefined, defaultMode).el;
     assert(
         el.classList.contains(`item_primitive`) &&
         el.classList.contains(`undefined`) &&
@@ -183,11 +185,11 @@ describe(`Check primitives: `, () => {
 
 // describe(`Check functions: `, () => {
 //   const fnEls = [
-//     createTypedView(arrowFn1, Mode.PREVIEW).el,
-//     createTypedView(plainFn, Mode.PREVIEW).el,
-//     createTypedView(exprFn, Mode.PREVIEW).el,
-//     createTypedView(exprNamedFn, Mode.PREVIEW).el,
-//     createTypedView(Person, Mode.PREVIEW).el
+//     cons.createTypedView(arrowFn1, Mode.PREVIEW).el,
+//     cons.createTypedView(plainFn, Mode.PREVIEW).el,
+//     cons.createTypedView(exprFn, Mode.PREVIEW).el,
+//     cons.createTypedView(exprNamedFn, Mode.PREVIEW).el,
+//     cons.createTypedView(Person, Mode.PREVIEW).el
 //   ];
 //   it(`any function has class "item_function"`, () => {
 //     assert(fnEls.every((el) => {
@@ -201,8 +203,8 @@ describe(`Check primitives: `, () => {
 //   });
 //   it(`class dir and prop`, () => {
 //     const classEls = [
-//       createTypedView(Person, Mode.DIR).el,
-//       createTypedView(Person, Mode.PROP).el
+//       cons.createTypedView(Person, Mode.DIR).el,
+//       cons.createTypedView(Person, Mode.PROP).el
 //     ];
 //     assert(classEls.every((el) => {
 //       return el.textContent.startsWith(`class ${Person.name}`);

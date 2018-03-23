@@ -3,11 +3,11 @@ import {getElement} from './utils';
 import {Class} from './enums';
 
 export default class TypeView extends AbstractView {
-  constructor(value, type, isPrimitive) {
+  constructor({val, mode}, consoleExemplar) {
     super();
-    this._value = value;
-    this._type = type;
-    this._isPrimitive = isPrimitive;
+    this._value = val;
+    this._mode = mode;
+    this._consoleExemplar = consoleExemplar;
     this._isOpened = false;
   }
 
@@ -15,12 +15,8 @@ export default class TypeView extends AbstractView {
     return this._value;
   }
 
-  get type() {
-    return this._type;
-  }
-
-  get isPrimitive() {
-    return this._isPrimitive;
+  get mode() {
+    return this._mode;
   }
 
   _getHeadErrorContent() {

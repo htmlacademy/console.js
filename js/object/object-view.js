@@ -1,14 +1,13 @@
 /* eslint guard-for-in: "off"*/
 import TypeView from '../type-view';
-import {createTypedView} from '../utils';
+// import {createTypedView} from '../utils';
 import {Mode, Class} from '../enums';
 
 const MAX_HEAD_ELEMENTS_LENGTH = 5;
 
 export default class ObjectView extends TypeView {
-  constructor(value, mode) {
-    super(value, `object`, false);
-    this._mode = mode;
+  constructor({val, mode}, consoleExemplar) {
+    super({val, mode}, consoleExemplar);
     this._entries = new Map();
     this._isOpened = false;
   }
@@ -108,11 +107,11 @@ export default class ObjectView extends TypeView {
       val = this.value.toString();
       isStringified = true;
     } else if (this.value instanceof Number) {
-      const view = createTypedView(Number.parseInt(this.value, 10), Mode.PREVIEW);
+      const view = this._consoleExemplar.createTypedView(Number.parseInt(this.value, 10), Mode.PREVIEW);
       val = view.el;
       isShowConstructor = true;
     } else if (this.value instanceof String) {
-      const view = createTypedView(this.value.toString(), Mode.PREVIEW);
+      const view = this._consoleExemplar.createTypedView(this.value.toString(), Mode.PREVIEW);
       val = view.el;
       isShowConstructor = true;
     } else if (this.value instanceof Date) {
@@ -189,7 +188,7 @@ export default class ObjectView extends TypeView {
         };
       }
       const value = obj[key];
-      const view = createTypedView(value, isPreview ? Mode.PREVIEW : Mode.PROP);
+      const view = this._consoleExemplar.createTypedView(value, isPreview ? Mode.PREVIEW : Mode.PROP);
       const entryEl = ObjectView.createEntryEl(key, view.el);
       fragment.appendChild(entryEl);
     }
@@ -205,7 +204,7 @@ export default class ObjectView extends TypeView {
         };
       }
       const value = obj[key];
-      const view = createTypedView(value, isPreview ? Mode.PREVIEW : Mode.PROP);
+      const view = this._consoleExemplar.createTypedView(value, isPreview ? Mode.PREVIEW : Mode.PROP);
       const entryEl = ObjectView.createEntryEl(key, view.el);
       fragment.appendChild(entryEl);
     }

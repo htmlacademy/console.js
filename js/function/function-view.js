@@ -1,5 +1,4 @@
 import TypeView from '../type-view';
-import {createTypedView} from '../utils';
 import {Mode, Class} from '../enums';
 
 const MAX_PREVIEW_FN_BODY_LENGTH = 43;
@@ -18,11 +17,11 @@ const FnType = {
 // если именнованная — то имя ф-ии
 
 export default class FunctionView extends TypeView {
-  constructor(fn, mode) {
-    super(fn, `function`, false);
+  constructor({val, mode}, consoleExemplar) {
+    super({val, mode}, consoleExemplar);
     this._mode = mode;
     this._isOpened = false;
-    this._fnType = FunctionView.checkFnType(fn);
+    this._fnType = FunctionView.checkFnType(val);
   }
 
   get template() {
@@ -182,7 +181,7 @@ ${lines.join(`\n`)}
       } catch (err) {
         continue;
       }
-      const view = createTypedView(value, Mode.DIR);
+      const view = this._consoleExemplar.createTypedView(value, Mode.DIR);
       const entryEl = FunctionView.createEntryEl(key, view.el);
       fragment.appendChild(entryEl);
     }

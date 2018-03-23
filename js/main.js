@@ -1,80 +1,148 @@
-// import babelPolyfill from 'babel-polyfill';
-// import whatwgFetch from 'whatwg-fetch';
-import {getElement, createTypedView} from './utils';
-
-const Mode = {
-  LOG: `log`,
-  DIR: `dir`,
-  PREVIEW: `preview`,
-  ERROR: `error`
-};
-
-const getRowEl = (entries, mode) => {
-  const el = getElement(`<div class="console__row"></div>`);
-  entries.forEach(function (code) {
-    el.appendChild(createTypedView(code, mode).el);
-  });
-  return el;
-};
+import ObjectView from './object/object-view';
+import ArrayView from './array/array-view';
+import FunctionView from './function/function-view';
+import PrimitiveView from './primitive/primitive-view';
+import {getElement} from './utils';
+import {Mode} from './enums';
 
 /**
- * Init Console
- *
- * @param {HTMLElement} cont — console container
- * @return {{log: log}}
+ * Console
+ * @class
  */
-const jsConsoleInit = (cont) => {
-  if (!cont) {
-    throw Error(`Console is not inited!`);
+export default class Console {
+  /**
+   * Initialize console into container
+   * @param {HTMLElement} container — console container
+   * @param {{}} params — parameters
+   * @property {number} params.expandFields — min number of fields in obj to expand
+   * @property {number} params.expandDepth — level of depth to expand
+   **/
+  constructor(container, params) {
+    if (!container) {
+      throw new Error(`Console is not inited!`);
+    }
+    this._container = container;
+    if (params &&
+    typeof params.expandFields === `number` &&
+    typeof params.expandDepth === `number`) {
+      this._expandFields = params.expandFields;
+      this._expandDepth = params.expandDepth;
+    }
   }
 
-  // Public interface
-  const logger = {};
+  /**
+   * Subscribe on log event fired
+   * @abstract
+   **/
+  onlog() {}
 
   /**
-   * Show formatted & highlighted code into `cont`
+   * Subscribe on dir event fired
+   * @abstract
+   **/
+  ondir() {}
+
+  /**
+   * Subscribe on error event fired
+   * @abstract
+   **/
+  onerror() {}
+
+  /**
+   * Equivalent to console.log
+   * Push rest of arguments into container
    */
-  logger.log = function (...rest) {
-    cont.appendChild(getRowEl(rest, Mode.LOG));
+  log(...rest) {
+    this._container.appendChild(this._getRowEl(rest, Mode.LOG));
+    this.onlog();
+  }
 
-    if (typeof logger.onlog === `function`) {
-      logger.onlog(rest);
-    }
-  };
-
-  logger.error = function (errOrSmth) {
+  /**
+   * Equivalent to console.error
+   * Push single value into conainer
+   * @param {*} val — value
+   */
+  error(val) {
     const el = getElement(`<div class="console__row console__row_error"></div>`);
-    el.appendChild(createTypedView(errOrSmth, Mode.ERROR).el);
-    cont.appendChild(el);
-  };
+    el.appendChild(this.createTypedView(val, Mode.ERROR).el);
+    this._container.appendChild(el);
+    this.onerror();
+  }
 
-  logger.clean = function () {
-    cont.innerHTML = ``;
-  };
-
-  logger.getLogSource = function () {
-    return cont.innerHTML;
-  };
-
-  logger.dir = function (val) {
+  /**
+   * Equivalent to console.dir
+   * Push single value into conainer
+   * @param {*} val — value
+   */
+  dir(val) {
     const el = getElement(`<div class="console__row"></div>`);
-    el.appendChild(createTypedView(val, Mode.DIR).el);
-    cont.appendChild(el);
-  };
+    el.appendChild(this.createTypedView(val, Mode.DIR).el);
+    this._container.appendChild(el);
+    this.ondir();
+  }
 
-  logger.extend = function (consoleObject) {
-    consoleObject.log = logger.log;
-    consoleObject.info = logger.log;
+  /**
+   * Clean container
+   */
+  clean() {
+    this._container.innerHTML = ``;
+  }
 
-    consoleObject.error = logger.error;
-    consoleObject.warn = logger.error;
+  createTypedView(val, mode) {
+    const params = {val, mode, type: typeof val};
+    let view;
+    switch (params.type) {
+      case `function`:
+        view = new FunctionView(params, this);
+        break;
+      case `object`:
+        if (val !== null) {
+          if (Array.isArray(val)) {
+            view = new ArrayView(params, this);
+          } else {
+            view = new ObjectView(params, this);
+          }
+        } else {
+          view = new PrimitiveView(params, this);
+        }
+        break;
+      default:
+        view = new PrimitiveView(params, this);
+        break;
+    }
+    return view;
+  }
 
-    consoleObject.dir = logger.dir;
+  _getRowEl(entries, mode) {
+    const el = getElement(`<div class="console__row"></div>`);
+    entries.forEach((val) => {
+      el.appendChild(this.createTypedView(val, mode).el);
+    });
+    return el;
+  }
+
+  /**
+   * get innerHTML of container
+   */
+  get sourceLog() {
+    return this._container.innerHTML;
+  }
+
+  /**
+   * Extend console
+   * @static
+   * @param {{}} consoleObject
+   * @return {{}} extended console
+   */
+  static extend(consoleObject) {
+    consoleObject.log = this.log;
+    consoleObject.info = this.log;
+
+    consoleObject.error = this.error;
+    consoleObject.warn = this.error;
+
+    consoleObject.dir = this.dir;
 
     return consoleObject;
-  };
-
-  return logger;
-};
-
-export default jsConsoleInit;
+  }
+}
