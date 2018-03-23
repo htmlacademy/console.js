@@ -185,6 +185,6 @@ ${lines.join(`\n`)}
       const entryEl = FunctionView.createEntryEl(key, view.el);
       fragment.appendChild(entryEl);
     }
-    return fragment;
+    return {fragment};
   }
 }

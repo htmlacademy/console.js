@@ -99,6 +99,7 @@ asddsd`;
       const ab = new ArrayBuffer();
 
       jsConsole.log('log —------------------------------------');
+      jsConsole.log(window);
       jsConsole.log(undefined);
       jsConsole.log(NaN);
       jsConsole.log(null);
@@ -199,7 +200,7 @@ asddsd`;
       }
 
       jsConsole.log('dir —------------------------------------');
-
+      jsConsole.dir(window);
       jsConsole.dir(undefined);
       jsConsole.dir(NaN);
       jsConsole.dir(null);

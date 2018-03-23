@@ -42,7 +42,7 @@ export default class ArrayView extends TypeView {
       this._toggleConstructor(this.headInfoEl, true);
     }
     if (isShowElements) {
-      this.headElementsEl.appendChild(this.createContent(this.value, true));
+      this.headElementsEl.appendChild(this.createContent(this.value, true).fragment);
       this._toggleHeadElements(this.headElementsEl, true);
     }
     if (isShowLength) {
@@ -113,6 +113,6 @@ export default class ArrayView extends TypeView {
       // }
       fragment.appendChild(entryEl);
     }
-    return fragment;
+    return {fragment};
   }
 }

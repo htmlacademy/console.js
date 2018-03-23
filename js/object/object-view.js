@@ -3,6 +3,8 @@ import TypeView from '../type-view';
 import {createTypedView} from '../utils';
 import {Mode, Class} from '../enums';
 
+const MAX_HEAD_ELEMENTS_LENGTH = 5;
+
 export default class ObjectView extends TypeView {
   constructor(value, mode) {
     super(value, `object`, false);
@@ -37,9 +39,12 @@ export default class ObjectView extends TypeView {
     const headInfoEl = headEl.querySelector(`.${Class.CONSOLE_ITEM_HEAD_INFO}`);
     this._contentContainerEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_CONTENT_CONTAINTER}`);
 
-    const {elOrStr, isShowConstructor, isShowElements, isBraced, isOpeningDisabled} = this._getHeadContent();
+    const {elOrStr, isShowConstructor, isShowElements, isBraced, isOpeningDisabled, isOversize} = this._getHeadContent();
     if (isBraced) {
       headElementsEl.classList.add(Class.ENTRY_CONTAINER_BRACED);
+    }
+    if (isOversize) {
+      headElementsEl.classList.add(Class.ENTRY_CONTAINER_OVERSIZE);
     }
     if (isShowConstructor) {
       headInfoEl.classList.add(Class.CONSOLE_ITEM_HEAD_SHOW);
@@ -89,6 +94,7 @@ export default class ObjectView extends TypeView {
     let isShowConstructor = false;
     let isBraced = true;
     let isOpeningDisabled = false;
+    let isOversize = false;
 
     if (this.value instanceof HTMLElement) {
       return this._getHeadDirContent();
@@ -111,7 +117,9 @@ export default class ObjectView extends TypeView {
       isOpeningDisabled = true;
       isBraced = false;
     } else {
-      val = this.createContent(this.value, true);
+      const obj = this.createContent(this.value, true);
+      val = obj.fragment;
+      isOversize = obj.isOversize;
       if (this.value.constructor !== Object) {
         isShowConstructor = true;
       }
@@ -124,7 +132,8 @@ export default class ObjectView extends TypeView {
       isShowConstructor,
       isShowElements: true,
       isBraced,
-      isOpeningDisabled
+      isOpeningDisabled,
+      isOversize
     };
   }
 
@@ -168,6 +177,12 @@ export default class ObjectView extends TypeView {
     // TODO: Добавить счётчик, чтобы больше 5 значений не добавлялось
     for (let key in obj) {
       keys.add(key);
+      if (isPreview && keys.size === MAX_HEAD_ELEMENTS_LENGTH) {
+        return {
+          fragment,
+          isOversize: true
+        };
+      }
       const value = obj[key];
       const view = createTypedView(value, isPreview ? Mode.PREVIEW : Mode.PROP);
       const entryEl = ObjectView.createEntryEl(key, view.el);
@@ -177,11 +192,21 @@ export default class ObjectView extends TypeView {
       if (keys.has(key)) {
         continue;
       }
+      keys.add(key);
+      if (isPreview && keys.size === MAX_HEAD_ELEMENTS_LENGTH) {
+        return {
+          fragment,
+          isOversize: true
+        };
+      }
       const value = obj[key];
       const view = createTypedView(value, isPreview ? Mode.PREVIEW : Mode.PROP);
       const entryEl = ObjectView.createEntryEl(key, view.el);
       fragment.appendChild(entryEl);
     }
-    return fragment;
+    return {
+      fragment,
+      isOversize: false
+    };
   }
 }

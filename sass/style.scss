@@ -125,12 +125,6 @@
         }
       }
     }
-
-    &#{$parent}_type_object {
-      #{$parent}__entry:not(:nth-child(-n+5)) {
-        display: none;
-      }
-    }
   }
 
   &_braced {
@@ -143,9 +137,18 @@
         content: '}';
       }
 
-      // &#{$parent}_oversize::after {
-      //   content: '... }';
-      // }
+      &#{$parent}_oversize {
+        #{$parent}__entry:last-child {
+          margin-right: 5px;
+          &::after {
+            content: ",";
+            white-space: pre;
+          }
+        }
+        &::after {
+          content: '...}';
+        }
+      }
     }
 
     &#{$parent}_type_array {
