@@ -24,7 +24,7 @@ export default class ObjectView extends TypeView {
    **/
   get template() {
     return `\
-<div class="console__item item item_object ${this._mode === Mode.ERROR ? `${this._mode}` : ``}">\
+<div class="console__item item item_object">\
   <div class="${Class.CONSOLE_ITEM_HEAD}">
     <span class="${Class.CONSOLE_ITEM_HEAD_INFO}">${this.value.constructor.name}</span>
     <div class="${Class.CONSOLE_ITEM_HEAD_ELEMENTS} entry-container entry-container_head entry-container_type_object"></div>
@@ -39,7 +39,7 @@ export default class ObjectView extends TypeView {
     const headInfoEl = headEl.querySelector(`.${Class.CONSOLE_ITEM_HEAD_INFO}`);
     this._contentContainerEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_CONTENT_CONTAINTER}`);
 
-    const {elOrStr, isShowConstructor, isShowElements, isBraced, isOpeningDisabled, isOversize} = this._getHeadContent();
+    const {elOrStr, isShowConstructor, isShowElements, isBraced, isOpeningDisabled, isOversize, isStringified} = this._getHeadContent();
     if (isBraced) {
       headElementsEl.classList.add(Class.ENTRY_CONTAINER_BRACED);
     }
@@ -57,7 +57,12 @@ export default class ObjectView extends TypeView {
       }
       headElementsEl.classList.add(Class.CONSOLE_ITEM_HEAD_ELEMENTS_SHOW);
     }
-    if (this._mode === Mode.PREVIEW || this._mode === Mode.ERROR) {
+
+    if (this._mode === Mode.ERROR && isStringified) {
+      this.el.classList.add(this._mode);
+    }
+
+    if (this._mode === Mode.PREVIEW) {
       return;
     }
     if (!isOpeningDisabled) {
@@ -68,12 +73,10 @@ export default class ObjectView extends TypeView {
   _getHeadContent() {
     if (this._mode === Mode.DIR) {
       return this._getHeadDirContent();
-    } else if (this._mode === Mode.LOG || this._mode === Mode.PROP) {
+    } else if (this._mode === Mode.LOG || this._mode === Mode.PROP || this._mode === Mode.ERROR) {
       return this._getHeadLogContent();
     } else if (this._mode === Mode.PREVIEW) {
       return this._getHeadPreviewContent();
-    } else if (this._mode === Mode.ERROR) {
-      return this._getHeadErrorContent();
     }
     return ``;
   }
@@ -89,18 +92,21 @@ export default class ObjectView extends TypeView {
     }
     return this._getHeadDirContent();
   }
+
   _getHeadLogContent() {
     let val;
     let isShowConstructor = false;
     let isBraced = true;
     let isOpeningDisabled = false;
     let isOversize = false;
+    let isStringified = false;
 
     if (this.value instanceof HTMLElement) {
       return this._getHeadDirContent();
     } else if (this.value instanceof Error) {
       isBraced = false;
-      val = this.value.stack;
+      val = this.value.toString();
+      isStringified = true;
     } else if (this.value instanceof Number) {
       const view = createTypedView(Number.parseInt(this.value, 10), Mode.PREVIEW);
       val = view.el;
@@ -111,6 +117,7 @@ export default class ObjectView extends TypeView {
       isShowConstructor = true;
     } else if (this.value instanceof Date) {
       val = this.value.toString();
+      isStringified = true;
       isBraced = false;
     } else if (this.value instanceof RegExp) {
       val = `/${this.value.source}/${this.value.flags}`;
@@ -124,16 +131,14 @@ export default class ObjectView extends TypeView {
         isShowConstructor = true;
       }
     }
-    // else if (this.value.constructor === GeneratorFunction) {
-    //   return this
-    // }
     return {
       elOrStr: val,
       isShowConstructor,
       isShowElements: true,
       isBraced,
       isOpeningDisabled,
-      isOversize
+      isOversize,
+      isStringified
     };
   }
 
@@ -154,7 +159,8 @@ export default class ObjectView extends TypeView {
     } else if (this.value instanceof RegExp) {
       val = `/${this.value.source}/${this.value.flags}`;
     } else if (this.value instanceof Error) {
-      val = this.value.stack;
+      console.log(`kek`);
+    //   val = this.value.toString();
     } else {
       val = this.value;
       isShowConstructor = true;

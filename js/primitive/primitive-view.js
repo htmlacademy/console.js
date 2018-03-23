@@ -37,7 +37,7 @@ export default class PrimitiveView extends TypeView {
         break;
 
       case `string`:
-        html = `<pre class="console__item item item_primitive string ${this._mode === Mode.PROP ? STRING_COLLAPSED : ``}">${value}</pre>`;
+        html = `<pre class="console__item item item_primitive string ${this._mode === Mode.PROP ? STRING_COLLAPSED : ``} ${this._mode === Mode.ERROR ? `${this._mode}` : ``}">${value}</pre>`;
         break;
       case `symbol`:
         html = `<div class="console__item item item_primitive symbol">${value}</div>`;

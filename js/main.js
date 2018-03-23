@@ -43,12 +43,8 @@ const jsConsoleInit = (cont) => {
   };
 
   logger.error = function (errOrSmth) {
-    const el = getElement(`<div class="console__row"></div>`);
-    if (errOrSmth instanceof Error) {
-      el.appendChild(createTypedView(errOrSmth, Mode.ERROR).el);
-    } else {
-      el.appendChild(createTypedView(new Error(errOrSmth), Mode.ERROR).el);
-    }
+    const el = getElement(`<div class="console__row console__row_error"></div>`);
+    el.appendChild(createTypedView(errOrSmth, Mode.ERROR).el);
     cont.appendChild(el);
   };
 
@@ -60,14 +56,10 @@ const jsConsoleInit = (cont) => {
     return cont.innerHTML;
   };
 
-  logger.dir = function (val, ...rest) {
-    // cont.appendChild(getRowEl(val, Mode.DIR));
+  logger.dir = function (val) {
     const el = getElement(`<div class="console__row"></div>`);
     el.appendChild(createTypedView(val, Mode.DIR).el);
     cont.appendChild(el);
-    if (typeof logger.onlog === `function`) {
-      logger.onlog(rest);
-    }
   };
 
   logger.extend = function (consoleObject) {
@@ -85,5 +77,4 @@ const jsConsoleInit = (cont) => {
   return logger;
 };
 
-// window.jsConsoleInit = jsConsoleInit;
 export default jsConsoleInit;

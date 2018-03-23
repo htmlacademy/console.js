@@ -25,7 +25,7 @@ export default class TypeView extends AbstractView {
 
   _getHeadErrorContent() {
     return {
-      elOrStr: `<pre>${this._value.stack}</pre>`,
+      elOrStr: this._value.toString(),
       isShowConstructor: false,
       isShowElements: true
     };

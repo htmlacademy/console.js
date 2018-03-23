@@ -3,20 +3,27 @@ import jsConsoleInit from './main';
 const CSS_URL = `//htmlacademy.github.io/console.js/css/style.css`;
 
 const errors = [];
-const collectErr = function (...rest) {
-  errors.push(rest);
+const collectErr = function (evt) {
+  errors.push(evt.error);
 };
-window.onerror = collectErr;
+window.addEventListener(`error`, collectErr);
 window.console.warn = collectErr;
 window.console.error = collectErr;
 
 const messages = [];
-const collectMsg = function (...rest) {
+const collectLogs = function (...rest) {
   messages.push(...rest);
 };
-window.console.info = collectMsg;
-window.console.log = collectMsg;
-window.console.debug = collectMsg;
+
+const dirs = [];
+const collectDirs = (val) => {
+  dirs.push(val);
+};
+
+window.console.info = collectLogs;
+window.console.log = collectLogs;
+window.console.dir = collectDirs;
+// window.console.debug = collectMsg;
 
 const init = function () {
   const div = window.document.createElement(`div`);
@@ -26,11 +33,14 @@ const init = function () {
 
   jsConsole.extend(window.console);
 
-  errors.forEach(function (args) {
-    jsConsole.error(jsConsole, ...args);
+  errors.forEach(function (err) {
+    jsConsole.error(err);
   });
-  messages.forEach(function (args) {
-    jsConsole.log(jsConsole, ...args);
+  messages.forEach(function (val) {
+    jsConsole.log(val);
+  });
+  dirs.forEach((val) => {
+    jsConsole.dir(val);
   });
   window.addEventListener(`error`, (evt) => {
     jsConsole.error(evt.error);

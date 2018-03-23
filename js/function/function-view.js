@@ -26,7 +26,7 @@ export default class FunctionView extends TypeView {
   }
 
   get template() {
-    let tpl = `<div class="console__item item item_function">`;
+    let tpl = `<div class="console__item item item_function ${this._mode === Mode.ERROR ? `${this._mode}` : ``}">`;
     switch (this._mode) {
       case Mode.PREVIEW:
         tpl += `f`;
@@ -42,6 +42,7 @@ export default class FunctionView extends TypeView {
 <div class="${Class.CONSOLE_ITEM_CONTENT_CONTAINTER} entry-container"></div>`;
         break;
       case Mode.LOG:
+      case Mode.ERROR:
         tpl += this._getLogMarkup();
         break;
     }

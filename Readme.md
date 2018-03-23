@@ -27,14 +27,12 @@ Chrome-like вывод консоли
 
 ### Автоподключение
 
-Необходимо подключить скрипт `https://htmlacademy.github.io/console.js/js/index-silent.js` ,
-файл стилей `https://htmlacademy.github.io/console.js/css/style.css`.
+Необходимо подключить скрипт `https://htmlacademy.github.io/console.js/js/index-silent.js`
 
 После выполнения автоматически создастся контейнер, в который будет производиться вывод,
 а вывод будет доступен используя `window.console`
 
 ```html
-<style> @import url('//htmlacademy.github.io/console.js/css/style.css'); </style>
 <script src="//htmlacademy.github.io/console.js/js/index-silent.js"></script>
 
 <script>
