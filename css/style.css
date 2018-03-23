@@ -22,6 +22,7 @@
 .console__row {
   margin: 5px;
   padding: 5px;
+  overflow: auto;
   background: #f8faf3; }
   .console__row_error {
     background-color: #ff00001a; }
