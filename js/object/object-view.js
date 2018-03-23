@@ -159,8 +159,7 @@ export default class ObjectView extends TypeView {
     } else if (this.value instanceof RegExp) {
       val = `/${this.value.source}/${this.value.flags}`;
     } else if (this.value instanceof Error) {
-      console.log(`kek`);
-    //   val = this.value.toString();
+      val = this.value.toString();
     } else {
       val = this.value;
       isShowConstructor = true;
