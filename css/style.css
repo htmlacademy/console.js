@@ -23,6 +23,8 @@
   margin: 5px;
   padding: 5px;
   background: #f8faf3; }
+  .console__row_error {
+    background-color: #ff00001a; }
 
 .console__item {
   display: inline-block;
