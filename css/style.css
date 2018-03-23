@@ -27,42 +27,40 @@
 .console__item {
   display: inline-block;
   vertical-align: top; }
-  .console__item ~ .console__item {
-    margin-left: 10px; }
-  .console__item_array > .console__item-head > .console__item-head-elements-length::before {
-    content: '('; }
-  .console__item_array > .console__item-head > .console__item-head-elements-length::after {
-    content: ')'; }
-  .console__item_array > .console__item-head > .console__item-head-elements:not(:empty)::before {
-    content: '['; }
-  .console__item_array > .console__item-head > .console__item-head-elements:not(:empty)::after {
-    content: ']'; }
-  .console__item_object > .console__item-head_braced > .console__item-head-elements:not(:empty)::before {
-    content: '{'; }
-  .console__item_object > .console__item-head_braced > .console__item-head-elements:not(:empty)::after {
-    content: '}'; }
-  .console__item_function__classifier_plain::after {
-    content: "f"; }
-  .console__item_function__classifier_class::after {
-    content: "class"; }
-  .console__item_pointer .console__item_primitive,
-  .console__item_pointer .console__item-head {
-    cursor: pointer; }
 
-.console__item-content {
+.console__item ~ .console__item {
+  margin-left: 10px; }
+
+.item_array .item-head-elements-length::before {
+  content: '('; }
+
+.item_array .item-head-elements-length::after {
+  content: ')'; }
+
+.item_function__classifier_plain::after {
+  content: "f"; }
+
+.item_function__classifier_class::after {
+  content: "class"; }
+
+.item_pointer .item_primitive,
+.item_pointer .item-head {
+  cursor: pointer; }
+
+.item-content {
   display: flex;
   flex-direction: column;
   margin-left: 12px; }
 
-.console__item-head-elements, .console__item-head-elements-length, .console__item-head-info {
+.item-head-elements, .item-head-elements-length, .item-head-info {
   display: none; }
 
-.console__item-head-elements_show, .console__item-head-elements-length_show, .console__item-head_show {
+.item-head-elements_show, .item-head-elements-length_show, .item-head_show {
   display: inline; }
 
-.console__item-content-container {
+.item-content-container {
   display: none; }
-  .console__item-content-container_show {
+  .item-content-container_show {
     display: block; }
 
 .entry-container_head .entry-container__entry {
@@ -72,6 +70,27 @@
     .entry-container_head .entry-container__entry:not(:last-child)::after {
       content: ",";
       white-space: pre; }
+
+.entry-container_braced.entry-container_type_object::before {
+  content: '{'; }
+
+.entry-container_braced.entry-container_type_object::after {
+  content: '}'; }
+
+.entry-container_braced.entry-container_type_object.entry-container_oversize .entry-container__entry:last-child {
+  margin-right: 5px; }
+  .entry-container_braced.entry-container_type_object.entry-container_oversize .entry-container__entry:last-child::after {
+    content: ",";
+    white-space: pre; }
+
+.entry-container_braced.entry-container_type_object.entry-container_oversize::after {
+  content: '...}'; }
+
+.entry-container_braced.entry-container_type_array::before {
+  content: '['; }
+
+.entry-container_braced.entry-container_type_array::after {
+  content: ']'; }
 
 .entry-container__key::after {
   content: ": ";
