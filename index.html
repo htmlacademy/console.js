@@ -45,6 +45,8 @@ asddsd`;
       }
 
       const fn = (bar = 123) => {console.log(456); return 123;};
+      fn.kek = 123;
+      fn.obj = s1;
       const fn1 = (bar = 123) => {'sssssssssssssssssssssssssssssssssssssssss'};
       const fn2 = (bar = 123) => {'sssssssssssssssssssssssssssssssssssssssssss'};
       function test (bar456 = 123) {console.log(456); return 123;}
@@ -100,7 +102,7 @@ asddsd`;
 
       jsConsole.log('log —------------------------------------');
       jsConsole.log('123', '456')
-      jsConsole.log(window);
+      // jsConsole.log(window);
       jsConsole.log(undefined);
       jsConsole.log(NaN);
       jsConsole.log(null);
@@ -201,7 +203,7 @@ asddsd`;
       // }
 
       jsConsole.log('dir —------------------------------------');
-      jsConsole.dir(window);
+      // jsConsole.dir(window);
       jsConsole.dir(undefined);
       jsConsole.dir(NaN);
       jsConsole.dir(null);

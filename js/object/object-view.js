@@ -1,13 +1,16 @@
 /* eslint guard-for-in: "off"*/
 import TypeView from '../type-view';
 // import {createTypedView} from '../utils';
-import {Mode, Class} from '../enums';
+import {Mode, Class, ViewType} from '../enums';
 
-const MAX_HEAD_ELEMENTS_LENGTH = 5;
 
 export default class ObjectView extends TypeView {
-  constructor({val, mode}, consoleExemplar) {
-    super({val, mode}, consoleExemplar);
+  constructor(params, cons) {
+    super(params, cons);
+    if (!params.parentView) {
+      this._rootViewType = ViewType.OBJECT;
+    }
+    this._viewType = ViewType.OBJECT;
     this._entries = new Map();
     this._isOpened = false;
   }
@@ -65,6 +68,9 @@ export default class ObjectView extends TypeView {
       return;
     }
     if (!isOpeningDisabled) {
+      if (this._isAutoExpandNeeded) {
+        this._toggleContent();
+      }
       this._setHeadClickHandler(headEl);
     }
   }
@@ -107,11 +113,11 @@ export default class ObjectView extends TypeView {
       val = this.value.toString();
       isStringified = true;
     } else if (this.value instanceof Number) {
-      const view = this._consoleExemplar.createTypedView(Number.parseInt(this.value, 10), Mode.PREVIEW);
+      const view = this._console.createTypedView(Number.parseInt(this.value, 10), Mode.PREVIEW, this.nextNestingLevel, this);
       val = view.el;
       isShowConstructor = true;
     } else if (this.value instanceof String) {
-      const view = this._consoleExemplar.createTypedView(this.value.toString(), Mode.PREVIEW);
+      const view = this._console.createTypedView(this.value.toString(), Mode.PREVIEW, this.nextNestingLevel, this);
       val = view.el;
       isShowConstructor = true;
     } else if (this.value instanceof Date) {
@@ -177,40 +183,42 @@ export default class ObjectView extends TypeView {
 
   createContent(obj, isPreview) {
     const fragment = document.createDocumentFragment();
-    const keys = new Set();
+    const keys = Object.keys(obj);
+    const addedKeys = new Set();
     // TODO: Добавить счётчик, чтобы больше 5 значений не добавлялось
-    for (let key in obj) {
-      keys.add(key);
-      if (isPreview && keys.size === MAX_HEAD_ELEMENTS_LENGTH) {
+    for (let key of keys) {
+      if (isPreview && addedKeys.size === this._console.params[this._viewType].maxFieldsInHead) {
         return {
           fragment,
           isOversize: true
         };
       }
-      const value = obj[key];
-      const view = this._consoleExemplar.createTypedView(value, isPreview ? Mode.PREVIEW : Mode.PROP);
-      const entryEl = ObjectView.createEntryEl(key, view.el);
-      fragment.appendChild(entryEl);
+      addedKeys.add(key);
+      const val = obj[key];
+      fragment.appendChild(this._createObjectEntryEl(key, val, isPreview));
     }
     for (let key of Object.getOwnPropertyNames(obj)) {
-      if (keys.has(key)) {
+      if (addedKeys.has(key)) {
         continue;
       }
-      keys.add(key);
-      if (isPreview && keys.size === MAX_HEAD_ELEMENTS_LENGTH) {
+      if (isPreview && addedKeys.size === this._console.params[this._viewType].maxFieldsInHead) {
         return {
           fragment,
           isOversize: true
         };
       }
-      const value = obj[key];
-      const view = this._consoleExemplar.createTypedView(value, isPreview ? Mode.PREVIEW : Mode.PROP);
-      const entryEl = ObjectView.createEntryEl(key, view.el);
-      fragment.appendChild(entryEl);
+      addedKeys.add(key);
+      const val = obj[key];
+      fragment.appendChild(this._createObjectEntryEl(key, val, isPreview));
     }
     return {
       fragment,
       isOversize: false
     };
+  }
+
+  _createObjectEntryEl(key, val, isPreview) {
+    const view = this._console.createTypedView(val, isPreview ? Mode.PREVIEW : Mode.PROP, this.nextNestingLevel, this);
+    return ObjectView.createEntryEl(key, view.el);
   }
 }

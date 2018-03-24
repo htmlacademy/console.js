@@ -6,6 +6,13 @@ export const Mode = {
   ERROR: `error`
 };
 
+export const ViewType = {
+  FUNCTION: `function`,
+  OBJECT: `object`,
+  ARRAY: `array`,
+  PRIMITIVE: `primitive`
+};
+
 export const Class = {
   CONSOLE_ITEM_HEAD: `item-head`,
   CONSOLE_ITEM_POINTER: `item_pointer`,

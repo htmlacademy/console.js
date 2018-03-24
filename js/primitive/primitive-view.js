@@ -1,12 +1,12 @@
 import TypeView from '../type-view';
-import {Mode} from '../enums';
+import {Mode, ViewType} from '../enums';
 
 const STRING_COLLAPSED = `string_collapsed`;
 
 export default class PrimitiveView extends TypeView {
-  constructor({val, mode, type}, consoleExemplar) {
-    super({val, mode}, consoleExemplar);
-    this._type = type;
+  constructor(params, cons) {
+    super(params, cons);
+    this._viewType = ViewType.PRIMITIVE;
   }
 
   get template() {

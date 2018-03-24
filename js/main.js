@@ -5,6 +5,8 @@ import PrimitiveView from './primitive/primitive-view';
 import {getElement} from './utils';
 import {Mode} from './enums';
 
+const MAX_HEAD_ELEMENTS_LENGTH = 5;
+
 /**
  * Console
  * @class
@@ -14,20 +16,48 @@ export default class Console {
    * Initialize console into container
    * @param {HTMLElement} container — console container
    * @param {{}} params — parameters
-   * @property {number} params.expandFields — min number of fields in obj to expand
+   * @property {number} params.minFieldsToExpand — min number of fields in obj to expand
+   * @property {number} params.maxFieldsInHead — max number of preview fields inside head
    * @property {number} params.expandDepth — level of depth to expand
    **/
-  constructor(container, params) {
+  constructor(container, params = {}) {
     if (!container) {
       throw new Error(`Console is not inited!`);
     }
     this._container = container;
-    if (params &&
-    typeof params.expandFields === `number` &&
-    typeof params.expandDepth === `number`) {
-      this._expandFields = params.expandFields;
-      this._expandDepth = params.expandDepth;
+    this.params = {
+      object: this._parseParams(params.object, `object`),
+      array: this._parseParams(params.array, `array`),
+      function: this._parseParams(params.function, `function`)
+    };
+  }
+
+  _parseParams(paramsObject, paramName) {
+    if (paramsObject) {
+      // Set this._expandDepth and this._minFieldsToExpand only if expandDepth provided and > 0
+      if (typeof paramsObject.expandDepth === `number` &&
+      paramsObject.expandDepth > 0) {
+
+        paramsObject.minFieldsToExpand = (
+          typeof paramsObject.minFieldsToExpand === `number` &&
+          paramsObject.minFieldsToExpand > 0
+        ) ? paramsObject.minFieldsToExpand : 0;
+      }
+
+      paramsObject.maxFieldsInHead = (
+        typeof paramsObject.maxFieldsInHead === `number` &&
+        paramsObject.maxFieldsInHead > 0
+      ) ? paramsObject.maxFieldsInHead : MAX_HEAD_ELEMENTS_LENGTH;
+    } else {
+      paramsObject = {};
+      if (paramName === `object`) {
+        paramsObject.maxFieldsInHead = MAX_HEAD_ELEMENTS_LENGTH;
+      }
     }
+    if (!Array.isArray(paramsObject.exclude)) {
+      paramsObject.exclude = [];
+    }
+    return paramsObject;
   }
 
   /**
@@ -88,8 +118,8 @@ export default class Console {
     this._container.innerHTML = ``;
   }
 
-  createTypedView(val, mode) {
-    const params = {val, mode, type: typeof val};
+  createTypedView(val, mode, depth, parentView) {
+    const params = {val, mode, depth, parentView, type: typeof val};
     let view;
     switch (params.type) {
       case `function`:

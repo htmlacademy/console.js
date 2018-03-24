@@ -3,12 +3,21 @@ import {getElement} from './utils';
 import {Class} from './enums';
 
 export default class TypeView extends AbstractView {
-  constructor({val, mode}, consoleExemplar) {
+  constructor(params, cons) {
     super();
-    this._value = val;
-    this._mode = mode;
-    this._consoleExemplar = consoleExemplar;
+    if (params.parentView) {
+      this._parentView = params.parentView;
+      this._rootViewType = params.parentView._rootViewType;
+    }
+    this._viewType = null;
+    this._console = cons;
+    this._value = params.val;
+    this._mode = params.mode;
+    this._type = params.type;
     this._isOpened = false;
+
+    this._currentDepth = typeof params.depth === `number` ? params.depth : 1;
+
   }
 
   get value() {
@@ -17,6 +26,27 @@ export default class TypeView extends AbstractView {
 
   get mode() {
     return this._mode;
+  }
+
+  get nextNestingLevel() {
+    return this._currentDepth + 1;
+  }
+
+  get _isAutoExpandNeeded() {
+    let rootFieldsMoreThanNeed = false;
+    if (this._parentView && this._parentView._isAutoExpandNeeded) {
+      rootFieldsMoreThanNeed = true;
+    } else if (Object.keys(this.value).length >= // Object.getOwnPropertyNames
+    this._console.params[this._rootViewType].minFieldsToExpand) {
+      rootFieldsMoreThanNeed = true;
+    }
+    if (this._viewType !== null &&
+    this._currentDepth <= this._console.params[this._rootViewType].expandDepth &&
+    rootFieldsMoreThanNeed &&
+    !this._console.params[this._rootViewType].exclude.includes(this._viewType)) {
+      return true;
+    }
+    return false;
   }
 
   _getHeadErrorContent() {

@@ -1,5 +1,5 @@
 import TypeView from '../type-view';
-import {Mode, Class} from '../enums';
+import {Mode, Class, ViewType} from '../enums';
 
 const MAX_PREVIEW_FN_BODY_LENGTH = 43;
 
@@ -17,11 +17,14 @@ const FnType = {
 // если именнованная — то имя ф-ии
 
 export default class FunctionView extends TypeView {
-  constructor({val, mode}, consoleExemplar) {
-    super({val, mode}, consoleExemplar);
-    this._mode = mode;
+  constructor(params, cons) {
+    super(params, cons);
+    if (!params.parentView) {
+      this._rootViewType = ViewType.FUNCTION;
+    }
+    this._viewType = ViewType.FUNCTION;
     this._isOpened = false;
-    this._fnType = FunctionView.checkFnType(val);
+    this._fnType = FunctionView.checkFnType(this.value);
   }
 
   get template() {
@@ -57,6 +60,9 @@ export default class FunctionView extends TypeView {
     this._contentContainerEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_CONTENT_CONTAINTER}`);
     const headEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_HEAD}`);
     // previewEl.appendChild(this.createPreview(this.value, true));
+    if (this._isAutoExpandNeeded) {
+      this._toggleContent();
+    }
     this._setHeadClickHandler(headEl);
   }
 
@@ -173,7 +179,8 @@ ${lines.join(`\n`)}
 
   createContent(fn) {
     const fragment = document.createDocumentFragment();
-    const keys = [`name`, `prototype`, `caller`, `arguments`, `length`, `__proto__`];
+    const fnKeys = [`name`, `prototype`, `caller`, `arguments`, `length`, `__proto__`];
+    const keys = Object.keys(fn).concat(fnKeys);
     for (let key of keys) {
       let value;
       try {
@@ -181,7 +188,7 @@ ${lines.join(`\n`)}
       } catch (err) {
         continue;
       }
-      const view = this._consoleExemplar.createTypedView(value, Mode.DIR);
+      const view = this._console.createTypedView(value, Mode.PROP, this.nextNestingLevel, this);
       const entryEl = FunctionView.createEntryEl(key, view.el);
       fragment.appendChild(entryEl);
     }
