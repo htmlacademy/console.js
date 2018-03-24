@@ -33,20 +33,22 @@ export default class TypeView extends AbstractView {
   }
 
   get _isAutoExpandNeeded() {
-    let rootFieldsMoreThanNeed = false;
-    if (this._parentView && this._parentView._isAutoExpandNeeded) {
-      rootFieldsMoreThanNeed = true;
-    } else if (Object.keys(this.value).length >= // Object.getOwnPropertyNames
-    this._console.params[this._rootViewType].minFieldsToExpand) {
-      rootFieldsMoreThanNeed = true;
+    if (!this._isAutoExpandNeededProxied) {
+      let rootFieldsMoreThanNeed = false;
+      if (this._parentView && this._parentView._isAutoExpandNeeded) {
+        rootFieldsMoreThanNeed = true;
+      } else if (Object.keys(this.value).length >= // Object.getOwnPropertyNames
+      this._console.params[this._rootViewType].minFieldsToExpand) {
+        rootFieldsMoreThanNeed = true;
+      }
+      if (this._viewType !== null &&
+      this._currentDepth <= this._console.params[this._rootViewType].expandDepth &&
+      rootFieldsMoreThanNeed &&
+      !this._console.params[this._rootViewType].exclude.includes(this._viewType)) {
+        this._isAutoExpandNeededProxied = true;
+      }
     }
-    if (this._viewType !== null &&
-    this._currentDepth <= this._console.params[this._rootViewType].expandDepth &&
-    rootFieldsMoreThanNeed &&
-    !this._console.params[this._rootViewType].exclude.includes(this._viewType)) {
-      return true;
-    }
-    return false;
+    return this._isAutoExpandNeededProxied;
   }
 
   _getHeadErrorContent() {
