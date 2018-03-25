@@ -17,6 +17,7 @@
 .console {
   & pre, & code {
     margin: 0;
+    // font-size: 13px;
     // font-family: "Menlo", "consolas", sans-serif;
   }
 
@@ -117,6 +118,10 @@
 
 .entry-container {
   $parent: &;
+  &__entry {
+    display: flex;
+    flex-direction: row;
+  }
   &_head {
     #{$parent}__entry {
       display: inline-block;

@@ -3,11 +3,7 @@ module.exports = function (config) {
     basePath: ``,
     frameworks: [`mocha`, `chai`],
     files: [
-      // `build/js/**/*.js`,
-      `build/js/index-silent.js`,
-      `build/js/markup.test.js`,
-      `node_modules/babel-polyfill/browser.js`,
-      // `node_modules/babel-polyfill/dist/polyfill.js`,
+      `build/js/tests/**/*.test.js`,
     ],
     browsers: [`ChromeHeadless`],
     customLaunchers: {

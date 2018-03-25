@@ -184,7 +184,12 @@ ${lines.join(`\n`)}
     for (let key of keys) {
       let value;
       try {
-        value = fn[key];
+        const tempValue = fn[key];
+        if (typeof tempValue !== `undefined`) {
+          value = tempValue;
+        } else {
+          continue;
+        }
       } catch (err) {
         continue;
       }

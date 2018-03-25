@@ -61,7 +61,7 @@ export default class TypeView extends AbstractView {
 
   _toggleContent() {
     if (!this._proxiedContentEl) {
-      this._proxiedContentEl = getElement(`<div class="console__item item-content"></div>`);
+      this._proxiedContentEl = getElement(`<div class="item-content entry-container entry-container_type_${this._viewType}"></div>`);
       this._proxiedContentEl.appendChild(this.createContent(this.value, false).fragment);
       this._contentContainerEl.appendChild(this._proxiedContentEl);
     }

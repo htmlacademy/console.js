@@ -30,7 +30,7 @@ export default class ArrayView extends TypeView {
     <span class="${Class.CONSOLE_ITEM_HEAD_ELEMENTS_LENGTH}">${this.value.length}</span>
     <div class="${Class.CONSOLE_ITEM_HEAD_ELEMENTS} entry-container entry-container_head entry-container_braced entry-container_type_array"></div>
   </div>
-  <div class="${Class.CONSOLE_ITEM_CONTENT_CONTAINTER} entry-container entry-container_type_array"></div>
+  <div class="${Class.CONSOLE_ITEM_CONTENT_CONTAINTER}"></div>
 </div>`;
   }
 

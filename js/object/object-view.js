@@ -31,7 +31,7 @@ export default class ObjectView extends TypeView {
     <span class="${Class.CONSOLE_ITEM_HEAD_INFO}">${this.value.constructor.name}</span>
     <div class="${Class.CONSOLE_ITEM_HEAD_ELEMENTS} entry-container entry-container_head entry-container_type_object"></div>
   </div>
-  <div class="${Class.CONSOLE_ITEM_CONTENT_CONTAINTER} entry-container entry-container_type_object"></div>
+  <div class="${Class.CONSOLE_ITEM_CONTENT_CONTAINTER}"></div>
 </div>`;
   }
 
@@ -195,7 +195,9 @@ export default class ObjectView extends TypeView {
       }
       addedKeys.add(key);
       const val = obj[key];
-      fragment.appendChild(this._createObjectEntryEl(key, val, isPreview));
+      try {
+        fragment.appendChild(this._createObjectEntryEl(key, val, isPreview));
+      } catch (err) {}
     }
     for (let key of Object.getOwnPropertyNames(obj)) {
       if (addedKeys.has(key)) {
@@ -209,7 +211,9 @@ export default class ObjectView extends TypeView {
       }
       addedKeys.add(key);
       const val = obj[key];
-      fragment.appendChild(this._createObjectEntryEl(key, val, isPreview));
+      try {
+        fragment.appendChild(this._createObjectEntryEl(key, val, isPreview));
+      } catch (err) {}
     }
     return {
       fragment,

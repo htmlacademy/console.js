@@ -3,7 +3,7 @@ import ArrayView from './array/array-view';
 import FunctionView from './function/function-view';
 import PrimitiveView from './primitive/primitive-view';
 import {getElement} from './utils';
-import {Mode} from './enums';
+import {Mode, ViewType} from './enums';
 
 const MAX_HEAD_ELEMENTS_LENGTH = 5;
 
@@ -56,6 +56,15 @@ export default class Console {
     }
     if (!Array.isArray(paramsObject.exclude)) {
       paramsObject.exclude = [];
+    } else {
+      const availableTypes = [];
+      for (let key in ViewType) {
+        const type = ViewType[key];
+        availableTypes.push(type);
+      }
+      if (!paramsObject.exclude.every((type) => availableTypes.includes(type))) {
+        throw new Error(`Provided type to exclude is not in available types`);
+      }
     }
     return paramsObject;
   }

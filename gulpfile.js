@@ -44,8 +44,8 @@ gulp.task(`style`, () => {
       .pipe(gulp.dest(`build/css`));
 });
 
-gulp.task(`scripts`, () => {
-  return gulp.src([`js/index.js`, `js/index-silent.js`, `js/tests/**/*.js`])
+gulp.task(`build-scripts`, () => {
+  return gulp.src([`js/index.js`, `js/index-silent.js`])
       .pipe(debug({title: `debug`}))
       .pipe(plumber())
       .pipe(sourcemaps.init())
@@ -55,7 +55,7 @@ gulp.task(`scripts`, () => {
           commonjs(),
           babel({
             babelrc: false,
-            exclude: `node_modules/**`,
+            exclude: [`node_modules/**`, `js/tests/**`],
             presets: [
               [`env`, {modules: false}]
             ],
@@ -68,6 +68,16 @@ gulp.task(`scripts`, () => {
       .pipe(uglify())
       .pipe(sourcemaps.write(``))
       .pipe(gulp.dest(`build/js`));
+});
+
+gulp.task(`build-tests`, () => {
+  return gulp.src([`js/tests/**/*.js`])
+      .pipe(debug({title: `debug`}))
+      .pipe(plumber())
+      .pipe(sourcemaps.init())
+      .pipe(rollup({}, `iife`))
+      .pipe(sourcemaps.write(``))
+      .pipe(gulp.dest(`build/js/tests`));
 });
 
 gulp.task(`test`, function (done) {
@@ -85,13 +95,21 @@ gulp.task(`test`, function (done) {
   }, done).start();
 });
 
+gulp.task(`test:noerror`, function (done) {
+  const handleErr = () => done();
+  new Server({
+    configFile: __dirname + `/karma.conf.js`,
+    singleRun: true
+  }, handleErr).start();
+});
+
 gulp.task(`copy-html`, () => {
   return gulp.src(`*.{html,ico}`)
       .pipe(gulp.dest(`build`))
       .pipe(server.stream());
 });
 
-gulp.task(`copy`, gulp.series(`copy-html`, `scripts`, `style`, () => {
+gulp.task(`copy`, gulp.series(`copy-html`, `build-scripts`, `build-tests`, `style`, () => {
   return gulp.src([
     `fonts/**/*.{woff,woff2}`,
     `img/*.*`
@@ -116,7 +134,7 @@ gulp.task(`clean`, () => {
   return del(`build`);
 });
 
-gulp.task(`js-watch`, gulp.series(`scripts`, (done) => {
+gulp.task(`js-watch`, gulp.series(`build-scripts`, `build-tests`, (done) => {
   server.reload();
   done();
 }));
@@ -141,4 +159,13 @@ gulp.task(`serve`, gulp.series(`assemble`, () => {
   gulp.watch(`js/**/*.js`, gulp.series(`js-watch`));
 }));
 
+gulp.task(`test-watch`, gulp.series(`assemble`, `test:noerror`, () => {
+  gulp.watch(`sass/**/*.{scss,sass}`, gulp.series(`style`));
+  gulp.watch(`*.html`).on(`change`, (e) => {
+    if (e.type !== `deleted`) {
+      gulp.series(`copy-html`);
+    }
+  });
+  gulp.watch(`js/**/*.js`, gulp.series(`build-scripts`, `build-tests`, `test:noerror`));
+}));
 gulp.task(`build`, gulp.series(`assemble`, `imagemin`));

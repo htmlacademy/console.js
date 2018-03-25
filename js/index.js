@@ -1,17 +1,16 @@
 import Console from './main';
+import {ViewType} from "./enums";
 
 window.jsConsole = new Console(document.querySelector(`.console`), {
   object: {
-    expandDepth: 2,
-    minFieldsToExpand: 1,
-    maxFieldsInHead: 2,
-    exclude: [`function`, `array`]
+    maxFieldsInHead: 2
   },
-  function: {
-    expandDepth: 1
-  },
-  array: {
-    expandDepth: 2,
-    minFieldsToExpand: 4
-  }
+  // function: {
+  //   expandDepth: 2,
+  //   exclude: [ViewType.OBJECT, ViewType.ARRAY]
+  // },
+  // array: {
+  //   expandDepth: 2,
+  //   exclude: [ViewType.OBJECT, ViewType.FUNCTION]
+  // }
 });
