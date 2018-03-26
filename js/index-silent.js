@@ -1,6 +1,9 @@
 import Console from './main';
 
-const CSS_URL = `//htmlacademy.github.io/console.js/css/style.css`;
+const CSS = {
+  normalize: `//htmlacademy.github.io/console.js/css/normalize.css`,
+  style: `//htmlacademy.github.io/console.js/css/style.css`
+};
 
 const errors = [];
 const collectErr = function (evt) {
@@ -48,10 +51,15 @@ const init = function () {
 };
 
 const loadStyles = function () {
-  const link = window.document.createElement(`link`);
-  link.rel = `stylesheet`;
-  link.href = CSS_URL;
-  window.document.head.appendChild(link);
+  const style = window.document.createElement(`link`);
+  style.rel = `stylesheet`;
+  style.href = CSS.normalize;
+  window.document.head.appendChild(style);
+
+  const normalizeCSS = window.document.createElement(`link`);
+  normalizeCSS.rel = `stylesheet`;
+  normalizeCSS.href = CSS.style;
+  window.document.head.appendChild(normalizeCSS);
 };
 
 window.addEventListener(`DOMContentLoaded`, function () {

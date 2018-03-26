@@ -22,7 +22,7 @@ const debug = require(`gulp-debug`);
 const Server = require(`karma`).Server;
 
 gulp.task(`style`, () => {
-  return gulp.src(`sass/style.scss`)
+  return gulp.src([`sass/style.scss`, `sass/normalize.scss`])
       .pipe(plumber())
       .pipe(sass())
       .pipe(postcss([
