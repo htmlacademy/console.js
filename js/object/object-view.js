@@ -1,8 +1,8 @@
 /* eslint guard-for-in: "off"*/
+/* eslint no-empty: "off"*/
 import TypeView from '../type-view';
 // import {createTypedView} from '../utils';
 import {Mode, Class, ViewType} from '../enums';
-
 
 export default class ObjectView extends TypeView {
   constructor(params, cons) {
