@@ -1,4 +1,4 @@
-# console.js
+# console.js [![Build Status](https://travis-ci.org/htmlacademy/console.js.svg?branch=master)](https://travis-ci.org/htmlacademy/console.js)
 Chrome-like вывод консоли
 Доступны `log`, `dir`, `error`
 
