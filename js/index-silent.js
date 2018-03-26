@@ -800,13 +800,13 @@ class Console {
   }
 
   extend(consoleObject) {
-    consoleObject.log = this.log;
-    consoleObject.info = this.log;
+    consoleObject.log = this.log.bind(this);
+    consoleObject.info = this.log.bind(this);
 
-    consoleObject.error = this.error;
-    consoleObject.warn = this.error;
+    consoleObject.error = this.error.bind(this);
+    consoleObject.warn = this.error.bind(this);
 
-    consoleObject.dir = this.dir;
+    consoleObject.dir = this.dir.bind(this);
 
     return consoleObject;
   }
