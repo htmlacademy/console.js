@@ -26,20 +26,20 @@ const primitiveNumber = 123;
 //   {key2: `value2`}
 // ];
 //
-class Person {
-  constructor(val) {
-    if (val === 123) {
-      this._bar = val;
-    }
-  }
-}
-
-const arrowFn1 = (bar = 123) => {return 123;};
-const arrowFn2 = (bar = 123) => {`sssssssssssssssssssssssssssssssssssssssss`};
-const arrowFn3 = (bar = 123) => {`sssssssssssssssssssssssssssssssssssssssssss`};
-function plainFn (bar456 = 123) {return 123;}
-const exprFn = function (bar1 = 123) {return 123;}
-const exprNamedFn = function named (bar2 = 123) {return 123;}
+// class Person {
+//   constructor(val) {
+//     if (val === 123) {
+//       this._bar = val;
+//     }
+//   }
+// }
+//
+// const arrowFn1 = (bar = 123) => {return 123;};
+// const arrowFn2 = (bar = 123) => {`sssssssssssssssssssssssssssssssssssssssss`};
+// const arrowFn3 = (bar = 123) => {`sssssssssssssssssssssssssssssssssssssssssss`};
+// function plainFn (bar456 = 123) {return 123;}
+// const exprFn = function (bar1 = 123) {return 123;}
+// const exprNamedFn = function named (bar2 = 123) {return 123;}
 //
 // const num = new Number(1)
 // const date = new Date();

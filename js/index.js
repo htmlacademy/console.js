@@ -8,8 +8,8 @@ window.jsConsole = new Console(document.querySelector(`.console`), {
     exclude: [ViewType.ARRAY]
   },
   // function: {
-    // expandDepth: 2,
-    // exclude: [ViewType.OBJECT, ViewType.ARRAY]
+  //   expandDepth: 2,
+  //   exclude: [ViewType.OBJECT, ViewType.ARRAY]
   // },
   // array: {
   //   expandDepth: 2,
