@@ -952,7 +952,7 @@ class Console {
    * @param {{}} consoleObject
    * @return {{}} extended console
    */
-  static extend(consoleObject) {
+  extend(consoleObject) {
     consoleObject.log = this.log;
     consoleObject.info = this.log;
 
