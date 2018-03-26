@@ -17,14 +17,16 @@ const commonjs = require(`rollup-plugin-commonjs`);
 const rollup = require(`gulp-better-rollup`);
 const uglify = require(`gulp-uglify`);
 const sourcemaps = require(`gulp-sourcemaps`);
+const concat = require(`gulp-concat`);
 // const mocha = require(`gulp-mocha`);
 const debug = require(`gulp-debug`);
 const Server = require(`karma`).Server;
 
 gulp.task(`style`, () => {
-  return gulp.src([`sass/style.scss`, `sass/normalize.scss`])
+  return gulp.src(`sass/**/*.{css,scss,sass}`)
       .pipe(plumber())
       .pipe(sass())
+      .pipe(concat(`style.css`))
       .pipe(postcss([
         autoprefixer({
           browsers: [

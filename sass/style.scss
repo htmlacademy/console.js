@@ -5,9 +5,8 @@
   width: 100%;
   height: 100%;
 
-  // font-family: "Menlo", "consolas", sans-serif;
-  // font-size: 0.8em;
-  font-family: monospace;
+  font-size: 0.8em;
+  font-family: monospace, monospace;
   cursor: default;
 
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
@@ -17,8 +16,6 @@
 .console {
   & pre, & code {
     margin: 0;
-    // font-size: 13px;
-    // font-family: "Menlo", "consolas", sans-serif;
   }
 
   &__header {
