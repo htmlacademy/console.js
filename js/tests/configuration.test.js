@@ -161,7 +161,6 @@ class TypeView extends AbstractView {
 
 /* eslint guard-for-in: "off"*/
 /* eslint no-empty: "off"*/
-// import {createTypedView} from '../utils';
 class ObjectView extends TypeView {
   constructor(params, cons) {
     super(params, cons);
@@ -384,7 +383,6 @@ class ObjectView extends TypeView {
   }
 }
 
-// import {createTypedView} from '../utils';
 class ArrayView extends TypeView {
   constructor(params, cons) {
     super(params, cons);
