@@ -161,6 +161,7 @@ class TypeView extends AbstractView {
 
 /* eslint guard-for-in: "off"*/
 /* eslint no-empty: "off"*/
+// import {createTypedView} from '../utils';
 class ObjectView extends TypeView {
   constructor(params, cons) {
     super(params, cons);
@@ -340,10 +341,9 @@ class ObjectView extends TypeView {
 
   createContent(obj, isPreview) {
     const fragment = document.createDocumentFragment();
-    const keys = Object.keys(obj);
     const addedKeys = new Set();
     // TODO: Добавить счётчик, чтобы больше 5 значений не добавлялось
-    for (let key of keys) {
+    for (let key in obj) {
       if (isPreview && addedKeys.size === this._console.params[this._viewType].maxFieldsInHead) {
         return {
           fragment,
@@ -384,6 +384,7 @@ class ObjectView extends TypeView {
   }
 }
 
+// import {createTypedView} from '../utils';
 class ArrayView extends TypeView {
   constructor(params, cons) {
     super(params, cons);
