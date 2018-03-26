@@ -160,6 +160,7 @@ class TypeView extends AbstractView {
 }
 
 /* eslint guard-for-in: "off"*/
+/* eslint no-empty: "off"*/
 // import {createTypedView} from '../utils';
 class ObjectView extends TypeView {
   constructor(params, cons) {
@@ -838,8 +839,10 @@ class Console {
     } else {
       const availableTypes = [];
       for (let key in ViewType) {
-        const type = ViewType[key];
-        availableTypes.push(type);
+        if (ViewType.hasOwnProperty(key)) {
+          const type = ViewType[key];
+          availableTypes.push(type);
+        }
       }
       if (!paramsObject.exclude.every((type) => availableTypes.includes(type))) {
         throw new Error(`Provided type to exclude is not in available types`);
@@ -982,6 +985,28 @@ const str2 = `
   sdadsda
 asddsd`;
 const primitiveNumber = 123;
+// const currYearText = `current year: `;
+// const currYearDate = (new Date()).getFullYear();
+//
+// const arr3 = [
+//   {key1: `value1`},
+//   {key2: `value2`}
+// ];
+//
+// class Person {
+//   constructor(val) {
+//     if (val === 123) {
+//       this._bar = val;
+//     }
+//   }
+// }
+//
+// const arrowFn1 = (bar = 123) => {return 123;};
+// const arrowFn2 = (bar = 123) => {`sssssssssssssssssssssssssssssssssssssssss`};
+// const arrowFn3 = (bar = 123) => {`sssssssssssssssssssssssssssssssssssssssssss`};
+// function plainFn (bar456 = 123) {return 123;}
+// const exprFn = function (bar1 = 123) {return 123;}
+// const exprNamedFn = function named (bar2 = 123) {return 123;}
 //
 // const num = new Number(1)
 // const date = new Date();

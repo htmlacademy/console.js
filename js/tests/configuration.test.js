@@ -160,6 +160,7 @@ class TypeView extends AbstractView {
 }
 
 /* eslint guard-for-in: "off"*/
+/* eslint no-empty: "off"*/
 // import {createTypedView} from '../utils';
 class ObjectView extends TypeView {
   constructor(params, cons) {
@@ -838,8 +839,10 @@ class Console {
     } else {
       const availableTypes = [];
       for (let key in ViewType) {
-        const type = ViewType[key];
-        availableTypes.push(type);
+        if (ViewType.hasOwnProperty(key)) {
+          const type = ViewType[key];
+          availableTypes.push(type);
+        }
       }
       if (!paramsObject.exclude.every((type) => availableTypes.includes(type))) {
         throw new Error(`Provided type to exclude is not in available types`);
