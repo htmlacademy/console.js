@@ -3,37 +3,54 @@
   <head>
     <meta charset="UTF-8">
     <title>js-console example</title>
+    <script src="https://htmlacademy.github.io/console.js/js/index-silent.js"></script>
   </head>
   <body>
-    <script src="js/index-silent.js"></script>
 
     <script>
-      console.log('error ---------------------------------------------------------------------------------------------------------------');
+    var variable = 5;
 
-      console.error(undefined);
-      console.error(NaN);
-      console.error(null);
-      console.error(true);
-      console.error(100);
-      console.error(Infinity);
-      console.error(-Infinity);
+var print = function () {
+  console.log(variable);
+}
+
+print();
+
+// Очень
+// длинный
+// код
+// должен
+// тут
+// быть
+
+var variable = 3;
+print();
+      // console.log('error ---------------------------------------------------------------------------------------------------------------');
+      //
+      // console.error(undefined);
+      // console.error(NaN);
+      // console.error(null);
+      // console.error(true);
+      // console.error(100);
+      // console.error(Infinity);
+      // console.error(-Infinity);
 // const err = new TypeError(12);
 //
 //   throw err;
 
 // console.error(err)
-      try {
-        const agentName;
-        agentName = '008';
-        console.log('Имя агента: ' + agentName);
-      } catch (err) {
-        console.dir(err)
-      }
-      try {
-        const viewModel = new ViewModel();
-      } catch (err) {
-        console.error(err)
-      }
+      // try {
+      //   const agentName;
+      //   agentName = '008';
+      //   console.log('Имя агента: ' + agentName);
+      // } catch (err) {
+      //   console.dir(err)
+      // }
+      // try {
+      //   const viewModel = new ViewModel();
+      // } catch (err) {
+      //   console.error(err)
+      // }
 
     </script>
   </body>
