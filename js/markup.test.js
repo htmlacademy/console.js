@@ -1,2 +1,933 @@
-!function(){"use strict";var s="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e},r=function(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")},t=function(){function i(e,t){for(var n=0;n<t.length;n++){var i=t[n];i.enumerable=i.enumerable||!1,i.configurable=!0,"value"in i&&(i.writable=!0),Object.defineProperty(e,i.key,i)}}return function(e,t,n){return t&&i(e.prototype,t),n&&i(e,n),e}}(),n=function(e,t){if("function"!=typeof t&&null!==t)throw new TypeError("Super expression must either be null or a function, not "+typeof t);e.prototype=Object.create(t&&t.prototype,{constructor:{value:e,enumerable:!1,writable:!0,configurable:!0}}),t&&(Object.setPrototypeOf?Object.setPrototypeOf(e,t):e.__proto__=t)},a=function(e,t){if(!e)throw new ReferenceError("this hasn't been initialised - super() hasn't been called");return!t||"object"!=typeof t&&"function"!=typeof t?e:t},i=function(){function e(){r(this,e)}return t(e,[{key:"render",value:function(){return T(this.template)}},{key:"bind",value:function(){}},{key:"template",get:function(){}},{key:"el",get:function(){return this._el||(this._el=this.render(),this.bind(this._el)),this._el}}]),e}(),o="log",h="dir",y="preview",g="prop",v="error",m="item-head",l="item_pointer",d="item-head_show",f="entry-container_braced",_="entry-container_oversize",b="item-head-info",C="item-head-elements",k="item-head-elements_show",E="item-content-container",c="item-content-container_show",u="item-head-elements-length",p="item-head-elements-length_show",S=function(e){function s(e,t,n){r(this,s);var i=a(this,(s.__proto__||Object.getPrototypeOf(s)).call(this));return i._value=e,i._type=t,i._isPrimitive=n,i._isOpened=!1,i}return n(s,i),t(s,[{key:"_getHeadErrorContent",value:function(){return{elOrStr:this._value.toString(),isShowConstructor:!1,isShowElements:!0}}},{key:"_toggleContent",value:function(){this._proxiedContentEl||(this._proxiedContentEl=T('<div class="console__item item-content"></div>'),this._proxiedContentEl.appendChild(this.createContent(this.value,!1).fragment),this._contentContainerEl.appendChild(this._proxiedContentEl)),this._contentContainerEl.classList.toggle(c)}},{key:"_hideContent",value:function(){this._proxiedContentEl.style.display="none"}},{key:"_additionHeadClickHandler",value:function(){}},{key:"_setHeadClickHandler",value:function(e){var t=this;this._setCursorPointer(),e.addEventListener("click",function(e){e.preventDefault(),t._toggleContent(),t._additionHeadClickHandler()})}},{key:"_setCursorPointer",value:function(){this.el.classList.add(l)}},{key:"value",get:function(){return this._value}},{key:"type",get:function(){return this._type}},{key:"isPrimitive",get:function(){return this._isPrimitive}}],[{key:"createEntryEl",value:function(e,t,n){var i=T('<span class="entry-container__entry">  '+(n?"":'<span class="entry-container__key">'+e+"</span>")+'<span class="entry-container__value-container"></span></span>');return i.querySelector(".entry-container__value-container").appendChild(t),i}}]),s}(),L=function(e){function p(e,t){r(this,p);var n=a(this,(p.__proto__||Object.getPrototypeOf(p)).call(this,e,"object",!1));return n._mode=t,n._entries=new Map,n._isOpened=!1,n}return n(p,S),t(p,[{key:"bind",value:function(){var e=this.el.querySelector("."+m),t=e.querySelector("."+C),n=e.querySelector("."+b);this._contentContainerEl=this.el.querySelector("."+E);var i=this._getHeadContent(),s=i.elOrStr,r=i.isShowConstructor,a=i.isShowElements,o=i.isBraced,l=i.isOpeningDisabled,c=i.isOversize,u=i.isStringified;o&&t.classList.add(f),c&&t.classList.add(_),r&&n.classList.add(d),a&&(s instanceof HTMLElement||s instanceof DocumentFragment?t.appendChild(s):t.innerHTML=s,t.classList.add(k)),this._mode===v&&u&&this.el.classList.add(this._mode),this._mode!==y&&(l||this._setHeadClickHandler(e))}},{key:"_getHeadContent",value:function(){return this._mode===h?this._getHeadDirContent():this._mode===o||this._mode===g||this._mode===v?this._getHeadLogContent():this._mode===y?this._getHeadPreviewContent():""}},{key:"_getHeadPreviewContent",value:function(){return"[object Object]"===Object.prototype.toString.call(this.value)?{elOrStr:"...",isShowConstructor:!1,isShowElements:!0,isBraced:!0}:this._getHeadDirContent()}},{key:"_getHeadLogContent",value:function(){var e=void 0,t=!1,n=!0,i=!1,s=!1,r=!1;if(this.value instanceof HTMLElement)return this._getHeadDirContent();if(this.value instanceof Error)n=!1,e=this.value.toString(),r=!0;else if(this.value instanceof Number){e=D(Number.parseInt(this.value,10),y).el,t=!0}else if(this.value instanceof String){e=D(this.value.toString(),y).el,t=!0}else if(this.value instanceof Date)e=this.value.toString(),r=!0,n=!1;else if(this.value instanceof RegExp)e="/"+this.value.source+"/"+this.value.flags,i=!0,n=!1;else{var a=this.createContent(this.value,!0);e=a.fragment,s=a.isOversize,this.value.constructor!==Object&&(t=!0)}return{elOrStr:e,isShowConstructor:t,isShowElements:!0,isBraced:n,isOpeningDisabled:i,isOversize:s,isStringified:r}}},{key:"_getHeadDirContent",value:function(){var e=void 0,t=!1,n=!0;if(this.value instanceof HTMLElement){var i=this.value.tagName.toLowerCase();i+=this.value.id,this.value.classList.length&&(i+="."+Array.prototype.join.call(this.value.classList,".")),e=i}else this.value instanceof Date?e=this.value.toString():this.value instanceof RegExp?e="/"+this.value.source+"/"+this.value.flags:this.value instanceof Error?e=this.value.toString():(e=this.value,t=!0,n=!1);return{elOrStr:e,isShowConstructor:t,isShowElements:n,isBraced:!1}}},{key:"createContent",value:function(e,t){var n=document.createDocumentFragment(),i=new Set;for(var s in e){if(i.add(s),t&&5===i.size)return{fragment:n,isOversize:!0};var r=e[s],a=D(r,t?y:g),o=p.createEntryEl(s,a.el);n.appendChild(o)}var l=!0,c=!1,u=void 0;try{for(var d,h=Object.getOwnPropertyNames(e)[Symbol.iterator]();!(l=(d=h.next()).done);l=!0){var v=d.value;if(!i.has(v)){if(i.add(v),t&&5===i.size)return{fragment:n,isOversize:!0};var m=e[v],f=D(m,t?y:g),_=p.createEntryEl(v,f.el);n.appendChild(_)}}}catch(e){c=!0,u=e}finally{try{!l&&h.return&&h.return()}finally{if(c)throw u}}return{fragment:n,isOversize:!1}}},{key:"template",get:function(){return'<div class="console__item item item_object">  <div class="'+m+'">\n    <span class="'+b+'">'+this.value.constructor.name+'</span>\n    <div class="'+C+' entry-container entry-container_head entry-container_type_object"></div>\n  </div>\n  <div class="'+E+' entry-container entry-container_type_object"></div>\n</div>'}}]),p}(),w=function(e){function _(e,t){r(this,_);var n=a(this,(_.__proto__||Object.getPrototypeOf(_)).call(this,e,"array",!1));return n._mode=t,n._elements=new Map,n._isOpened=!1,n}return n(_,S),t(_,[{key:"bind",value:function(){this._contentContainerEl=this.el.querySelector("."+E),this.headEl=this.el.querySelector("."+m),this.headInfoEl=this.headEl.querySelector("."+b),this.headElementsEl=this.headEl.querySelector("."+C),this.headElementsLengthEl=this.headEl.querySelector("."+u);var e=this._getHeadContent(),t=e.isShowConstructor,n=e.isShowElements,i=e.isShowLength;t&&this._toggleConstructor(this.headInfoEl,!0),n&&(this.headElementsEl.appendChild(this.createContent(this.value,!0).fragment),this._toggleHeadElements(this.headElementsEl,!0)),i&&this._toggleLength(this.headElementsLengthEl,!0),this._mode!==y&&this._setHeadClickHandler(this.headEl)}},{key:"_additionHeadClickHandler",value:function(){this._mode===g&&(this._toggleConstructor(),this._toggleHeadElements())}},{key:"_toggleConstructor",value:function(){this.headInfoEl.classList.toggle(d)}},{key:"_toggleLength",value:function(){this.headElementsLengthEl.classList.toggle(p)}},{key:"_toggleHeadElements",value:function(){this.headElementsEl.classList.toggle(k)}},{key:"_getHeadContent",value:function(){var e=!1,t=!0,n=1<this.value.length;if(this._mode===h)e=!0,t=!1;else if(this._mode===y)t=!1,n=e=!0;else if(this._mode===v)return this._getHeadErrorContent();return{isShowConstructor:e,isShowElements:t,isShowLength:n}}},{key:"createContent",value:function(e,t){var n=Object.getOwnPropertyNames(e),i=Object.keys(e),s=document.createDocumentFragment(),r=!0,a=!1,o=void 0;try{for(var l,c=n[Symbol.iterator]();!(r=(l=c.next()).done);r=!0){var u=l.value,d=e[u],h=i.indexOf(u),v=Number.isNaN(Number.parseInt(u,10));if(!t||-1!==h){var m=D(d,t?y:g),f=_.createEntryEl(u,m.el,t?!v:t);s.appendChild(f)}}}catch(e){a=!0,o=e}finally{try{!r&&c.return&&c.return()}finally{if(a)throw o}}return{fragment:s}}},{key:"template",get:function(){return'<div class="console__item item item_array">\n  <div class="'+m+'">\n    <span class="'+b+'">'+this.value.constructor.name+'</span>\n    <span class="'+u+'">'+this.value.length+'</span>\n    <div class="'+C+' entry-container entry-container_head entry-container_braced entry-container_type_array"></div>\n  </div>\n  <div class="'+E+' entry-container entry-container_type_array"></div>\n</div>'}}]),_}(),O="plain",H="arrow",x="class",j=function(e){function d(e,t){r(this,d);var n=a(this,(d.__proto__||Object.getPrototypeOf(d)).call(this,e,"function",!1));return n._mode=t,n._isOpened=!1,n._fnType=d.checkFnType(e),n}return n(d,S),t(d,[{key:"bind",value:function(){if(this._mode===h||this._mode===g){this._contentContainerEl=this.el.querySelector("."+E);var e=this.el.querySelector("."+m);this._setHeadClickHandler(e)}}},{key:"_getHeadPropMarkup",value:function(){var e=this.parseFunction(this.value),t=e.name,n=e.params,i=e.lines.join("\n"),s="<span>"+(this._fnType===x?"class ":"")+(this._fnType===O?"f ":"")+(t||"")+(this._fnType!==x?"("+n.join(", ")+")":"")+(this._fnType===H?" => ":" ");return this._fnType!==x&&(s+="{"+(i.length<=43?i:"...")+"}"),s+="</span>"}},{key:"_getHeadDirMarkup",value:function(){var e=this.parseFunction(this.value),t=e.name,n=e.params;return"  <span>  "+(this._fnType===x?"class ":"")+"  "+(this._fnType===O?"f ":"")+"  "+(t||"")+"  "+(this._fnType!==x?"("+n.join(", ")+")":"")+"</span>"}},{key:"_getLogMarkup",value:function(){return"<pre>"+this.value.toString()+"</pre>"}},{key:"parseParams",value:function(e){var t=e.indexOf("("),n=e.indexOf(")"),i=e.substring(t+1,n).trim();return i?i.split(",").map(function(e){return e.trim()}):[]}},{key:"parseName",value:function(e){var t=void 0;this._fnType===x?t="{":this._fnType===O&&(t="(");var n=void 0,i=new RegExp("(?:class|function)\\s+(\\w+)\\s*(?:\\"+t+")").exec(e);return null!==i&&(n=i[1]),n}},{key:"parseBody",value:function(e){var t=e.indexOf("{"),n=e.lastIndexOf("}"),i=e.substring(t+1,n).trim();return i?i.split("\n").map(function(e){return e.trim()}):[]}},{key:"parseFunction",value:function(e){var t=void 0;return"string"!=typeof e&&(t=e.toString()),{name:e.name,params:this.parseParams(t),lines:this.parseBody(t)}}},{key:"createContent",value:function(e){var t=document.createDocumentFragment(),n=!0,i=!1,s=void 0;try{for(var r,a=["name","prototype","caller","arguments","length","__proto__"][Symbol.iterator]();!(n=(r=a.next()).done);n=!0){var o=r.value,l=void 0;try{l=e[o]}catch(e){continue}var c=D(l,h),u=d.createEntryEl(o,c.el);t.appendChild(u)}}catch(e){i=!0,s=e}finally{try{!n&&a.return&&a.return()}finally{if(i)throw s}}return{fragment:t}}},{key:"template",get:function(){var e='<div class="console__item item item_function '+(this._mode===v?""+this._mode:"")+'">';switch(this._mode){case y:e+="f";break;case g:e+='<div class="'+m+'">'+this._getHeadPropMarkup()+'</div><div class="'+E+' entry-container"></div>';break;case h:e+='<div class="'+m+'">'+this._getHeadDirMarkup()+'</div><div class="'+E+' entry-container"></div>';break;case o:case v:e+=this._getLogMarkup()}return e+="</div>"}}],[{key:"checkFnType",value:function(e){var t=e.toString(),n=t.indexOf("("),i=t.indexOf("class"),s=t.indexOf("=>");return-1!==i&&i<n?x:-1!==s&&n<s?H:O}}]),d}(),N="string_collapsed",P=function(e){function s(e,t,n){r(this,s);var i=a(this,(s.__proto__||Object.getPrototypeOf(s)).call(this,e,n,!0));return i._mode=t,i}return n(s,S),t(s,[{key:"bind",value:function(){var t=this;this._mode===g&&"string"===this.type&&(this._setCursorPointer(),this.el.addEventListener("click",function(e){e.preventDefault(),t.el.classList.toggle(N)}))}},{key:"escapeHtml",value:function(e){return e.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;")}},{key:"template",get:function(){var e=this.type,t=this.value,n="";switch("string"!==e&&"symbol"!==e||("symbol"===e&&(t=t.toString()),t=this.escapeHtml(t)),e){case"undefined":case"null":case"boolean":n='<div class="console__item item item_primitive '+e+'">'+t+"</div>";break;case"number":n=Number.isNaN(t)?'<div class="console__item item item_primitive NaN">NaN</div>':t===1/0||t===-1/0?'<div class="console__item item item_primitive number">'+(t===-1/0?"-":"")+"Infinity</div>":'<div class="console__item item item_primitive '+e+'">'+t+"</div>";break;case"string":n='<pre class="console__item item item_primitive string '+(this._mode===g?N:"")+" "+(this._mode===v?""+this._mode:"")+'">'+t+"</pre>";break;case"symbol":n='<div class="console__item item item_primitive symbol">'+t+"</div>";break;case"object":if(null===t){n='<div class="console__item item item_primitive null">'+t+"</div>";break}}return n}}]),s}(),T=function(e){var t=document.createElement("div");return t.innerHTML=e,t.firstElementChild},D=function(e,t){var n=void 0,i=void 0===e?"undefined":s(e);switch(i){case"function":n=new j(e,t);break;case"object":n=null!==e?Array.isArray(e)?new w(e,t):new L(e,t):new P(e,t,i);break;default:n=new P(e,t,i)}return n},q="Here is console log",M="\n  Here is console log\n  sdadsda\nasddsd",z=Symbol("sym");describe("Check primitives: ",function(){var t=o;it('any primitive has class "item_primitive"',function(){var e=[D(q,t).el,D(123,t).el,D(z,t).el,D(NaN,t).el,D(null,t).el,D(!0,t).el,D(void 0,t).el];assert(e.every(function(e){return e.classList.contains("item_primitive")}))}),it("string",function(){var e=D(q,t).el;assert(e.classList.contains("item_primitive")&&e.classList.contains("string")&&e.textContent===q)}),it("string prop mode",function(){var e=D(q,g).el;assert(e.classList.contains("item_primitive")&&e.classList.contains("string")&&e.classList.contains("string_collapsed")&&e.textContent===q)}),it("multiline string",function(){var e=D(M,t).el;assert(e.classList.contains("item_primitive")&&e.classList.contains("string")&&M.includes(e.textContent))}),it("number",function(){var e=D(123,t).el;assert(e.classList.contains("item_primitive")&&e.classList.contains("number")&&e.textContent===123..toString())}),it("symbol",function(){var e=D(z,t).el;assert(e.classList.contains("item_primitive")&&e.classList.contains("symbol")&&e.textContent===z.toString())}),it("NaN",function(){var e=D(NaN,t).el;assert(e.classList.contains("item_primitive")&&e.classList.contains("NaN")&&"NaN"===e.textContent)}),it("null",function(){var e=D(null,t).el;assert(e.classList.contains("item_primitive")&&e.classList.contains("null")&&"null"===e.textContent)}),it("boolean",function(){var e=D(!0,t).el;assert(e.classList.contains("item_primitive")&&e.classList.contains("boolean")&&"true"===e.textContent)}),it("undefined",function(){var e=D(void 0,t).el;assert(e.classList.contains("item_primitive")&&e.classList.contains("undefined")&&"undefined"===e.textContent)})})}();
+(function () {
+'use strict';
+
+class AbstractView {
+  constructor() {}
+
+  /**
+   * @abstract
+   * @return {string}
+   */
+  get template() {}
+
+  get el() {
+    if (!this._el) {
+      this._el = this.render();
+      this.bind(this._el);
+    }
+    return this._el;
+  }
+
+  render() {
+    return getElement(this.template);
+  }
+
+  bind() {}
+}
+
+const Mode = {
+  LOG: `log`,
+  DIR: `dir`,
+  PREVIEW: `preview`,
+  PROP: `prop`,
+  ERROR: `error`
+};
+
+const Class = {
+  CONSOLE_ITEM_HEAD: `item-head`,
+  CONSOLE_ITEM_POINTER: `item_pointer`,
+  CONSOLE_ITEM_HEAD_SHOW: `item-head_show`,
+  ENTRY_CONTAINER_BRACED: `entry-container_braced`,
+  ENTRY_CONTAINER_OVERSIZE: `entry-container_oversize`,
+  CONSOLE_ITEM_HEAD_PARENTHESED: `item-head_parenthesed`,
+  CONSOLE_ITEM_HEAD_INFO: `item-head-info`,
+  CONSOLE_ITEM_HEAD_ELEMENTS: `item-head-elements`,
+  CONSOLE_ITEM_HEAD_ELEMENTS_SHOW: `item-head-elements_show`,
+  CONSOLE_ITEM_CONTENT_CONTAINTER: `item-content-container`,
+  CONSOLE_ITEM_CONTENT_CONTAINTER_SHOW: `item-content-container_show`,
+  CONSOLE_ITEM_HEAD_ELEMENTS_LENGTH: `item-head-elements-length`,
+  CONSOLE_ITEM_HEAD_ELEMENTS_LENGTH_SHOW: `item-head-elements-length_show`
+};
+
+class TypeView extends AbstractView {
+  constructor(value, type, isPrimitive) {
+    super();
+    this._value = value;
+    this._type = type;
+    this._isPrimitive = isPrimitive;
+    this._isOpened = false;
+  }
+
+  get value() {
+    return this._value;
+  }
+
+  get type() {
+    return this._type;
+  }
+
+  get isPrimitive() {
+    return this._isPrimitive;
+  }
+
+  _getHeadErrorContent() {
+    return {
+      elOrStr: this._value.toString(),
+      isShowConstructor: false,
+      isShowElements: true
+    };
+  }
+
+  _toggleContent() {
+    if (!this._proxiedContentEl) {
+      this._proxiedContentEl = getElement(`<div class="console__item item-content"></div>`);
+      this._proxiedContentEl.appendChild(this.createContent(this.value, false).fragment);
+      this._contentContainerEl.appendChild(this._proxiedContentEl);
+    }
+    this._contentContainerEl.classList.toggle(Class.CONSOLE_ITEM_CONTENT_CONTAINTER_SHOW);
+  }
+
+  _hideContent() {
+    this._proxiedContentEl.style.display = `none`;
+  }
+
+  _additionHeadClickHandler() {}
+
+  _setHeadClickHandler(headEl) {
+    this._setCursorPointer();
+    headEl.addEventListener(`click`, (evt) => {
+      evt.preventDefault();
+      this._toggleContent();
+      this._additionHeadClickHandler();
+    });
+  }
+
+  _setCursorPointer() {
+    this.el.classList.add(Class.CONSOLE_ITEM_POINTER);
+  }
+
+  static createEntryEl(index, valueEl, withoutKey) {
+    const entryEl = getElement(`\
+<span class="entry-container__entry">\
+  ${withoutKey ? `` : `<span class="entry-container__key">${index}</span>`}<span class="entry-container__value-container"></span>\
+</span>`);
+    const valueContEl = entryEl.querySelector(`.entry-container__value-container`);
+    valueContEl.appendChild(valueEl);
+
+    return entryEl;
+  }
+}
+
+/* eslint guard-for-in: "off"*/
+const MAX_HEAD_ELEMENTS_LENGTH = 5;
+
+class ObjectView extends TypeView {
+  constructor(value, mode) {
+    super(value, `object`, false);
+    this._mode = mode;
+    this._entries = new Map();
+    this._isOpened = false;
+  }
+
+  /**
+   * Шаблон
+   * @override
+   * Чтобы окружить фигурными скобками тело объекта, добавьте к элемену с классом
+   * Class.CONSOLE_ITEM_CONTENT_CONTAINTER
+   * класс
+   * Class.ENTRY_CONTAINER_BRACED
+   *
+   **/
+  get template() {
+    return `\
+<div class="console__item item item_object">\
+  <div class="${Class.CONSOLE_ITEM_HEAD}">
+    <span class="${Class.CONSOLE_ITEM_HEAD_INFO}">${this.value.constructor.name}</span>
+    <div class="${Class.CONSOLE_ITEM_HEAD_ELEMENTS} entry-container entry-container_head entry-container_type_object"></div>
+  </div>
+  <div class="${Class.CONSOLE_ITEM_CONTENT_CONTAINTER} entry-container entry-container_type_object"></div>
+</div>`;
+  }
+
+  bind() {
+    const headEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_HEAD}`);
+    const headElementsEl = headEl.querySelector(`.${Class.CONSOLE_ITEM_HEAD_ELEMENTS}`);
+    const headInfoEl = headEl.querySelector(`.${Class.CONSOLE_ITEM_HEAD_INFO}`);
+    this._contentContainerEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_CONTENT_CONTAINTER}`);
+
+    const {elOrStr, isShowConstructor, isShowElements, isBraced, isOpeningDisabled, isOversize, isStringified} = this._getHeadContent();
+    if (isBraced) {
+      headElementsEl.classList.add(Class.ENTRY_CONTAINER_BRACED);
+    }
+    if (isOversize) {
+      headElementsEl.classList.add(Class.ENTRY_CONTAINER_OVERSIZE);
+    }
+    if (isShowConstructor) {
+      headInfoEl.classList.add(Class.CONSOLE_ITEM_HEAD_SHOW);
+    }
+    if (isShowElements) {
+      if (elOrStr instanceof HTMLElement || elOrStr instanceof DocumentFragment) {
+        headElementsEl.appendChild(elOrStr);
+      } else {
+        headElementsEl.innerHTML = elOrStr;
+      }
+      headElementsEl.classList.add(Class.CONSOLE_ITEM_HEAD_ELEMENTS_SHOW);
+    }
+
+    if (this._mode === Mode.ERROR && isStringified) {
+      this.el.classList.add(this._mode);
+    }
+
+    if (this._mode === Mode.PREVIEW) {
+      return;
+    }
+    if (!isOpeningDisabled) {
+      this._setHeadClickHandler(headEl);
+    }
+  }
+
+  _getHeadContent() {
+    if (this._mode === Mode.DIR) {
+      return this._getHeadDirContent();
+    } else if (this._mode === Mode.LOG || this._mode === Mode.PROP || this._mode === Mode.ERROR) {
+      return this._getHeadLogContent();
+    } else if (this._mode === Mode.PREVIEW) {
+      return this._getHeadPreviewContent();
+    }
+    return ``;
+  }
+
+  _getHeadPreviewContent() {
+    if (Object.prototype.toString.call(this.value) === `[object Object]`) {
+      return {
+        elOrStr: `...`,
+        isShowConstructor: false,
+        isShowElements: true,
+        isBraced: true
+      };
+    }
+    return this._getHeadDirContent();
+  }
+
+  _getHeadLogContent() {
+    let val;
+    let isShowConstructor = false;
+    let isBraced = true;
+    let isOpeningDisabled = false;
+    let isOversize = false;
+    let isStringified = false;
+
+    if (this.value instanceof HTMLElement) {
+      return this._getHeadDirContent();
+    } else if (this.value instanceof Error) {
+      isBraced = false;
+      val = this.value.toString();
+      isStringified = true;
+    } else if (this.value instanceof Number) {
+      const view = createTypedView(Number.parseInt(this.value, 10), Mode.PREVIEW);
+      val = view.el;
+      isShowConstructor = true;
+    } else if (this.value instanceof String) {
+      const view = createTypedView(this.value.toString(), Mode.PREVIEW);
+      val = view.el;
+      isShowConstructor = true;
+    } else if (this.value instanceof Date) {
+      val = this.value.toString();
+      isStringified = true;
+      isBraced = false;
+    } else if (this.value instanceof RegExp) {
+      val = `/${this.value.source}/${this.value.flags}`;
+      isOpeningDisabled = true;
+      isBraced = false;
+    } else {
+      const obj = this.createContent(this.value, true);
+      val = obj.fragment;
+      isOversize = obj.isOversize;
+      if (this.value.constructor !== Object) {
+        isShowConstructor = true;
+      }
+    }
+    return {
+      elOrStr: val,
+      isShowConstructor,
+      isShowElements: true,
+      isBraced,
+      isOpeningDisabled,
+      isOversize,
+      isStringified
+    };
+  }
+
+  _getHeadDirContent() {
+    let val;
+    let isShowConstructor = false;
+    let isShowElements = true;
+    let isBraced = false;
+    if (this.value instanceof HTMLElement) {
+      let str = this.value.tagName.toLowerCase();
+      str += this.value.id;
+      if (this.value.classList.length) {
+        str += `.` + Array.prototype.join.call(this.value.classList, `.`);
+      }
+      val = str;
+    } else if (this.value instanceof Date) {
+      val = this.value.toString();
+    } else if (this.value instanceof RegExp) {
+      val = `/${this.value.source}/${this.value.flags}`;
+    } else if (this.value instanceof Error) {
+      val = this.value.toString();
+    } else {
+      val = this.value;
+      isShowConstructor = true;
+      isShowElements = false;
+    }
+    // else if (this.value.constructor === GeneratorFunction) {
+    //   return this
+    // }
+    return {
+      elOrStr: val,
+      isShowConstructor,
+      isShowElements,
+      isBraced
+    };
+  }
+
+  createContent(obj, isPreview) {
+    const fragment = document.createDocumentFragment();
+    const keys = new Set();
+    // TODO: Добавить счётчик, чтобы больше 5 значений не добавлялось
+    for (let key in obj) {
+      keys.add(key);
+      if (isPreview && keys.size === MAX_HEAD_ELEMENTS_LENGTH) {
+        return {
+          fragment,
+          isOversize: true
+        };
+      }
+      const value = obj[key];
+      const view = createTypedView(value, isPreview ? Mode.PREVIEW : Mode.PROP);
+      const entryEl = ObjectView.createEntryEl(key, view.el);
+      fragment.appendChild(entryEl);
+    }
+    for (let key of Object.getOwnPropertyNames(obj)) {
+      if (keys.has(key)) {
+        continue;
+      }
+      keys.add(key);
+      if (isPreview && keys.size === MAX_HEAD_ELEMENTS_LENGTH) {
+        return {
+          fragment,
+          isOversize: true
+        };
+      }
+      const value = obj[key];
+      const view = createTypedView(value, isPreview ? Mode.PREVIEW : Mode.PROP);
+      const entryEl = ObjectView.createEntryEl(key, view.el);
+      fragment.appendChild(entryEl);
+    }
+    return {
+      fragment,
+      isOversize: false
+    };
+  }
+}
+
+class ArrayView extends TypeView {
+  constructor(arr, mode) {
+    super(arr, `array`, false);
+    this._mode = mode;
+    this._elements = new Map();
+    this._isOpened = false;
+  }
+
+  /**
+   * Шаблон
+   * @override
+   * Чтобы окружить квадратными скобками тело объекта, добавьте к элемену с классом
+   * Class.CONSOLE_ITEM_CONTENT_CONTAINTER
+   * класс
+   * Class.ENTRY_CONTAINER_BRACED
+   *
+   **/
+  get template() {
+    return `\
+<div class="console__item item item_array">
+  <div class="${Class.CONSOLE_ITEM_HEAD}">
+    <span class="${Class.CONSOLE_ITEM_HEAD_INFO}">${this.value.constructor.name}</span>
+    <span class="${Class.CONSOLE_ITEM_HEAD_ELEMENTS_LENGTH}">${this.value.length}</span>
+    <div class="${Class.CONSOLE_ITEM_HEAD_ELEMENTS} entry-container entry-container_head entry-container_braced entry-container_type_array"></div>
+  </div>
+  <div class="${Class.CONSOLE_ITEM_CONTENT_CONTAINTER} entry-container entry-container_type_array"></div>
+</div>`;
+  }
+
+  bind() {
+    this._contentContainerEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_CONTENT_CONTAINTER}`);
+    this.headEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_HEAD}`);
+    this.headInfoEl = this.headEl.querySelector(`.${Class.CONSOLE_ITEM_HEAD_INFO}`);
+    this.headElementsEl = this.headEl.querySelector(`.${Class.CONSOLE_ITEM_HEAD_ELEMENTS}`);
+    this.headElementsLengthEl = this.headEl.querySelector(`.${Class.CONSOLE_ITEM_HEAD_ELEMENTS_LENGTH}`);
+    const {isShowConstructor, isShowElements, isShowLength} = this._getHeadContent();
+    if (isShowConstructor) {
+      this._toggleConstructor(this.headInfoEl, true);
+    }
+    if (isShowElements) {
+      this.headElementsEl.appendChild(this.createContent(this.value, true).fragment);
+      this._toggleHeadElements(this.headElementsEl, true);
+    }
+    if (isShowLength) {
+      this._toggleLength(this.headElementsLengthEl, true);
+    }
+    if (this._mode === Mode.PREVIEW) {
+      return;
+    }
+    this._setHeadClickHandler(this.headEl);
+  }
+
+  _additionHeadClickHandler() {
+    if (this._mode === Mode.PROP) {
+      this._toggleConstructor();
+      this._toggleHeadElements();
+    }
+  }
+
+  _toggleConstructor() {
+    this.headInfoEl.classList.toggle(Class.CONSOLE_ITEM_HEAD_SHOW);
+  }
+
+  _toggleLength() {
+    this.headElementsLengthEl.classList.toggle(Class.CONSOLE_ITEM_HEAD_ELEMENTS_LENGTH_SHOW);
+  }
+
+  _toggleHeadElements() {
+    this.headElementsEl.classList.toggle(Class.CONSOLE_ITEM_HEAD_ELEMENTS_SHOW);
+  }
+
+  _getHeadContent() {
+    let isShowConstructor = false;
+    let isShowElements = true;
+    let isShowLength = this.value.length > 1;
+    if (this._mode === Mode.DIR) {
+      isShowConstructor = true;
+      isShowElements = false;
+    // } else if (this._mode === Mode.PROP) {
+    } else if (this._mode === Mode.PREVIEW) {
+      isShowConstructor = true;
+      isShowElements = false;
+      isShowLength = true;
+    } else if (this._mode === Mode.ERROR) {
+      return this._getHeadErrorContent();
+    }
+    return {
+      isShowConstructor,
+      isShowElements,
+      isShowLength
+    };
+  }
+
+  createContent(arr, isPreview) {
+    const ownPropertyNames = Object.getOwnPropertyNames(arr);
+    const keys = Object.keys(arr);
+    const fragment = document.createDocumentFragment();
+    for (let key of ownPropertyNames) {
+      const value = arr[key];
+      const indexInKeys = keys.indexOf(key);
+      const isKeyNaN = Number.isNaN(Number.parseInt(key, 10));
+      if (isPreview && indexInKeys === -1) {
+        continue;
+      }
+      const view = createTypedView(value, isPreview ? Mode.PREVIEW : Mode.PROP);
+      const entryEl = ArrayView.createEntryEl(key, view.el, isPreview ? !isKeyNaN : isPreview);
+      // if (!isPreview) {
+      //   this._elements.set(entryEl, view);
+      // }
+      fragment.appendChild(entryEl);
+    }
+    return {fragment};
+  }
+}
+
+const MAX_PREVIEW_FN_BODY_LENGTH = 43;
+
+const FnType = {
+  PLAIN: `plain`,
+  ARROW: `arrow`,
+  CLASS: `class`
+};
+
+// arguments, caller, length, name, prototype, __proto__, [[FunctionLocation]], [[Scopes]]
+
+// if .caller not accessed — не выводим
+// if prototype undefined — не выводим
+// name — если неименованная — получает имя переменной, в которую записана
+// если именнованная — то имя ф-ии
+
+class FunctionView extends TypeView {
+  constructor(fn, mode) {
+    super(fn, `function`, false);
+    this._mode = mode;
+    this._isOpened = false;
+    this._fnType = FunctionView.checkFnType(fn);
+  }
+
+  get template() {
+    let tpl = `<div class="console__item item item_function ${this._mode === Mode.ERROR ? `${this._mode}` : ``}">`;
+    switch (this._mode) {
+      case Mode.PREVIEW:
+        tpl += `f`;
+        break;
+      case Mode.PROP:
+        tpl += `\
+<div class="${Class.CONSOLE_ITEM_HEAD}">${this._getHeadPropMarkup()}</div>\
+<div class="${Class.CONSOLE_ITEM_CONTENT_CONTAINTER} entry-container"></div>`;
+        break;
+      case Mode.DIR:
+        tpl += `\
+<div class="${Class.CONSOLE_ITEM_HEAD}">${this._getHeadDirMarkup()}</div>\
+<div class="${Class.CONSOLE_ITEM_CONTENT_CONTAINTER} entry-container"></div>`;
+        break;
+      case Mode.LOG:
+      case Mode.ERROR:
+        tpl += this._getLogMarkup();
+        break;
+    }
+    tpl += `</div>`;
+    return tpl;
+  }
+
+  bind() {
+    if (this._mode !== Mode.DIR && this._mode !== Mode.PROP) {
+      return;
+    }
+
+    this._contentContainerEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_CONTENT_CONTAINTER}`);
+    const headEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_HEAD}`);
+    // previewEl.appendChild(this.createPreview(this.value, true));
+    this._setHeadClickHandler(headEl);
+  }
+
+  _getHeadPropMarkup() {
+    const {name, params, lines} = this.parseFunction(this.value);
+    const joinedLines = lines.join(`\n`);
+
+    let markup = `\
+<span>\
+${this._fnType === FnType.CLASS ? `class ` : ``}\
+${this._fnType === FnType.PLAIN ? `f ` : ``}\
+${name ? name : ``}\
+${this._fnType !== FnType.CLASS ? `(${params.join(`, `)})` : ``}\
+${this._fnType === FnType.ARROW ? ` => ` : ` `}`;
+    if (this._fnType !== FnType.CLASS) {
+      markup += `{${joinedLines.length <= MAX_PREVIEW_FN_BODY_LENGTH ? joinedLines : `...`}}`;
+    }
+    markup += `</span>`;
+    return markup;
+  }
+
+  _getHeadDirMarkup() {
+    const {name, params} = this.parseFunction(this.value);
+
+    let markup = `\
+  <span>\
+  ${this._fnType === FnType.CLASS ? `class ` : ``}\
+  ${this._fnType === FnType.PLAIN ? `f ` : ``}\
+  ${name ? name : ``}\
+  ${this._fnType !== FnType.CLASS ? `(${params.join(`, `)})` : ``}</span>`;
+    return markup;
+  }
+
+  _getLogMarkup() {
+    return `<pre>${this.value.toString()}</pre>`;
+    // const {name, params, lines} = this.parseFunction(this.value);
+    /* return `\
+<pre>\
+${this._fnType === FnType.CLASS ? `class ` : ``}\
+${this._fnType === FnType.PLAIN ? `function ` : ``}\
+${name ? name : ``}\
+${this._fnType !== FnType.CLASS ? `(${params.join(`, `)})` : ``}\
+${this._fnType === FnType.ARROW ? ` => ` : ` `}{
+${lines.join(`\n`)}
+}
+</pre>`;*/
+  }
+
+  static checkFnType(fn) {
+    let str = fn.toString();
+    const firstParenthesisIndex = str.indexOf(`(`);
+
+    const classIndex = str.indexOf(`class`);
+    const arrowIndex = str.indexOf(`=>`);
+    if (classIndex !== -1 && classIndex < firstParenthesisIndex) {
+      return FnType.CLASS;
+    } else if (arrowIndex !== -1 && arrowIndex > firstParenthesisIndex) {
+      return FnType.ARROW;
+    }
+    return FnType.PLAIN;
+  }
+
+  parseParams(funString) {
+    const paramsStart = funString.indexOf(`(`);
+    const paramsEnd = funString.indexOf(`)`);
+
+    const paramsContent = funString.substring(paramsStart + 1, paramsEnd).trim();
+
+    return paramsContent ? paramsContent.split(`,`).map((it) => it.trim()) : [];
+  }
+
+  parseName(funString) {
+    let endingChar;
+    if (this._fnType === FnType.CLASS) {
+      endingChar = `{`;
+    } else if (this._fnType === FnType.PLAIN) {
+      endingChar = `(`;
+    }
+    let name;
+    const re = new RegExp(`(?:class|function)\\s+(\\w+)\\s*(?:\\${endingChar})`);
+    const ex = re.exec(funString);
+    if (ex !== null) {
+      name = ex[1];
+    }
+    return name;
+  }
+
+  parseBody(funString) {
+    const bodyStart = funString.indexOf(`{`);
+    const bodyEnd = funString.lastIndexOf(`}`);
+
+    const bodyContent = funString.substring(bodyStart + 1, bodyEnd).trim();
+
+    if (!bodyContent) {
+      return [];
+    }
+
+    return bodyContent.split(`\n`).map(function (it) {
+      return it.trim();
+    });
+  }
+
+  parseFunction(fnOrString) {
+    let str;
+    if (typeof fnOrString !== `string`) {
+      str = fnOrString.toString();
+    }
+    return {
+      name: fnOrString.name, // this.parseName(str),
+      params: this.parseParams(str),
+      lines: this.parseBody(str)
+    };
+  }
+
+  createContent(fn) {
+    const fragment = document.createDocumentFragment();
+    const keys = [`name`, `prototype`, `caller`, `arguments`, `length`, `__proto__`];
+    for (let key of keys) {
+      let value;
+      try {
+        value = fn[key];
+      } catch (err) {
+        continue;
+      }
+      const view = createTypedView(value, Mode.DIR);
+      const entryEl = FunctionView.createEntryEl(key, view.el);
+      fragment.appendChild(entryEl);
+    }
+    return {fragment};
+  }
+}
+
+const STRING_COLLAPSED = `string_collapsed`;
+
+class PrimitiveView extends TypeView {
+  constructor(value, mode, type) {
+    super(value, type, true);
+    this._mode = mode;
+  }
+
+  get template() {
+    const type = this.type;
+    let value = this.value;
+    let html = ``;
+    if (type === `string` || type === `symbol`) {
+      if (type === `symbol`) {
+        value = value.toString();
+      }
+      value = this.escapeHtml(value);
+    }
+    switch (type) {
+      case `undefined`:
+      case `null`:
+      case `boolean`:
+        html = `<div class="console__item item item_primitive ${type}">${value}</div>`;
+        break;
+
+      case `number`:
+        if (Number.isNaN(value)) {
+          html = `<div class="console__item item item_primitive NaN">NaN</div>`;
+        } else if ((value === Infinity || value === -Infinity)) {
+          html = `<div class="console__item item item_primitive number">${(value === -Infinity ? `-` : ``)}Infinity</div>`;
+        } else {
+          html = `<div class="console__item item item_primitive ${type}">${value}</div>`;
+        }
+        break;
+
+      case `string`:
+        html = `<pre class="console__item item item_primitive string ${this._mode === Mode.PROP ? STRING_COLLAPSED : ``} ${this._mode === Mode.ERROR ? `${this._mode}` : ``}">${value}</pre>`;
+        break;
+      case `symbol`:
+        html = `<div class="console__item item item_primitive symbol">${value}</div>`;
+        break;
+
+      case `object`:
+        if (value === null) {
+          html = `<div class="console__item item item_primitive null">${value}</div>`;
+          break;
+        }
+    }
+    return html;
+  }
+
+  bind() {
+    if (this._mode === Mode.PROP && this.type === `string`) {
+      this._setCursorPointer();
+      this.el.addEventListener(`click`, (evt) => {
+        evt.preventDefault();
+        this.el.classList.toggle(STRING_COLLAPSED);
+      });
+    }
+  }
+
+  escapeHtml(unsafe) {
+    return unsafe
+        .replace(/&/g, `&amp;`)
+        .replace(/</g, `&lt;`)
+        .replace(/>/g, `&gt;`)
+        .replace(/"/g, `&quot;`)
+        .replace(/'/g, `&#039;`);
+  }
+}
+
+const getElement = (htmlMarkup) => {
+  const div = document.createElement(`div`);
+  div.innerHTML = htmlMarkup;
+  return div.firstElementChild;
+};
+
+
+
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/typeof
+const createTypedView = (val, mode) => {
+  let view;
+  const type = typeof val;
+  switch (type) {
+    case `function`:
+      view = new FunctionView(val, mode);
+      break;
+    case `object`:
+      // TODO: check instanceof Date, String, Boolean, Number
+      if (val !== null) {
+        if (Array.isArray(val)) { // TODO: typedarrays, arraybuffer, etc
+          view = new ArrayView(val, mode);
+        } else {
+          view = new ObjectView(val, mode);
+        }
+      } else {
+        view = new PrimitiveView(val, mode, type);
+      }
+      break;
+    default:
+      view = new PrimitiveView(val, mode, type);
+      break;
+  }
+  return view;
+};
+
+/* eslint no-undefined: 0 */
+
+// import FunctionView from '../function/function-view';
+// declare consts here
+//
+// const arr1 = [1, 2, 3];
+// const arr2 = [1, 2, 3];
+// arr2.test = 123;
+// const nestedArr = [1, 2, ``, [1, 2, ``]];
+const str1 = `Here is console log`;
+const str2 = `
+  Here is console log
+  sdadsda
+asddsd`;
+const primitiveNumber = 123;
+//
+// const num = new Number(1)
+// const date = new Date();
+// const str = new String(`qwe`);
+//
+// const div = document.querySelector(`div`);
+//
+// const kot = {
+//   cat: {
+//     name: `Сергей Сергеевич`,
+//     kittens: [{
+//       name: `Иван Васильич`,
+//       kittens: [
+//         {name: `Пётр Иванович`}
+//       ]
+//     }]
+//   }
+// };
+//
+// class Cat {
+//   constructor(name, age = 0, male = true) {
+//     this.name = name;
+//     this.age = age;
+//     this.male = male;
+//   }
+//
+//   eat(food) {
+//     return `${this.name} ate ${food}`;
+//   }
+//
+//   meow() {
+//     return `Мяу!`;
+//   }
+// }
+//
+// const o1 = {};
+// o1.b = {o1: o1};
+// const o2 = {oo: 1, b: ``, arr1, arr2, nestedArr, e: {b: 1}, o1};
+// const o3 = {Person, arrowFn1, arrowFn2, arrowFn3, plainFn, exprFn, exprNamedFn};
+// const o4 = {num, str};
+//
+// const cat = new Cat(`Keks`, 2);
+// const err = new Error(`new Error`);
+// const errObjPlain = new Error(o3);
+// const errNum = new Error(num);
+// const typeErr = new TypeError(`new TypeError`);
+// const int8Arr = new Int8Array();
+// const reConstr = new RegExp(`regexpConstr`);
+// const reLiteral = /reLiteral/;
+const sym = Symbol(`sym`);
+// const ab = new ArrayBuffer();
+
+describe(`Check primitives: `, () => {
+  const defaultMode = Mode.LOG;
+  it(`any primitive has class "item_primitive"`, () => {
+    const primitiveEls = [
+      createTypedView(str1, defaultMode).el,
+      createTypedView(primitiveNumber, defaultMode).el,
+      createTypedView(sym, defaultMode).el,
+      createTypedView(NaN, defaultMode).el,
+      createTypedView(null, defaultMode).el,
+      createTypedView(true, defaultMode).el,
+      createTypedView(undefined, defaultMode).el
+    ];
+    assert(primitiveEls.every((el) => {
+      return el.classList.contains(`item_primitive`);
+    }));
+  });
+  it(`string`, () => {
+    const el = createTypedView(str1, defaultMode).el;
+    assert(
+        el.classList.contains(`item_primitive`) &&
+        el.classList.contains(`string`) &&
+        el.textContent === str1
+    );
+  });
+  it(`string prop mode`, () => {
+    const el = createTypedView(str1, Mode.PROP).el;
+    assert(
+        el.classList.contains(`item_primitive`) &&
+        el.classList.contains(`string`) &&
+        el.classList.contains(`string_collapsed`) &&
+        el.textContent === str1
+    );
+  });
+  it(`multiline string`, () => {
+    const el = createTypedView(str2, defaultMode).el;
+    assert(
+        el.classList.contains(`item_primitive`) &&
+        el.classList.contains(`string`) &&
+        str2.includes(el.textContent)
+    );
+  });
+  it(`number`, () => {
+    const el = createTypedView(primitiveNumber, defaultMode).el;
+    assert(
+        el.classList.contains(`item_primitive`) &&
+        el.classList.contains(`number`) &&
+        el.textContent === primitiveNumber.toString()
+    );
+  });
+  it(`symbol`, () => {
+    const el = createTypedView(sym, defaultMode).el;
+    assert(
+        el.classList.contains(`item_primitive`) &&
+        el.classList.contains(`symbol`) &&
+        el.textContent === sym.toString()
+    );
+  });
+  it(`NaN`, () => {
+    const el = createTypedView(NaN, defaultMode).el;
+    assert(
+        el.classList.contains(`item_primitive`) &&
+        el.classList.contains(`NaN`) &&
+        el.textContent === `NaN`
+    );
+  });
+  it(`null`, () => {
+    const el = createTypedView(null, defaultMode).el;
+    assert(
+        el.classList.contains(`item_primitive`) &&
+        el.classList.contains(`null`) &&
+        el.textContent === `null`
+    );
+  });
+  it(`boolean`, () => {
+    const el = createTypedView(true, defaultMode).el;
+    assert(
+        el.classList.contains(`item_primitive`) &&
+        el.classList.contains(`boolean`) &&
+        el.textContent === `true`
+    );
+  });
+  it(`undefined`, () => {
+    const el = createTypedView(undefined, defaultMode).el;
+    assert(
+        el.classList.contains(`item_primitive`) &&
+        el.classList.contains(`undefined`) &&
+        el.textContent === `undefined`
+    );
+  });
+});
+
+// describe(`Check functions: `, () => {
+//   const fnEls = [
+//     createTypedView(arrowFn1, Mode.PREVIEW).el,
+//     createTypedView(plainFn, Mode.PREVIEW).el,
+//     createTypedView(exprFn, Mode.PREVIEW).el,
+//     createTypedView(exprNamedFn, Mode.PREVIEW).el,
+//     createTypedView(Person, Mode.PREVIEW).el
+//   ];
+//   it(`any function has class "item_function"`, () => {
+//     assert(fnEls.every((el) => {
+//       return el.classList.contains(`item_function`);
+//     }));
+//   });
+//   it(`any function in preview === "f"`, () => {
+//     assert(fnEls.every((el) => {
+//       return el.textContent === `f`;
+//     }));
+//   });
+//   it(`class dir and prop`, () => {
+//     const classEls = [
+//       createTypedView(Person, Mode.DIR).el,
+//       createTypedView(Person, Mode.PROP).el
+//     ];
+//     assert(classEls.every((el) => {
+//       return el.textContent.startsWith(`class ${Person.name}`);
+//     }));
+//   });
+// });
+
+}());
+
 //# sourceMappingURL=markup.test.js.map
