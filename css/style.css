@@ -66,10 +66,6 @@
   .item-content-container_show {
     display: block; }
 
-.entry-container__entry {
-  display: flex;
-  flex-direction: row; }
-
 .entry-container_head .entry-container__entry {
   display: inline-block; }
   .entry-container_head .entry-container__entry:not(:last-child) {
