@@ -14,9 +14,9 @@ export const ViewType = {
 };
 
 export const Class = {
-  CONSOLE_ITEM_HEAD: `item-head`,
-  CONSOLE_ITEM_POINTER: `item_pointer`,
-  CONSOLE_ITEM_HEAD_SHOW: `item-head_show`,
+  ITEM_HEAD: `item-head`,
+  ITEM_POINTER: `item_pointer`,
+  ITEM_HEAD_SHOW: `item-head_show`,
   ENTRY_CONTAINER_BRACED: `entry-container_braced`,
   ENTRY_CONTAINER_OVERSIZE: `entry-container_oversize`,
   CONSOLE_ITEM_HEAD_PARENTHESED: `item-head_parenthesed`,

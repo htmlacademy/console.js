@@ -25,7 +25,7 @@ export default class ArrayView extends TypeView {
   get template() {
     return `\
 <div class="console__item item item_array">
-  <div class="${Class.CONSOLE_ITEM_HEAD}">
+  <div class="${Class.ITEM_HEAD}">
     <span class="${Class.CONSOLE_ITEM_HEAD_INFO}">${this.value.constructor.name}</span>
     <span class="${Class.CONSOLE_ITEM_HEAD_ELEMENTS_LENGTH}">${this.value.length}</span>
     <div class="${Class.CONSOLE_ITEM_HEAD_ELEMENTS} entry-container entry-container_head entry-container_braced entry-container_type_array"></div>
@@ -36,7 +36,7 @@ export default class ArrayView extends TypeView {
 
   bind() {
     this._contentContainerEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_CONTENT_CONTAINTER}`);
-    this.headEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_HEAD}`);
+    this.headEl = this.el.querySelector(`.${Class.ITEM_HEAD}`);
     this.headInfoEl = this.headEl.querySelector(`.${Class.CONSOLE_ITEM_HEAD_INFO}`);
     this.headElementsEl = this.headEl.querySelector(`.${Class.CONSOLE_ITEM_HEAD_ELEMENTS}`);
     this.headElementsLengthEl = this.headEl.querySelector(`.${Class.CONSOLE_ITEM_HEAD_ELEMENTS_LENGTH}`);
@@ -68,7 +68,7 @@ export default class ArrayView extends TypeView {
   }
 
   _toggleConstructor() {
-    this.headInfoEl.classList.toggle(Class.CONSOLE_ITEM_HEAD_SHOW);
+    this.headInfoEl.classList.toggle(Class.ITEM_HEAD_SHOW);
   }
 
   _toggleLength() {

@@ -83,12 +83,24 @@
   }
 
   &_primitive {}
-}
 
-.item-content {
-  display: flex;
-  flex-direction: column;
-  margin-left: 12px;
+  &__content {
+    display: none;
+    flex-direction: column;
+    margin-left: 12px;
+
+    &_show {
+      display: flex;
+    }
+  }
+
+  &__info {
+    display: none;
+
+    &_show {
+      display: inline;
+    }
+  }
 }
 
 .item-head {

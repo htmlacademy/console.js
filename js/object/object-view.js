@@ -11,67 +11,39 @@ export default class ObjectView extends TypeView {
       this._rootViewType = ViewType.OBJECT;
     }
     this._viewType = ViewType.OBJECT;
-    this._entries = new Map();
     this._isOpened = false;
+    this._args = this._getHeadContent();
+    this._templateArgs = {
+      withHeadInfo: this._args.isShowConstructor,
+      withHeadContent: this._args.isShowElements,
+      withContent: this._isAutoExpandNeeded, // append content container only if autoexpand needed
+      isBraced: this._args.isBraced,
+      isOversize: this._args.isOversize
+    };
   }
 
-  /**
-   * Шаблон
-   * @override
-   * Чтобы окружить фигурными скобками тело объекта, добавьте к элемену с классом
-   * Class.CONSOLE_ITEM_CONTENT_CONTAINTER
-   * класс
-   * Class.ENTRY_CONTAINER_BRACED
-   *
-   **/
-  get template() {
-    return `\
-<div class="console__item item item_object">\
-  <div class="${Class.CONSOLE_ITEM_HEAD}">
-    <span class="${Class.CONSOLE_ITEM_HEAD_INFO}">${this.value.constructor.name}</span>
-    <div class="${Class.CONSOLE_ITEM_HEAD_ELEMENTS} entry-container entry-container_head entry-container_type_object"></div>
-  </div>
-  <div class="${Class.CONSOLE_ITEM_CONTENT_CONTAINTER}"></div>
-</div>`;
-  }
-
-  bind() {
-    const headEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_HEAD}`);
-    const headElementsEl = headEl.querySelector(`.${Class.CONSOLE_ITEM_HEAD_ELEMENTS}`);
-    const headInfoEl = headEl.querySelector(`.${Class.CONSOLE_ITEM_HEAD_INFO}`);
-    this._contentContainerEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_CONTENT_CONTAINTER}`);
-
-    const {elOrStr, isShowConstructor, isShowElements, isBraced, isOpeningDisabled, isOversize, isStringified} = this._getHeadContent();
-    if (isBraced) {
-      headElementsEl.classList.add(Class.ENTRY_CONTAINER_BRACED);
-    }
-    if (isOversize) {
-      headElementsEl.classList.add(Class.ENTRY_CONTAINER_OVERSIZE);
-    }
-    if (isShowConstructor) {
-      headInfoEl.classList.add(Class.CONSOLE_ITEM_HEAD_SHOW);
-    }
-    if (isShowElements) {
-      if (elOrStr instanceof HTMLElement || elOrStr instanceof DocumentFragment) {
-        headElementsEl.appendChild(elOrStr);
+  afterRender() {
+    if (this._args.isShowElements) {
+      if (this._args.elOrStr instanceof HTMLElement || this._args.elOrStr instanceof DocumentFragment) {
+        this._headContentEl.appendChild(this._args.elOrStr);
       } else {
-        headElementsEl.innerHTML = elOrStr;
+        this._headContentEl.innerHTML = this._args.elOrStr;
       }
-      headElementsEl.classList.add(Class.CONSOLE_ITEM_HEAD_ELEMENTS_SHOW);
+      this._headContentEl.classList.add(Class.CONSOLE_ITEM_HEAD_ELEMENTS_SHOW);
     }
 
-    if (this._mode === Mode.ERROR && isStringified) {
+    if (this._mode === Mode.ERROR && this._args.isStringified) {
       this.el.classList.add(this._mode);
     }
 
     if (this._mode === Mode.PREVIEW) {
       return;
     }
-    if (!isOpeningDisabled) {
+    if (!this._args.isOpeningDisabled) {
       if (this._isAutoExpandNeeded) {
         this._toggleContent();
       }
-      this._setHeadClickHandler(headEl);
+      this.setHeadClickHandler();
     }
   }
 

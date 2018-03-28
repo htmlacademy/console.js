@@ -1,17 +1,20 @@
-import TypeView from '../type-view';
+import AbstractView from '../abstract-view';
 import {Mode, ViewType} from '../enums';
 
 const STRING_COLLAPSED = `string_collapsed`;
 
-export default class PrimitiveView extends TypeView {
-  constructor(params, cons) {
-    super(params, cons);
+export default class PrimitiveView extends AbstractView {
+  constructor({val, mode, type}) {
+    super();
+    this._val = val;
+    this._mode = mode;
+    this._type = type;
     this._viewType = ViewType.PRIMITIVE;
   }
 
   get template() {
     const type = this._type;
-    let value = this.value;
+    let value = this._val;
     let html = ``;
     if (type === `string` || type === `symbol`) {
       if (type === `symbol`) {
@@ -37,7 +40,7 @@ export default class PrimitiveView extends TypeView {
         break;
 
       case `string`:
-        html = `<pre class="console__item item item_primitive string ${this.mode === Mode.PROP ? STRING_COLLAPSED : ``} ${this.mode === Mode.ERROR ? `${this.mode}` : ``}">${value}</pre>`;
+        html = `<pre class="console__item item item_primitive string ${this._mode === Mode.PROP ? STRING_COLLAPSED : ``} ${this._mode === Mode.ERROR ? `${this._mode}` : ``}">${value}</pre>`;
         break;
       case `symbol`:
         html = `<div class="console__item item item_primitive symbol">${value}</div>`;
@@ -53,7 +56,7 @@ export default class PrimitiveView extends TypeView {
   }
 
   bind() {
-    if (this.mode === Mode.PROP && this.type === `string`) {
+    if (this._mode === Mode.PROP && this._type === `string`) {
       this._setCursorPointer();
       this.el.addEventListener(`click`, (evt) => {
         evt.preventDefault();

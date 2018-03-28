@@ -35,12 +35,12 @@ export default class FunctionView extends TypeView {
         break;
       case Mode.PROP:
         tpl += `\
-<div class="${Class.CONSOLE_ITEM_HEAD}">${this._getHeadPropMarkup()}</div>\
+<div class="${Class.ITEM_HEAD}">${this._getHeadPropMarkup()}</div>\
 <div class="${Class.CONSOLE_ITEM_CONTENT_CONTAINTER} entry-container"></div>`;
         break;
       case Mode.DIR:
         tpl += `\
-<div class="${Class.CONSOLE_ITEM_HEAD}">${this._getHeadDirMarkup()}</div>\
+<div class="${Class.ITEM_HEAD}">${this._getHeadDirMarkup()}</div>\
 <div class="${Class.CONSOLE_ITEM_CONTENT_CONTAINTER} entry-container"></div>`;
         break;
       case Mode.LOG:
@@ -58,7 +58,7 @@ export default class FunctionView extends TypeView {
     }
 
     this._contentContainerEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_CONTENT_CONTAINTER}`);
-    const headEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_HEAD}`);
+    const headEl = this.el.querySelector(`.${Class.ITEM_HEAD}`);
     // previewEl.appendChild(this.createPreview(this.value, true));
     if (this._isAutoExpandNeeded) {
       this._toggleContent();

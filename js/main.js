@@ -144,11 +144,11 @@ export default class Console {
             view = new ObjectView(params, this);
           }
         } else {
-          view = new PrimitiveView(params, this);
+          view = new PrimitiveView(params);
         }
         break;
       default:
-        view = new PrimitiveView(params, this);
+        view = new PrimitiveView(params);
         break;
     }
     return view;
@@ -156,9 +156,7 @@ export default class Console {
 
   _getRowEl(entries, mode) {
     const el = getElement(`<div class="console__row"></div>`);
-    entries.forEach((val) => {
-      el.appendChild(this.createTypedView(val, mode).el);
-    });
+    entries.forEach((val) => el.appendChild(this.createTypedView(val, mode).el));
     return el;
   }
 
