@@ -11,53 +11,28 @@ export default class ObjectView extends TypeView {
       this._rootViewType = ViewType.OBJECT;
     }
     this._viewType = ViewType.OBJECT;
-    this._entries = new Map();
     this._isOpened = false;
   }
 
-  /**
-   * Шаблон
-   * @override
-   * Чтобы окружить фигурными скобками тело объекта, добавьте к элемену с классом
-   * Class.CONSOLE_ITEM_CONTENT_CONTAINTER
-   * класс
-   * Class.ENTRY_CONTAINER_BRACED
-   *
-   **/
-  get template() {
-    return `\
-<div class="console__item item item_object">\
-  <div class="${Class.CONSOLE_ITEM_HEAD}">
-    <span class="${Class.CONSOLE_ITEM_HEAD_INFO}">${this.value.constructor.name}</span>
-    <div class="${Class.CONSOLE_ITEM_HEAD_ELEMENTS} entry-container entry-container_head entry-container_type_object"></div>
-  </div>
-  <div class="${Class.CONSOLE_ITEM_CONTENT_CONTAINTER}"></div>
-</div>`;
-  }
-
-  bind() {
-    const headEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_HEAD}`);
-    const headElementsEl = headEl.querySelector(`.${Class.CONSOLE_ITEM_HEAD_ELEMENTS}`);
-    const headInfoEl = headEl.querySelector(`.${Class.CONSOLE_ITEM_HEAD_INFO}`);
-    this._contentContainerEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_CONTENT_CONTAINTER}`);
-
+  afterRender() {
     const {elOrStr, isShowConstructor, isShowElements, isBraced, isOpeningDisabled, isOversize, isStringified} = this._getHeadContent();
+    console.log(elOrStr, isShowConstructor, isShowElements, isBraced, isOpeningDisabled, isOversize, isStringified);
     if (isBraced) {
-      headElementsEl.classList.add(Class.ENTRY_CONTAINER_BRACED);
+      this.headContentEl.classList.add(Class.ENTRY_CONTAINER_BRACED);
     }
     if (isOversize) {
-      headElementsEl.classList.add(Class.ENTRY_CONTAINER_OVERSIZE);
+      this.headContentEl.classList.add(Class.ENTRY_CONTAINER_OVERSIZE);
     }
     if (isShowConstructor) {
-      headInfoEl.classList.add(Class.CONSOLE_ITEM_HEAD_SHOW);
+      this.headInfoEl.classList.add(Class.ITEM_HEAD_SHOW);
     }
     if (isShowElements) {
       if (elOrStr instanceof HTMLElement || elOrStr instanceof DocumentFragment) {
-        headElementsEl.appendChild(elOrStr);
+        this.headContentEl.appendChild(elOrStr);
       } else {
-        headElementsEl.innerHTML = elOrStr;
+        this.headContentEl.innerHTML = elOrStr;
       }
-      headElementsEl.classList.add(Class.CONSOLE_ITEM_HEAD_ELEMENTS_SHOW);
+      this.headContentEl.classList.add(Class.CONSOLE_ITEM_HEAD_ELEMENTS_SHOW);
     }
 
     if (this._mode === Mode.ERROR && isStringified) {
@@ -71,7 +46,7 @@ export default class ObjectView extends TypeView {
       if (this._isAutoExpandNeeded) {
         this._toggleContent();
       }
-      this._setHeadClickHandler(headEl);
+      this._setHeadClickHandler(this.headEl);
     }
   }
 

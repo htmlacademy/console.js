@@ -9,7 +9,6 @@ export default class TypeView extends AbstractView {
       this._parentView = params.parentView;
       this._rootViewType = params.parentView._rootViewType;
     }
-    this._viewType = null;
     this._console = cons;
     this._value = params.val;
     this._mode = params.mode;
@@ -18,6 +17,61 @@ export default class TypeView extends AbstractView {
 
     this._currentDepth = typeof params.depth === `number` ? params.depth : 1;
 
+  }
+
+  /**
+   * Шаблон
+   * @override
+   **/
+  get template() {
+    return `\
+<div class="console__item item item_${this._viewType}">\
+  <div class="item-head">\
+    <span class="item-head__info">${this.value.constructor.name}</span>\
+    <span class="item-head__content-length">${this.value.length}</span>\
+    <div class="item-head__content entry-container entry-container_head entry-container_type_${this._viewType}"></div>
+  </div>
+  <div class="item__content entry-container entry-container_type_${this._viewType}"></div>
+</div>`;
+  }
+
+  afterRender() {}
+
+  bind() {
+    this._headEl = this.el.querySelector(`.item-head`);
+    this._headInfoEl = this._headEl.querySelector(`.item-head__info`);
+    this._headContentEl = this._headEl.querySelector(`.item-head__content`);
+    this._headContentLengthEl = this._headEl.querySelector(`.item-head__content-length`);
+    this._contentEl = this.el.querySelector(`.item__content`);
+    this.afterRender();
+  }
+
+  get headInfoEl() {
+    if (!this._headInfoEl) {
+      this._headInfoEl = this._headEl.appendChild(getElement(this._markup.headInfo));
+    }
+    return this._headInfoEl;
+  }
+
+  get headContentEl() {
+    if (!this._headContentEl) {
+      this._headContentEl = this._headEl.appendChild(getElement(this._markup.headContent));
+    }
+    return this._headContentEl;
+  }
+
+  get headContentLengthEl() {
+    if (!this._headContentLengthEl) {
+      this._headContentLengthEl = this._headEl.appendChild(getElement(this._markup.headContentLength));
+    }
+    return this._headContentLengthEl;
+  }
+
+  get contentEl() {
+    if (!this._contentEl) {
+      this._contentEl = this._headEl.appendChild(getElement(this._markup.headContent));
+    }
+    return this._contentEl;
   }
 
   get value() {
@@ -60,23 +114,17 @@ export default class TypeView extends AbstractView {
   }
 
   _toggleContent() {
-    if (!this._proxiedContentEl) {
-      this._proxiedContentEl = getElement(`<div class="item-content entry-container entry-container_type_${this._viewType}"></div>`);
-      this._proxiedContentEl.appendChild(this.createContent(this.value, false).fragment);
-      this._contentContainerEl.appendChild(this._proxiedContentEl);
+    if (this.contentEl) {
+      this.contentEl.appendChild(this.createContent(this.value, false).fragment);
     }
-    this._contentContainerEl.classList.toggle(Class.CONSOLE_ITEM_CONTENT_CONTAINTER_SHOW);
-  }
-
-  _hideContent() {
-    this._proxiedContentEl.style.display = `none`;
+    this.contentEl.classList.toggle(`item__content_show`);
   }
 
   _additionHeadClickHandler() {}
 
-  _setHeadClickHandler(headEl) {
+  _setHeadClickHandler() {
     this._setCursorPointer();
-    headEl.addEventListener(`click`, (evt) => {
+    this._headEl.addEventListener(`click`, (evt) => {
       evt.preventDefault();
       this._toggleContent();
       this._additionHeadClickHandler();
@@ -84,7 +132,7 @@ export default class TypeView extends AbstractView {
   }
 
   _setCursorPointer() {
-    this.el.classList.add(Class.CONSOLE_ITEM_POINTER);
+    this.el.classList.add(Class.ITEM_POINTER);
   }
 
   static createEntryEl(index, valueEl, withoutKey) {
