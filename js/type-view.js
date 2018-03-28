@@ -24,14 +24,20 @@ export default class TypeView extends AbstractView {
    * @override
    **/
   get template() {
+    this._markup = {
+      headInfo: `<span class="item-head__info">${this.value.constructor.name}</span>`,
+      headContentLength: `<span class="item-head__content-length">${this.value.length}</span>`,
+      headContent: `<div class="item-head__content ${this._templateArgs.isBraced ? `entry-container_braced` : ``} entry-container entry-container_head entry-container_type_${this._viewType}"></div>`,
+      content: `<div class="item__content entry-container ${this._templateArgs.isOversize} entry-container_type_${this._viewType}"></div>`
+    };
     return `\
 <div class="console__item item item_${this._viewType}">\
   <div class="item-head">\
-    <span class="item-head__info">${this.value.constructor.name}</span>\
-    <span class="item-head__content-length">${this.value.length}</span>\
-    <div class="item-head__content entry-container entry-container_head entry-container_type_${this._viewType}"></div>
+    ${this._templateArgs.withHeadInfo ? this._markup.headInfo : ``}\
+    ${this._templateArgs.withHeadContentLength ? this._markup.headContentLength : ``}\
+    ${this._templateArgs.withHeadContent ? this._markup.headContent : ``}\
   </div>
-  <div class="item__content entry-container entry-container_type_${this._viewType}"></div>
+  ${this._templateArgs.withContent ? this._markup.content : ``}
 </div>`;
   }
 
@@ -69,7 +75,7 @@ export default class TypeView extends AbstractView {
 
   get contentEl() {
     if (!this._contentEl) {
-      this._contentEl = this._headEl.appendChild(getElement(this._markup.headContent));
+      this._contentEl = this.el.appendChild(getElement(this._markup.content));
     }
     return this._contentEl;
   }
@@ -114,7 +120,7 @@ export default class TypeView extends AbstractView {
   }
 
   _toggleContent() {
-    if (this.contentEl) {
+    if (!this._contentEl) {
       this.contentEl.appendChild(this.createContent(this.value, false).fragment);
     }
     this.contentEl.classList.toggle(`item__content_show`);
@@ -122,7 +128,7 @@ export default class TypeView extends AbstractView {
 
   _additionHeadClickHandler() {}
 
-  _setHeadClickHandler() {
+  setHeadClickHandler() {
     this._setCursorPointer();
     this._headEl.addEventListener(`click`, (evt) => {
       evt.preventDefault();

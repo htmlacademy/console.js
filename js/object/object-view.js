@@ -12,41 +12,38 @@ export default class ObjectView extends TypeView {
     }
     this._viewType = ViewType.OBJECT;
     this._isOpened = false;
+    this._args = this._getHeadContent();
+    this._templateArgs = {
+      withHeadInfo: this._args.isShowConstructor,
+      withHeadContent: this._args.isShowElements,
+      withContent: this._isAutoExpandNeeded, // append content container only if autoexpand needed
+      isBraced: this._args.isBraced,
+      isOversize: this._args.isOversize
+    };
   }
 
   afterRender() {
-    const {elOrStr, isShowConstructor, isShowElements, isBraced, isOpeningDisabled, isOversize, isStringified} = this._getHeadContent();
-    console.log(elOrStr, isShowConstructor, isShowElements, isBraced, isOpeningDisabled, isOversize, isStringified);
-    if (isBraced) {
-      this.headContentEl.classList.add(Class.ENTRY_CONTAINER_BRACED);
-    }
-    if (isOversize) {
-      this.headContentEl.classList.add(Class.ENTRY_CONTAINER_OVERSIZE);
-    }
-    if (isShowConstructor) {
-      this.headInfoEl.classList.add(Class.ITEM_HEAD_SHOW);
-    }
-    if (isShowElements) {
-      if (elOrStr instanceof HTMLElement || elOrStr instanceof DocumentFragment) {
-        this.headContentEl.appendChild(elOrStr);
+    if (this._args.isShowElements) {
+      if (this._args.elOrStr instanceof HTMLElement || this._args.elOrStr instanceof DocumentFragment) {
+        this._headContentEl.appendChild(this._args.elOrStr);
       } else {
-        this.headContentEl.innerHTML = elOrStr;
+        this._headContentEl.innerHTML = this._args.elOrStr;
       }
-      this.headContentEl.classList.add(Class.CONSOLE_ITEM_HEAD_ELEMENTS_SHOW);
+      this._headContentEl.classList.add(Class.CONSOLE_ITEM_HEAD_ELEMENTS_SHOW);
     }
 
-    if (this._mode === Mode.ERROR && isStringified) {
+    if (this._mode === Mode.ERROR && this._args.isStringified) {
       this.el.classList.add(this._mode);
     }
 
     if (this._mode === Mode.PREVIEW) {
       return;
     }
-    if (!isOpeningDisabled) {
+    if (!this._args.isOpeningDisabled) {
       if (this._isAutoExpandNeeded) {
         this._toggleContent();
       }
-      this._setHeadClickHandler(this.headEl);
+      this.setHeadClickHandler();
     }
   }
 
