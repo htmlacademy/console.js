@@ -10,6 +10,8 @@
     <script src="js/index.js"></script>
 
     <script>
+      const jsConsole = new Console(document.querySelector(`.console`), {});
+      jsConsole.extend(console);
       // const obj = {};
       // const arr = [obj];
       // arr.push(arr);
