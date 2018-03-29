@@ -10,6 +10,23 @@
     <script src="js/index.js"></script>
 
     <script>
+      const jsConsole = new Console(document.querySelector(`.console`), {
+        object: {
+          maxFieldsInHead: 2,
+          expandDepth: 2,
+          exclude: `array`
+        },
+        // function: {
+        //   expandDepth: 2,
+        //   exclude: [ViewType.OBJECT, ViewType.ARRAY]
+        // },
+        // array: {
+        //   expandDepth: 2,
+        //   exclude: [ViewType.OBJECT, ViewType.FUNCTION]
+        // }
+      });
+      // jsConsole.extend(console);
+
       // const obj = {};
       // const arr = [obj];
       // arr.push(arr);
