@@ -47,9 +47,9 @@ const ViewType = {
 };
 
 const Class = {
-  ITEM_HEAD: `item-head`,
-  ITEM_POINTER: `item_pointer`,
-  ITEM_HEAD_SHOW: `item-head_show`,
+  CONSOLE_ITEM_HEAD: `item-head`,
+  CONSOLE_ITEM_POINTER: `item_pointer`,
+  CONSOLE_ITEM_HEAD_SHOW: `item-head_show`,
   ENTRY_CONTAINER_BRACED: `entry-container_braced`,
   ENTRY_CONTAINER_OVERSIZE: `entry-container_oversize`,
   CONSOLE_ITEM_HEAD_PARENTHESED: `item-head_parenthesed`,
@@ -144,7 +144,7 @@ class TypeView extends AbstractView {
   }
 
   _setCursorPointer() {
-    this.el.classList.add(Class.ITEM_POINTER);
+    this.el.classList.add(Class.CONSOLE_ITEM_POINTER);
   }
 
   static createEntryEl(index, valueEl, withoutKey) {
@@ -185,7 +185,7 @@ class ObjectView extends TypeView {
   get template() {
     return `\
 <div class="console__item item item_object">\
-  <div class="${Class.ITEM_HEAD}">
+  <div class="${Class.CONSOLE_ITEM_HEAD}">
     <span class="${Class.CONSOLE_ITEM_HEAD_INFO}">${this.value.constructor.name}</span>
     <div class="${Class.CONSOLE_ITEM_HEAD_ELEMENTS} entry-container entry-container_head entry-container_type_object"></div>
   </div>
@@ -194,7 +194,7 @@ class ObjectView extends TypeView {
   }
 
   bind() {
-    const headEl = this.el.querySelector(`.${Class.ITEM_HEAD}`);
+    const headEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_HEAD}`);
     const headElementsEl = headEl.querySelector(`.${Class.CONSOLE_ITEM_HEAD_ELEMENTS}`);
     const headInfoEl = headEl.querySelector(`.${Class.CONSOLE_ITEM_HEAD_INFO}`);
     this._contentContainerEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_CONTENT_CONTAINTER}`);
@@ -207,7 +207,7 @@ class ObjectView extends TypeView {
       headElementsEl.classList.add(Class.ENTRY_CONTAINER_OVERSIZE);
     }
     if (isShowConstructor) {
-      headInfoEl.classList.add(Class.ITEM_HEAD_SHOW);
+      headInfoEl.classList.add(Class.CONSOLE_ITEM_HEAD_SHOW);
     }
     if (isShowElements) {
       if (elOrStr instanceof HTMLElement || elOrStr instanceof DocumentFragment) {
@@ -409,7 +409,7 @@ class ArrayView extends TypeView {
   get template() {
     return `\
 <div class="console__item item item_array">
-  <div class="${Class.ITEM_HEAD}">
+  <div class="${Class.CONSOLE_ITEM_HEAD}">
     <span class="${Class.CONSOLE_ITEM_HEAD_INFO}">${this.value.constructor.name}</span>
     <span class="${Class.CONSOLE_ITEM_HEAD_ELEMENTS_LENGTH}">${this.value.length}</span>
     <div class="${Class.CONSOLE_ITEM_HEAD_ELEMENTS} entry-container entry-container_head entry-container_braced entry-container_type_array"></div>
@@ -420,7 +420,7 @@ class ArrayView extends TypeView {
 
   bind() {
     this._contentContainerEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_CONTENT_CONTAINTER}`);
-    this.headEl = this.el.querySelector(`.${Class.ITEM_HEAD}`);
+    this.headEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_HEAD}`);
     this.headInfoEl = this.headEl.querySelector(`.${Class.CONSOLE_ITEM_HEAD_INFO}`);
     this.headElementsEl = this.headEl.querySelector(`.${Class.CONSOLE_ITEM_HEAD_ELEMENTS}`);
     this.headElementsLengthEl = this.headEl.querySelector(`.${Class.CONSOLE_ITEM_HEAD_ELEMENTS_LENGTH}`);
@@ -452,7 +452,7 @@ class ArrayView extends TypeView {
   }
 
   _toggleConstructor() {
-    this.headInfoEl.classList.toggle(Class.ITEM_HEAD_SHOW);
+    this.headInfoEl.classList.toggle(Class.CONSOLE_ITEM_HEAD_SHOW);
   }
 
   _toggleLength() {
@@ -548,12 +548,12 @@ class FunctionView extends TypeView {
         break;
       case Mode.PROP:
         tpl += `\
-<div class="${Class.ITEM_HEAD}">${this._getHeadPropMarkup()}</div>\
+<div class="${Class.CONSOLE_ITEM_HEAD}">${this._getHeadPropMarkup()}</div>\
 <div class="${Class.CONSOLE_ITEM_CONTENT_CONTAINTER} entry-container"></div>`;
         break;
       case Mode.DIR:
         tpl += `\
-<div class="${Class.ITEM_HEAD}">${this._getHeadDirMarkup()}</div>\
+<div class="${Class.CONSOLE_ITEM_HEAD}">${this._getHeadDirMarkup()}</div>\
 <div class="${Class.CONSOLE_ITEM_CONTENT_CONTAINTER} entry-container"></div>`;
         break;
       case Mode.LOG:
@@ -571,7 +571,7 @@ class FunctionView extends TypeView {
     }
 
     this._contentContainerEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_CONTENT_CONTAINTER}`);
-    const headEl = this.el.querySelector(`.${Class.ITEM_HEAD}`);
+    const headEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_HEAD}`);
     // previewEl.appendChild(this.createPreview(this.value, true));
     if (this._isAutoExpandNeeded) {
       this._toggleContent();
