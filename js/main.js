@@ -104,7 +104,7 @@ export default class Console {
    * @param {*} val — value
    */
   error(val) {
-    const el = getElement(`<div class="console__row console__row_error"></div>`);
+    const el = getElement(`<div class="console__row console__row--error"></div>`);
     el.appendChild(this.createTypedView(val, Mode.ERROR).el);
     this._container.appendChild(el);
     this.onerror();

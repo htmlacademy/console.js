@@ -19,51 +19,46 @@ const FnType = {
 export default class FunctionView extends TypeView {
   constructor(params, cons) {
     super(params, cons);
-    if (!params.parentView) {
-      this._rootViewType = ViewType.FUNCTION;
-    }
     this._viewType = ViewType.FUNCTION;
-    this._isOpened = false;
+    if (!params.parentView) {
+      this._rootViewType = this._viewType;
+    }
     this._fnType = FunctionView.checkFnType(this.value);
-  }
 
-  get template() {
-    let tpl = `<div class="console__item item item_function ${this._mode === Mode.ERROR ? `${this._mode}` : ``}">`;
     switch (this._mode) {
       case Mode.PREVIEW:
-        tpl += `f`;
+      // case Mode.LOG:
+      // case Mode.ERROR:
+        this._templateParams.onlyWrapper = true;
         break;
+    }
+  }
+
+  afterRender() {
+    switch (this._mode) {
       case Mode.PROP:
-        tpl += `\
-<div class="${Class.CONSOLE_ITEM_HEAD}">${this._getHeadPropMarkup()}</div>\
-<div class="${Class.CONSOLE_ITEM_CONTENT_CONTAINTER} entry-container"></div>`;
+        this._headContentEl.innerHTML = this._getHeadPropMarkup();
         break;
       case Mode.DIR:
-        tpl += `\
-<div class="${Class.CONSOLE_ITEM_HEAD}">${this._getHeadDirMarkup()}</div>\
-<div class="${Class.CONSOLE_ITEM_CONTENT_CONTAINTER} entry-container"></div>`;
+        this._headContentEl.innerHTML = this._getHeadDirMarkup();
         break;
       case Mode.LOG:
       case Mode.ERROR:
-        tpl += this._getLogMarkup();
+        this._headContentEl.innerHTML = this._getLogMarkup();
+        break;
+      case Mode.PREVIEW:
+        this.el.innerHTML = `f`;
         break;
     }
-    tpl += `</div>`;
-    return tpl;
-  }
 
-  bind() {
     if (this._mode !== Mode.DIR && this._mode !== Mode.PROP) {
       return;
     }
 
-    this._contentContainerEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_CONTENT_CONTAINTER}`);
-    const headEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_HEAD}`);
-    // previewEl.appendChild(this.createPreview(this.value, true));
     if (this._isAutoExpandNeeded) {
       this._toggleContent();
     }
-    this._setHeadClickHandler(headEl);
+    this._setHeadClickHandler();
   }
 
   _getHeadPropMarkup() {
@@ -109,20 +104,6 @@ ${this._fnType === FnType.ARROW ? ` => ` : ` `}{
 ${lines.join(`\n`)}
 }
 </pre>`;*/
-  }
-
-  static checkFnType(fn) {
-    let str = fn.toString();
-    const firstParenthesisIndex = str.indexOf(`(`);
-
-    const classIndex = str.indexOf(`class`);
-    const arrowIndex = str.indexOf(`=>`);
-    if (classIndex !== -1 && classIndex < firstParenthesisIndex) {
-      return FnType.CLASS;
-    } else if (arrowIndex !== -1 && arrowIndex > firstParenthesisIndex) {
-      return FnType.ARROW;
-    }
-    return FnType.PLAIN;
   }
 
   parseParams(funString) {
@@ -198,5 +179,19 @@ ${lines.join(`\n`)}
       fragment.appendChild(entryEl);
     }
     return {fragment};
+  }
+
+  static checkFnType(fn) {
+    let str = fn.toString();
+    const firstParenthesisIndex = str.indexOf(`(`);
+
+    const classIndex = str.indexOf(`class`);
+    const arrowIndex = str.indexOf(`=>`);
+    if (classIndex !== -1 && classIndex < firstParenthesisIndex) {
+      return FnType.CLASS;
+    } else if (arrowIndex !== -1 && arrowIndex > firstParenthesisIndex) {
+      return FnType.ARROW;
+    }
+    return FnType.PLAIN;
   }
 }

@@ -23,29 +23,29 @@ export default class PrimitiveView extends TypeView {
       case `undefined`:
       case `null`:
       case `boolean`:
-        html = `<div class="console__item item item_primitive ${type}">${value}</div>`;
+        html = `<div class="console__item item item--primitive ${type}">${value}</div>`;
         break;
 
       case `number`:
         if (Number.isNaN(value)) {
-          html = `<div class="console__item item item_primitive NaN">NaN</div>`;
+          html = `<div class="console__item item item--primitive NaN">NaN</div>`;
         } else if ((value === Infinity || value === -Infinity)) {
-          html = `<div class="console__item item item_primitive number">${(value === -Infinity ? `-` : ``)}Infinity</div>`;
+          html = `<div class="console__item item item--primitive number">${(value === -Infinity ? `-` : ``)}Infinity</div>`;
         } else {
-          html = `<div class="console__item item item_primitive ${type}">${value}</div>`;
+          html = `<div class="console__item item item--primitive ${type}">${value}</div>`;
         }
         break;
 
       case `string`:
-        html = `<pre class="console__item item item_primitive string ${this.mode === Mode.PROP ? STRING_COLLAPSED : ``} ${this.mode === Mode.ERROR ? `${this.mode}` : ``}">${value}</pre>`;
+        html = `<pre class="console__item item item--primitive string ${this.mode === Mode.PROP ? STRING_COLLAPSED : ``} ${this.mode === Mode.ERROR ? `${this.mode}` : ``}">${value}</pre>`;
         break;
       case `symbol`:
-        html = `<div class="console__item item item_primitive symbol">${value}</div>`;
+        html = `<div class="console__item item item--primitive symbol">${value}</div>`;
         break;
 
       case `object`:
         if (value === null) {
-          html = `<div class="console__item item item_primitive null">${value}</div>`;
+          html = `<div class="console__item item item--primitive null">${value}</div>`;
           break;
         }
     }

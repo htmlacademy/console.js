@@ -1,67 +1,40 @@
 /* eslint guard-for-in: "off"*/
 /* eslint no-empty: "off"*/
 import TypeView from '../type-view';
-// import {createTypedView} from '../utils';
-import {Mode, Class, ViewType} from '../enums';
+import {Mode, ViewType} from '../enums';
 
 export default class ObjectView extends TypeView {
   constructor(params, cons) {
     super(params, cons);
-    if (!params.parentView) {
-      this._rootViewType = ViewType.OBJECT;
-    }
     this._viewType = ViewType.OBJECT;
-    this._entries = new Map();
-    this._isOpened = false;
-  }
-
-  /**
-   * Шаблон
-   * @override
-   * Чтобы окружить фигурными скобками тело объекта, добавьте к элемену с классом
-   * Class.CONSOLE_ITEM_CONTENT_CONTAINTER
-   * класс
-   * Class.ENTRY_CONTAINER_BRACED
-   *
-   **/
-  get template() {
-    return `\
-<div class="console__item item item_object">\
-  <div class="${Class.CONSOLE_ITEM_HEAD}">
-    <span class="${Class.CONSOLE_ITEM_HEAD_INFO}">${this.value.constructor.name}</span>
-    <div class="${Class.CONSOLE_ITEM_HEAD_ELEMENTS} entry-container entry-container_head entry-container_type_object"></div>
-  </div>
-  <div class="${Class.CONSOLE_ITEM_CONTENT_CONTAINTER}"></div>
-</div>`;
-  }
-
-  bind() {
-    const headEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_HEAD}`);
-    const headElementsEl = headEl.querySelector(`.${Class.CONSOLE_ITEM_HEAD_ELEMENTS}`);
-    const headInfoEl = headEl.querySelector(`.${Class.CONSOLE_ITEM_HEAD_INFO}`);
-    this._contentContainerEl = this.el.querySelector(`.${Class.CONSOLE_ITEM_CONTENT_CONTAINTER}`);
-
-    const {elOrStr, isShowConstructor, isShowElements, isBraced, isOpeningDisabled, isOversize, isStringified} = this._getHeadContent();
-    if (isBraced) {
-      headElementsEl.classList.add(Class.ENTRY_CONTAINER_BRACED);
+    if (!params.parentView) {
+      this._rootViewType = this._viewType;
     }
-    if (isOversize) {
-      headElementsEl.classList.add(Class.ENTRY_CONTAINER_OVERSIZE);
+  }
+
+  afterRender() {
+    const {elOrStr, isShowConstructor, isHeadContentShowed, isBraced, isOpeningDisabled, isOversized, isStringified} = this._getHeadContent();
+    if (isBraced) {
+      this.toggleHeadContentBraced();
+    }
+    if (isOversized) {
+      this.toggleHeadContentOversized();
     }
     if (isShowConstructor) {
-      headInfoEl.classList.add(Class.CONSOLE_ITEM_HEAD_SHOW);
+      this._headInfoEl.textContent = this.value.constructor.name;
+      this.toggleInfoShowed();
     }
-    if (isShowElements) {
+    if (isHeadContentShowed) {
       if (elOrStr instanceof HTMLElement || elOrStr instanceof DocumentFragment) {
-        headElementsEl.appendChild(elOrStr);
+        this._headContentEl.appendChild(elOrStr);
       } else {
-        headElementsEl.innerHTML = elOrStr;
+        this._headContentEl.innerHTML = elOrStr;
       }
-      headElementsEl.classList.add(Class.CONSOLE_ITEM_HEAD_ELEMENTS_SHOW);
+      this.toggleHeadContentShowed();
     }
 
     if (this._mode === Mode.ERROR && isStringified) {
-      this.el.classList.add(this._mode);
+      this.toggleError();
     }
 
     if (this._mode === Mode.PREVIEW) {
@@ -71,7 +44,7 @@ export default class ObjectView extends TypeView {
       if (this._isAutoExpandNeeded) {
         this._toggleContent();
       }
-      this._setHeadClickHandler(headEl);
+      this._setHeadClickHandler();
     }
   }
 
@@ -91,7 +64,7 @@ export default class ObjectView extends TypeView {
       return {
         elOrStr: `...`,
         isShowConstructor: false,
-        isShowElements: true,
+        isHeadContentShowed: true,
         isBraced: true
       };
     }
@@ -103,7 +76,7 @@ export default class ObjectView extends TypeView {
     let isShowConstructor = false;
     let isBraced = true;
     let isOpeningDisabled = false;
-    let isOversize = false;
+    let isOversized = false;
     let isStringified = false;
 
     if (this.value instanceof HTMLElement) {
@@ -131,7 +104,7 @@ export default class ObjectView extends TypeView {
     } else {
       const obj = this.createContent(this.value, true);
       val = obj.fragment;
-      isOversize = obj.isOversize;
+      isOversized = obj.isOversized;
       if (this.value.constructor !== Object) {
         isShowConstructor = true;
       }
@@ -139,10 +112,10 @@ export default class ObjectView extends TypeView {
     return {
       elOrStr: val,
       isShowConstructor,
-      isShowElements: true,
+      isHeadContentShowed: true,
       isBraced,
       isOpeningDisabled,
-      isOversize,
+      isOversized,
       isStringified
     };
   }
@@ -150,7 +123,7 @@ export default class ObjectView extends TypeView {
   _getHeadDirContent() {
     let val;
     let isShowConstructor = false;
-    let isShowElements = true;
+    let isHeadContentShowed = true;
     let isBraced = false;
     if (this.value instanceof HTMLElement) {
       let str = this.value.tagName.toLowerCase();
@@ -168,7 +141,7 @@ export default class ObjectView extends TypeView {
     } else {
       val = this.value;
       isShowConstructor = true;
-      isShowElements = false;
+      isHeadContentShowed = false;
     }
     // else if (this.value.constructor === GeneratorFunction) {
     //   return this
@@ -176,7 +149,7 @@ export default class ObjectView extends TypeView {
     return {
       elOrStr: val,
       isShowConstructor,
-      isShowElements,
+      isHeadContentShowed,
       isBraced
     };
   }
@@ -190,7 +163,7 @@ export default class ObjectView extends TypeView {
       if (isPreview && addedKeys.size === this._console.params[this._viewType].maxFieldsInHead) {
         return {
           fragment,
-          isOversize: true
+          isOversized: true
         };
       }
       addedKeys.add(key);
@@ -206,7 +179,7 @@ export default class ObjectView extends TypeView {
       if (isPreview && addedKeys.size === this._console.params[this._viewType].maxFieldsInHead) {
         return {
           fragment,
-          isOversize: true
+          isOversized: true
         };
       }
       addedKeys.add(key);
@@ -217,7 +190,7 @@ export default class ObjectView extends TypeView {
     }
     return {
       fragment,
-      isOversize: false
+      isOversized: false
     };
   }
 

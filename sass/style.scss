@@ -1,3 +1,11 @@
+/*
+using BEM
+block — block
+block__elem — block's element
+block--mod — block's modifier
+block__elem--mod — element's modifier
+*/
+
 .console {
   display: inline-block;
   box-sizing: border-box;
@@ -33,7 +41,7 @@
     overflow: auto;
     background: #f8faf3;
 
-    &_error {
+    &--error {
       background-color: #ff00001a;
     }
   }
@@ -51,8 +59,31 @@
 .item {
   $parent: &;
 
-  &_array {
-    #{$parent}-head-elements-length {
+  &__head {
+    &-content,
+    &-content-length,
+    &-info {
+      display: none;
+
+      &--show {
+        display: inline;
+      }
+    }
+  }
+
+
+  &__content {
+    display: none;
+    flex-direction: column;
+    margin-left: 12px;
+
+    &--show {
+      display: flex;
+    }
+  }
+
+  &--array {
+    #{$parent}__head-content-length {
       &::before {
         content: '(';
       }
@@ -63,7 +94,7 @@
     }
   }
 
-  &_function {
+  &--function {
     &__classifier {
       &_plain::after {
         content: "f";
@@ -75,14 +106,14 @@
     }
   }
 
-  &_pointer {
+  &--pointer {
     #{$parent}_primitive,
     #{$parent}-head {
       cursor: pointer;
     }
   }
 
-  &_primitive {}
+  &--primitive {}
 }
 
 .item-content {
@@ -91,35 +122,13 @@
   margin-left: 12px;
 }
 
-.item-head {
-  &-elements,
-  &-elements-length,
-  &-info {
-    display: none;
-  }
-
-  &-elements_show,
-  &-elements-length_show,
-  &_show {
-    display: inline;
-  }
-}
-
-.item-content-container {
-  display: none;
-
-  &_show {
-    display: block;
-  }
-}
-
 .entry-container {
   $parent: &;
-  &__entry {
-    display: flex;
-    flex-direction: row;
-  }
-  &_head {
+  // &__entry {
+  //   display: flex;
+  //   flex-direction: row;
+  // }
+  &--head {
     #{$parent}__entry {
       display: inline-block;
 
@@ -133,8 +142,8 @@
     }
   }
 
-  &_braced {
-    &#{$parent}_type_object {
+  &--braced {
+    &#{$parent}--object {
       &::before {
         content: '{';
       }
@@ -143,7 +152,7 @@
         content: '}';
       }
 
-      &#{$parent}_oversize {
+      &#{$parent}--oversize {
         #{$parent}__entry:last-child {
           margin-right: 5px;
           &::after {
@@ -157,7 +166,7 @@
       }
     }
 
-    &#{$parent}_type_array {
+    &#{$parent}--array {
       &::before {
         content: '[';
       }
