@@ -10,6 +10,8 @@ export default class ObjectView extends TypeView {
     if (!params.parentView) {
       this._rootViewType = this._viewType;
     }
+    const stringTag = Object.prototype.toString.call(this.value);
+    this._stringTagName = stringTag.substring(8, stringTag.length - 1);
   }
 
   afterRender() {
@@ -21,7 +23,7 @@ export default class ObjectView extends TypeView {
       this.toggleHeadContentOversized();
     }
     if (isShowConstructor) {
-      this._headInfoEl.textContent = this.value.constructor.name;
+      this._headInfoEl.textContent = this._stringTagName;// this.value.constructor.name;
       this.toggleInfoShowed();
     }
     if (isHeadContentShowed) {
@@ -60,7 +62,7 @@ export default class ObjectView extends TypeView {
   }
 
   _getHeadPreviewContent() {
-    if (Object.prototype.toString.call(this.value) === `[object Object]`) {
+    if (this._stringTagName === `Object`) {
       return {
         elOrStr: `...`,
         isShowConstructor: false,
@@ -79,7 +81,7 @@ export default class ObjectView extends TypeView {
     let isOversized = false;
     let isStringified = false;
 
-    if (this.value instanceof HTMLElement) {
+    if (this.value instanceof HTMLElement && Object.getPrototypeOf(this.value).constructor !== HTMLElement) {
       return this._getHeadDirContent();
     } else if (this.value instanceof Error) {
       isBraced = false;
@@ -105,7 +107,7 @@ export default class ObjectView extends TypeView {
       const obj = this.createContent(this.value, true);
       val = obj.fragment;
       isOversized = obj.isOversized;
-      if (this.value.constructor !== Object) {
+      if (this._stringTagName !== `Object`) {
         isShowConstructor = true;
       }
     }
@@ -159,19 +161,23 @@ export default class ObjectView extends TypeView {
     const addedKeys = new Set();
     // TODO: Добавить счётчик, чтобы больше 5 значений не добавлялось
     for (let key in obj) {
+      if (isPreview && !obj.hasOwnProperty(key)) { // Перечисляемые свои
+        continue;
+      }
       if (isPreview && addedKeys.size === this._console.params[this._viewType].maxFieldsInHead) {
         return {
           fragment,
           isOversized: true
         };
       }
-      addedKeys.add(key);
-      const val = obj[key];
       try {
+        const val = obj[key];
         fragment.appendChild(this._createObjectEntryEl(key, val, isPreview));
+        addedKeys.add(key);
       } catch (err) {}
     }
-    for (let key of Object.getOwnPropertyNames(obj)) {
+    const ownPropertyNamesAndSymbols = Object.getOwnPropertyNames(obj).concat(Object.getOwnPropertySymbols(obj));
+    for (let key of ownPropertyNamesAndSymbols) { // Неперечисляемые свои
       if (addedKeys.has(key)) {
         continue;
       }
@@ -181,10 +187,10 @@ export default class ObjectView extends TypeView {
           isOversized: true
         };
       }
-      addedKeys.add(key);
-      const val = obj[key];
       try {
+        const val = obj[key];
         fragment.appendChild(this._createObjectEntryEl(key, val, isPreview));
+        addedKeys.add(key);
       } catch (err) {}
     }
     return {
@@ -195,6 +201,6 @@ export default class ObjectView extends TypeView {
 
   _createObjectEntryEl(key, val, isPreview) {
     const view = this._console.createTypedView(val, isPreview ? Mode.PREVIEW : Mode.PROP, this.nextNestingLevel, this);
-    return ObjectView.createEntryEl(key, view.el);
+    return ObjectView.createEntryEl(key.toString(), view.el);
   }
 }

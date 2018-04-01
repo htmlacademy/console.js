@@ -175,7 +175,7 @@ ${lines.join(`\n`)}
         continue;
       }
       const view = this._console.createTypedView(value, Mode.PROP, this.nextNestingLevel, this);
-      const entryEl = FunctionView.createEntryEl(key, view.el);
+      const entryEl = FunctionView.createEntryEl(key.toString(), view.el);
       fragment.appendChild(entryEl);
     }
     return {fragment};

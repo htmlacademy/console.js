@@ -124,10 +124,10 @@ export default class TypeView extends AbstractView {
   }
 
   _toggleContent() {
+    this.toggleContentShowed();
     if (this._contentEl.childElementCount === 0) {
       this._contentEl.appendChild(this.createContent(this.value, false).fragment);
     }
-    this.toggleContentShowed();
   }
 
   _hideContent() {

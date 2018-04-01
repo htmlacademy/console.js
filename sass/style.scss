@@ -60,6 +60,7 @@ block__elem--mod — element's modifier
   $parent: &;
 
   &__head {
+    display: inline-block;
     &-content,
     &-content-length,
     &-info {

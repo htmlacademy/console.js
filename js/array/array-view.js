@@ -89,6 +89,6 @@ export default class ArrayView extends TypeView {
   _createArrayEntryEl(key, val, isPreview) {
     const isKeyNaN = Number.isNaN(Number.parseInt(key, 10));
     const view = this._console.createTypedView(val, isPreview ? Mode.PREVIEW : Mode.PROP, this.nextNestingLevel, this);
-    return ArrayView.createEntryEl(key, view.el, isPreview ? !isKeyNaN : isPreview);
+    return ArrayView.createEntryEl(key.toString(), view.el, isPreview ? !isKeyNaN : isPreview);
   }
 }
