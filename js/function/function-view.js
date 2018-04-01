@@ -104,8 +104,6 @@ ${this._fnType === FnType.ARROW ? ` => ` : ` `}`;
 
     let markup = `\
   <span>\
-  ${this._fnType === FnType.CLASS ? `class ` : ``}\
-  ${this._fnType === FnType.PLAIN ? `f ` : ``}\
   ${name ? name : ``}\
   ${this._fnType !== FnType.CLASS ? `(${params.join(`, `)})` : ``}</span>`;
     return markup;
