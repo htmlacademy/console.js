@@ -13,7 +13,7 @@
       const jsConsole = new Console(document.querySelector(`.console`), {
         object: {
           maxFieldsInHead: 2,
-          expandDepth: 2,
+          expandDepth: 0,
           exclude: `array`
         },
         // function: {
@@ -161,6 +161,8 @@ asddsd`;
       jsConsole.log(str);
       jsConsole.log(s3);
       jsConsole.log(div);
+      jsConsole.log(div.innerText);
+      jsConsole.log({a: div.innerText});
       jsConsole.log(kot);
       jsConsole.log(Cat);
       jsConsole.log(cat);

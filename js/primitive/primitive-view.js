@@ -1,7 +1,7 @@
 import TypeView from '../type-view';
 import {Mode, ViewType} from '../enums';
 
-const STRING_COLLAPSED = `string_collapsed`;
+const STRING_EXPANDED = `string--expanded`;
 
 export default class PrimitiveView extends TypeView {
   constructor(params, cons) {
@@ -37,7 +37,13 @@ export default class PrimitiveView extends TypeView {
         break;
 
       case `string`:
-        html = `<pre class="console__item item item--primitive string ${this.mode === Mode.PROP ? STRING_COLLAPSED : ``} ${this.mode === Mode.ERROR ? `${this.mode}` : ``}">${value}</pre>`;
+        let str;
+        if (this._mode === Mode.PREVIEW && value.length > 100) {
+          str = `${value.substr(0, 50)}...${value.substr(-50)}`;
+        } else {
+          str = value;
+        }
+        html = `<pre class="console__item item item--primitive string ${this._mode === Mode.PROP || this._mode === Mode.PREVIEW ? `string--nowrap` : ``} ${this._mode === Mode.PROP ? `pointer` : ``} ${this._mode === Mode.ERROR ? `${this._mode}` : ``}">${str}</pre>`;
         break;
       case `symbol`:
         html = `<div class="console__item item item--primitive symbol">${value}</div>`;
@@ -53,11 +59,10 @@ export default class PrimitiveView extends TypeView {
   }
 
   bind() {
-    if (this.mode === Mode.PROP && this.type === `string`) {
-      this._setCursorPointer();
+    if (this._mode === Mode.PROP && this._type === `string`) {
       this.el.addEventListener(`click`, (evt) => {
         evt.preventDefault();
-        this.el.classList.toggle(STRING_COLLAPSED);
+        this.el.classList.toggle(`string--nowrap`);
       });
     }
   }

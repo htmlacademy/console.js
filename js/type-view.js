@@ -76,6 +76,14 @@ export default class TypeView extends AbstractView {
     this.el.classList.toggle(Mode.ERROR);
   }
 
+  _setCursorPointer() {
+    if (this._templateParams.onlyWrapper) {
+      this.el.classList.add(`pointer`);
+    } else {
+      this._headEl.classList.add(`pointer`);
+    }
+  }
+
   get value() {
     return this._value;
   }
@@ -135,10 +143,6 @@ export default class TypeView extends AbstractView {
       this._toggleContent();
       this._additionHeadClickHandler();
     });
-  }
-
-  _setCursorPointer() {
-    this.el.classList.add(`item--pointer`);
   }
 
   static createEntryEl(index, valueEl, withoutKey) {

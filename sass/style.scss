@@ -106,13 +106,6 @@ block__elem--mod — element's modifier
     }
   }
 
-  &--pointer {
-    #{$parent}_primitive,
-    #{$parent}-head {
-      cursor: pointer;
-    }
-  }
-
   &--primitive {}
 }
 
@@ -195,6 +188,7 @@ block__elem--mod — element's modifier
 .string {
   margin: 0;
   color: green;
+  white-space: pre-wrap;
 
   &::before {
     content: '"';
@@ -204,7 +198,7 @@ block__elem--mod — element's modifier
     content: '"';
   }
 
-  &_collapsed {
+  &--nowrap {
     white-space: nowrap;
   }
 }
@@ -227,6 +221,10 @@ block__elem--mod — element's modifier
 
 .error {
   color: red;
+}
+
+.pointer {
+  cursor: pointer;
 }
 
 .editor-container {
