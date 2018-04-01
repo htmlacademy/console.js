@@ -12,8 +12,8 @@
     <script>
       const jsConsole = new Console(document.querySelector(`.console`), {
         object: {
-          maxFieldsInHead: 0,
-          expandDepth: 0,
+          maxFieldsInHead: 2,
+          expandDepth: 2,
           exclude: `array`
         },
         // function: {
@@ -161,9 +161,6 @@ asddsd`;
       jsConsole.log(str);
       jsConsole.log(s3);
       jsConsole.log(div);
-      jsConsole.log(div.innerText);
-      jsConsole.log({a: div.innerText});
-      jsConsole.log(window.__proto__);
       jsConsole.log(kot);
       jsConsole.log(Cat);
       jsConsole.log(cat);
@@ -172,7 +169,6 @@ asddsd`;
       jsConsole.log(errObjPlain);
       jsConsole.log(errNum);
       jsConsole.log(Math);
-      jsConsole.log(JSON);
       jsConsole.log(int8Arr);
       jsConsole.log(Int8Array);
       jsConsole.log(reConstr);
@@ -273,8 +269,6 @@ asddsd`;
       jsConsole.dir(typeErr);
       jsConsole.dir(errObjPlain);
       jsConsole.dir(errNum);
-      jsConsole.dir(Math);
-      jsConsole.dir(JSON);
       jsConsole.dir(reConstr);
       jsConsole.dir(reLiteral);
       jsConsole.dir(sym);

@@ -29,12 +29,25 @@ export default class FunctionView extends TypeView {
       case Mode.PREVIEW:
       // case Mode.LOG:
       // case Mode.ERROR:
-        this._templateParams.onlyWrapper = true;
+        // this._templateParams.onlyWrapper = true;
         break;
     }
   }
 
   afterRender() {
+    switch (this._fnType) {
+      case FnType.CLASS:
+        this._headInfoEl.textContent = `class`;
+        break;
+      case FnType.PLAIN:
+      case FnType.ARROW:
+        this._headInfoEl.textContent = `f`;
+        break;
+    }
+    let isShowInfo = false;
+    if (this._fnType !== FnType.ARROW) {
+      isShowInfo = true;
+    }
     switch (this._mode) {
       case Mode.PROP:
         this._headContentEl.innerHTML = this._getHeadPropMarkup();
@@ -47,8 +60,17 @@ export default class FunctionView extends TypeView {
         this._headContentEl.innerHTML = this._getLogMarkup();
         break;
       case Mode.PREVIEW:
-        this.el.innerHTML = `f`;
+        isShowInfo = true;
+        // this._headInfoEl.innerHTML = `f`;
+        // this.toggleInfoShowed();
         break;
+    }
+    if (isShowInfo) {
+      this.toggleInfoShowed();
+    }
+
+    if (this._mode !== Mode.PREVIEW) {
+      this.toggleHeadContentShowed();
     }
 
     if (this._mode !== Mode.DIR && this._mode !== Mode.PROP) {
@@ -67,13 +89,11 @@ export default class FunctionView extends TypeView {
 
     let markup = `\
 <span>\
-${this._fnType === FnType.CLASS ? `class ` : ``}\
-${this._fnType === FnType.PLAIN ? `f ` : ``}\
 ${name ? name : ``}\
 ${this._fnType !== FnType.CLASS ? `(${params.join(`, `)})` : ``}\
 ${this._fnType === FnType.ARROW ? ` => ` : ` `}`;
     if (this._fnType !== FnType.CLASS) {
-      markup += `{${joinedLines.length <= MAX_PREVIEW_FN_BODY_LENGTH ? joinedLines : `...`}}`;
+      markup += `${joinedLines.length <= MAX_PREVIEW_FN_BODY_LENGTH ? joinedLines : `{...}`}`;
     }
     markup += `</span>`;
     return markup;
@@ -92,18 +112,14 @@ ${this._fnType === FnType.ARROW ? ` => ` : ` `}`;
   }
 
   _getLogMarkup() {
-    return `<pre>${this.value.toString()}</pre>`;
-    // const {name, params, lines} = this.parseFunction(this.value);
-    /* return `\
+    // return `<pre>${this.value.toString()}</pre>`;
+    const {name, params, lines} = this.parseFunction(this.value);
+    return `\
 <pre>\
-${this._fnType === FnType.CLASS ? `class ` : ``}\
-${this._fnType === FnType.PLAIN ? `function ` : ``}\
-${name ? name : ``}\
+${name ? name : ``} \
 ${this._fnType !== FnType.CLASS ? `(${params.join(`, `)})` : ``}\
-${this._fnType === FnType.ARROW ? ` => ` : ` `}{
-${lines.join(`\n`)}
-}
-</pre>`;*/
+${this._fnType === FnType.ARROW ? ` => ` : ` `}${lines.join(`\n`)}\
+</pre>`;
   }
 
   parseParams(funString) {
@@ -135,15 +151,13 @@ ${lines.join(`\n`)}
     const bodyStart = funString.indexOf(`{`);
     const bodyEnd = funString.lastIndexOf(`}`);
 
-    const bodyContent = funString.substring(bodyStart + 1, bodyEnd).trim();
+    const bodyContent = funString.substring(bodyStart, bodyEnd + 1).trim();
 
     if (!bodyContent) {
       return [];
     }
 
-    return bodyContent.split(`\n`).map(function (it) {
-      return it.trim();
-    });
+    return bodyContent.split(`\n`);
   }
 
   parseFunction(fnOrString) {

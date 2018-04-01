@@ -67,7 +67,8 @@ block__elem--mod — element's modifier
       display: none;
 
       &--show {
-        display: inline;
+        display: inline-block;
+        vertical-align: top;
       }
     }
   }

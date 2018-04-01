@@ -1,6 +1,6 @@
 import AbstractView from './abstract-view';
 import {getElement} from './utils';
-import {Class, Mode} from './enums';
+import {Mode} from './enums';
 
 export default class TypeView extends AbstractView {
   constructor(params, cons) {
