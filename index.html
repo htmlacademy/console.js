@@ -13,7 +13,7 @@
       const jsConsole = new Console(document.querySelector(`.console`), {
         object: {
           maxFieldsInHead: 2,
-          expandDepth: 1,
+          expandDepth: 2,
           exclude: [`array`]
         },
         // function: {
@@ -25,7 +25,8 @@
         //   exclude: [ViewType.OBJECT, ViewType.FUNCTION]
         // }
       });
-      // jsConsole.extend(console);
+      jsConsole.extend(console);
+      console.log(123)
 
       // const obj = {};
       // const arr = [obj];
