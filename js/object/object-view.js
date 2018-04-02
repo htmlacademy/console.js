@@ -12,6 +12,7 @@ export default class ObjectView extends TypeView {
     }
     const stringTag = Object.prototype.toString.call(this.value);
     this._stringTagName = stringTag.substring(8, stringTag.length - 1);
+    this._constructorName = this.value.constructor.name;
   }
 
   afterRender() {
@@ -22,10 +23,16 @@ export default class ObjectView extends TypeView {
     if (isOversized) {
       this.toggleHeadContentOversized();
     }
+
+    if (this._constructorName === `Object` && this._stringTagName !== `Object`) {
+      this._headInfoEl.textContent = this._stringTagName;
+    } else {
+      this._headInfoEl.textContent = this._constructorName;
+    }
     if (isShowConstructor) {
-      this._headInfoEl.textContent = this._stringTagName;// this.value.constructor.name;
       this.toggleInfoShowed();
     }
+
     if (isHeadContentShowed) {
       if (elOrStr instanceof HTMLElement || elOrStr instanceof DocumentFragment) {
         this._headContentEl.appendChild(elOrStr);
@@ -107,7 +114,7 @@ export default class ObjectView extends TypeView {
       const obj = this.createContent(this.value, true);
       val = obj.fragment;
       isOversized = obj.isOversized;
-      if (this._stringTagName !== `Object`) {
+      if (this._stringTagName !== `Object` || this._constructorName !== `Object`) {
         isShowConstructor = true;
       }
     }

@@ -16,13 +16,13 @@ obj.fn = fn;
 
 const getLengths = () => {
   const objects = Array.from(
-      document.querySelectorAll(`.item.item_object .item-content-container_show .item-content.entry-container_type_object`)
+      document.querySelectorAll(`.item.item--object .item__content--show.entry-container--object`)
   );
   const arrays = Array.from(
-      document.querySelectorAll(`.item.item_array .item-content-container_show .item-content.entry-container_type_array`)
+      document.querySelectorAll(`.item.item--array .item__content--show.entry-container--array`)
   );
   const functions = Array.from(
-      document.querySelectorAll(`.item.item_function .item-content-container_show .item-content.entry-container_type_function`)
+      document.querySelectorAll(`.item.item--function .item__content--show.entry-container--function`)
   );
   return {
     objLength: objects.length,
@@ -265,7 +265,7 @@ describe(`in head of object must be limited number of fields`, () => {
     });
     cons.log(localObj);
     const headElementsEl = Array.from(
-        document.querySelectorAll(`.entry-container_head .entry-container__entry`)
+        document.querySelectorAll(`.entry-container--head .entry-container__entry`)
     );
     assert(headElementsEl.length === 2);
   });
@@ -277,7 +277,7 @@ describe(`in head of object must be limited number of fields`, () => {
     });
     cons.log(localObj);
     const headElementsEl = Array.from(
-        document.querySelectorAll(`.entry-container_head .entry-container__entry`)
+        document.querySelectorAll(`.entry-container--head .entry-container__entry`)
     );
     assert(headElementsEl.length === 5);
   });
@@ -289,7 +289,7 @@ describe(`in head of object must be limited number of fields`, () => {
     });
     cons.log(localObj);
     const headElementsEl = Array.from(
-        document.querySelectorAll(`.entry-container_head .entry-container__entry`)
+        document.querySelectorAll(`.entry-container--head .entry-container__entry`)
     );
     assert(headElementsEl.length === 7);
   });

@@ -94,7 +94,7 @@ const sym = Symbol(`sym`);
 
 describe(`Check primitives: `, () => {
   const defaultMode = Mode.LOG;
-  it(`any primitive has class "item_primitive"`, () => {
+  it(`any primitive has class "item--primitive"`, () => {
     const primitiveEls = [
       cons.createTypedView(str1, defaultMode).el,
       cons.createTypedView(primitiveNumber, defaultMode).el,
@@ -105,30 +105,39 @@ describe(`Check primitives: `, () => {
       cons.createTypedView(undefined, defaultMode).el
     ];
     assert(primitiveEls.every((el) => {
-      return el.classList.contains(`item_primitive`);
+      return el.classList.contains(`item--primitive`);
     }));
   });
   it(`string`, () => {
     const el = cons.createTypedView(str1, defaultMode).el;
     assert(
-        el.classList.contains(`item_primitive`) &&
+        el.classList.contains(`item--primitive`) &&
         el.classList.contains(`string`) &&
         el.textContent === str1
     );
   });
-  it(`string prop mode`, () => {
+  it(`string in prop mode should contain string--nowrap`, () => {
     const el = cons.createTypedView(str1, Mode.PROP).el;
     assert(
-        el.classList.contains(`item_primitive`) &&
+        el.classList.contains(`item--primitive`) &&
         el.classList.contains(`string`) &&
-        el.classList.contains(`string_collapsed`) &&
+        el.classList.contains(`string--nowrap`) &&
+        el.textContent === str1
+    );
+  });
+  it(`string in preview mode should contain string--nowrap`, () => {
+    const el = cons.createTypedView(str1, Mode.PREVIEW).el;
+    assert(
+        el.classList.contains(`item--primitive`) &&
+        el.classList.contains(`string`) &&
+        el.classList.contains(`string--nowrap`) &&
         el.textContent === str1
     );
   });
   it(`multiline string`, () => {
     const el = cons.createTypedView(str2, defaultMode).el;
     assert(
-        el.classList.contains(`item_primitive`) &&
+        el.classList.contains(`item--primitive`) &&
         el.classList.contains(`string`) &&
         str2.includes(el.textContent)
     );
@@ -136,7 +145,7 @@ describe(`Check primitives: `, () => {
   it(`number`, () => {
     const el = cons.createTypedView(primitiveNumber, defaultMode).el;
     assert(
-        el.classList.contains(`item_primitive`) &&
+        el.classList.contains(`item--primitive`) &&
         el.classList.contains(`number`) &&
         el.textContent === primitiveNumber.toString()
     );
@@ -144,7 +153,7 @@ describe(`Check primitives: `, () => {
   it(`symbol`, () => {
     const el = cons.createTypedView(sym, defaultMode).el;
     assert(
-        el.classList.contains(`item_primitive`) &&
+        el.classList.contains(`item--primitive`) &&
         el.classList.contains(`symbol`) &&
         el.textContent === sym.toString()
     );
@@ -152,7 +161,7 @@ describe(`Check primitives: `, () => {
   it(`NaN`, () => {
     const el = cons.createTypedView(NaN, defaultMode).el;
     assert(
-        el.classList.contains(`item_primitive`) &&
+        el.classList.contains(`item--primitive`) &&
         el.classList.contains(`NaN`) &&
         el.textContent === `NaN`
     );
@@ -160,7 +169,7 @@ describe(`Check primitives: `, () => {
   it(`null`, () => {
     const el = cons.createTypedView(null, defaultMode).el;
     assert(
-        el.classList.contains(`item_primitive`) &&
+        el.classList.contains(`item--primitive`) &&
         el.classList.contains(`null`) &&
         el.textContent === `null`
     );
@@ -168,7 +177,7 @@ describe(`Check primitives: `, () => {
   it(`boolean`, () => {
     const el = cons.createTypedView(true, defaultMode).el;
     assert(
-        el.classList.contains(`item_primitive`) &&
+        el.classList.contains(`item--primitive`) &&
         el.classList.contains(`boolean`) &&
         el.textContent === `true`
     );
@@ -176,7 +185,7 @@ describe(`Check primitives: `, () => {
   it(`undefined`, () => {
     const el = cons.createTypedView(undefined, defaultMode).el;
     assert(
-        el.classList.contains(`item_primitive`) &&
+        el.classList.contains(`item--primitive`) &&
         el.classList.contains(`undefined`) &&
         el.textContent === `undefined`
     );

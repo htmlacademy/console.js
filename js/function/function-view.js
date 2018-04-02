@@ -1,5 +1,5 @@
 import TypeView from '../type-view';
-import {Mode, Class, ViewType} from '../enums';
+import {Mode, ViewType} from '../enums';
 
 const MAX_PREVIEW_FN_BODY_LENGTH = 43;
 
@@ -35,6 +35,7 @@ export default class FunctionView extends TypeView {
   }
 
   afterRender() {
+    this._headInfoEl.classList.add(`item__head-info--function`);
     switch (this._fnType) {
       case FnType.CLASS:
         this._headInfoEl.textContent = `class`;
@@ -114,7 +115,7 @@ ${this._fnType === FnType.ARROW ? ` => ` : ` `}`;
     const {name, params, lines} = this.parseFunction(this.value);
     return `\
 <pre>\
-${name ? name : ``} \
+${name && this._fnType !== FnType.ARROW ? `${name} ` : ``}\
 ${this._fnType !== FnType.CLASS ? `(${params.join(`, `)})` : ``}\
 ${this._fnType === FnType.ARROW ? ` => ` : ` `}${lines.join(`\n`)}\
 </pre>`;

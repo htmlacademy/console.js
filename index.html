@@ -11,11 +11,11 @@
 
     <script>
       const jsConsole = new Console(document.querySelector(`.console`), {
-        object: {
-          maxFieldsInHead: 2,
-          expandDepth: 2,
-          exclude: [`array`]
-        },
+        // object: {
+        //   maxFieldsInHead: 2,
+        //   expandDepth: 2,
+        //   exclude: [`array`]
+        // },
         // function: {
         //   expandDepth: 2,
         //   exclude: [ViewType.OBJECT, ViewType.ARRAY]
@@ -25,7 +25,7 @@
         //   exclude: [ViewType.OBJECT, ViewType.FUNCTION]
         // }
       });
-      jsConsole.extend(console);
+      // jsConsole.extend(console);
       console.log(123)
 
       // const obj = {};

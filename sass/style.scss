@@ -73,6 +73,14 @@ block__elem--mod — element's modifier
     }
   }
 
+  &__head-info {
+    font-style: italic;
+
+    &--function {
+      color: rgb(9, 41, 195);
+    }
+  }
+
 
   &__content {
     display: none;
