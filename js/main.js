@@ -171,7 +171,6 @@ export default class Console {
 
   /**
    * Extend console
-   * @static
    * @param {{}} consoleObject
    * @return {{}} extended console
    */

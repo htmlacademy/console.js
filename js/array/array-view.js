@@ -49,13 +49,11 @@ export default class ArrayView extends TypeView {
     if (this._mode === Mode.DIR) {
       isShowConstructor = true;
       isHeadContentShowed = false;
-    // } else if (this._mode === Mode.PROP) {
+      isShowLength = true;
     } else if (this._mode === Mode.PREVIEW) {
       isShowConstructor = true;
       isHeadContentShowed = false;
       isShowLength = true;
-    } else if (this._mode === Mode.ERROR) {
-      return this._getHeadErrorContent();
     }
     return {
       isShowConstructor,

@@ -1,8 +1,6 @@
 import TypeView from '../type-view';
 import {Mode, ViewType} from '../enums';
 
-const STRING_EXPANDED = `string--expanded`;
-
 export default class PrimitiveView extends TypeView {
   constructor(params, cons) {
     super(params, cons);

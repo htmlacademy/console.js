@@ -237,6 +237,11 @@ block__elem--mod — element's modifier
   cursor: pointer;
 }
 
+.symbol,
+.regexp {
+  color: rgb(194, 30, 32);
+}
+
 .editor-container {
   display: inline-block;
   box-sizing: border-box;

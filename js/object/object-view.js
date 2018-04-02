@@ -16,7 +16,20 @@ export default class ObjectView extends TypeView {
   }
 
   afterRender() {
-    const {elOrStr, isShowConstructor, isHeadContentShowed, isBraced, isOpeningDisabled, isOversized, isStringified} = this._getHeadContent();
+    const {
+      elOrStr,
+      isShowConstructor,
+      isHeadContentShowed,
+      isBraced,
+      isOpeningDisabled,
+      isOversized,
+      isStringified,
+      headContentClassName
+    } = this._getHeadContent();
+
+    if (headContentClassName) {
+      this._headContentEl.classList.add(headContentClassName);
+    }
     if (isBraced) {
       this.toggleHeadContentBraced();
     }
@@ -87,6 +100,7 @@ export default class ObjectView extends TypeView {
     let isOpeningDisabled = false;
     let isOversized = false;
     let isStringified = false;
+    let headContentClassName;
 
     if (this.value instanceof HTMLElement && Object.getPrototypeOf(this.value).constructor !== HTMLElement) {
       return this._getHeadDirContent();
@@ -108,6 +122,7 @@ export default class ObjectView extends TypeView {
       isBraced = false;
     } else if (this.value instanceof RegExp) {
       val = `/${this.value.source}/${this.value.flags}`;
+      headContentClassName = `regexp`;
       isOpeningDisabled = true;
       isBraced = false;
     } else {
@@ -125,7 +140,8 @@ export default class ObjectView extends TypeView {
       isBraced,
       isOpeningDisabled,
       isOversized,
-      isStringified
+      isStringified,
+      headContentClassName
     };
   }
 
@@ -152,9 +168,6 @@ export default class ObjectView extends TypeView {
       isShowConstructor = true;
       isHeadContentShowed = false;
     }
-    // else if (this.value.constructor === GeneratorFunction) {
-    //   return this
-    // }
     return {
       elOrStr: val,
       isShowConstructor,

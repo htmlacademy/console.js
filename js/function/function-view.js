@@ -24,14 +24,6 @@ export default class FunctionView extends TypeView {
       this._rootViewType = this._viewType;
     }
     this._fnType = FunctionView.checkFnType(this.value);
-
-    switch (this._mode) {
-      case Mode.PREVIEW:
-      // case Mode.LOG:
-      // case Mode.ERROR:
-        // this._templateParams.onlyWrapper = true;
-        break;
-    }
   }
 
   afterRender() {
@@ -58,12 +50,10 @@ export default class FunctionView extends TypeView {
         break;
       case Mode.LOG:
       case Mode.ERROR:
-        this._headContentEl.innerHTML = this._getLogMarkup();
+        this._headContentEl.innerHTML = this._getHeadLogMarkup();
         break;
       case Mode.PREVIEW:
         isShowInfo = true;
-        // this._headInfoEl.innerHTML = `f`;
-        // this.toggleInfoShowed();
         break;
     }
     if (isShowInfo) {
@@ -104,14 +94,13 @@ ${this._fnType === FnType.ARROW ? ` => ` : ` `}`;
     const {name, params} = this.parseFunction(this.value);
 
     let markup = `\
-  <span>\
-  ${name ? name : ``}\
-  ${this._fnType !== FnType.CLASS ? `(${params.join(`, `)})` : ``}</span>`;
+${name ? name : ``}\
+${this._fnType === FnType.PLAIN ? `(${params.join(`, `)})` : ``}\
+${this._fnType === FnType.ARROW ? `()` : ``}`;
     return markup;
   }
 
-  _getLogMarkup() {
-    // return `<pre>${this.value.toString()}</pre>`;
+  _getHeadLogMarkup() {
     const {name, params, lines} = this.parseFunction(this.value);
     return `\
 <pre>\

@@ -15,21 +15,20 @@ export default class TypeView extends AbstractView {
     this._mode = params.mode;
     this._type = params.type;
     this._isOpened = false;
-    this._templateParams = {};
     this._currentDepth = typeof params.depth === `number` ? params.depth : 1;
-
+    this._templateParams = {};
   }
 
   get template() {
-    const body = this._templateParams.onlyWrapper ? `` : `\
-<div class="item__head">\
-  <span class="item__head-info"></span>\
-  ${this._templateParams.withHeadContentlength ? `<span class="item__head-content-length">${this.value.length}</span>` : ``}\
-  <div class="item__head-content entry-container entry-container--head entry-container--${this._viewType}"></div>\
-</div>\
-<div class="item__content entry-container entry-container--${this._viewType}"></div>`;
-
-    return `<div class="console__item item item--${this._viewType}">${body}</div>`;
+    return `\
+<div class="console__item item item--${this._viewType}">\
+  <div class="item__head">\
+    <span class="item__head-info"></span>\
+    ${this._templateParams.withHeadContentlength ? `<span class="item__head-content-length">${this.value.length}</span>` : ``}\
+    <div class="item__head-content entry-container entry-container--head entry-container--${this._viewType}"></div>\
+  </div>\
+  <div class="item__content entry-container entry-container--${this._viewType}"></div>\
+</div>`;
   }
 
   afterRender() {}
@@ -77,11 +76,7 @@ export default class TypeView extends AbstractView {
   }
 
   _setCursorPointer() {
-    if (this._templateParams.onlyWrapper) {
-      this.el.classList.add(`pointer`);
-    } else {
-      this._headEl.classList.add(`pointer`);
-    }
+    this._headEl.classList.add(`pointer`);
   }
 
   get value() {
@@ -113,14 +108,6 @@ export default class TypeView extends AbstractView {
       }
     }
     return this._isAutoExpandNeededProxied;
-  }
-
-  _getHeadErrorContent() {
-    return {
-      elOrStr: this._value.toString(),
-      isShowConstructor: false,
-      isShowElements: true
-    };
   }
 
   _toggleContent() {
