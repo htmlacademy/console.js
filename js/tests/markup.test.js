@@ -4,8 +4,6 @@
 import Console from '../main';
 import {Mode} from '../enums';
 
-const cons = new Console(document.body);
-
 // declare consts here
 //
 // const arr1 = [1, 2, 3];
@@ -94,6 +92,10 @@ const sym = Symbol(`sym`);
 
 describe(`Check primitives: `, () => {
   const defaultMode = Mode.LOG;
+  const cons = new Console(document.body);
+  after(() => {
+    document.body.innerHTML = ``;
+  });
   it(`any primitive has class "item--primitive"`, () => {
     const primitiveEls = [
       cons.createTypedView(str1, defaultMode).el,
@@ -193,6 +195,10 @@ describe(`Check primitives: `, () => {
 });
 
 // describe(`Check functions: `, () => {
+// const cons = new Console(document.body);
+// after(() => {
+//   document.body.innerHTML = ``;
+// });
 //   const fnEls = [
 //     cons.createTypedView(arrowFn1, Mode.PREVIEW).el,
 //     cons.createTypedView(plainFn, Mode.PREVIEW).el,

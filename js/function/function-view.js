@@ -162,7 +162,7 @@ ${this._fnType === FnType.ARROW ? ` => ` : ` `}${lines.join(`\n`)}\
 
   createContent(fn) {
     const fragment = document.createDocumentFragment();
-    const fnKeys = [`name`, `prototype`, `caller`, `arguments`, `length`, `__proto__`];
+    const fnKeys = [`name`, `prototype`, `length`, `__proto__`];
     const keys = Object.keys(fn).concat(fnKeys);
     for (let key of keys) {
       let value;
