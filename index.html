@@ -11,11 +11,11 @@
 
     <script>
       const jsConsole = new Console(document.querySelector(`.console`), {
-        object: {
-          maxFieldsInHead: 2,
-          // expandDepth: 0,
-          // exclude: [`array`]
-        },
+        // object: {
+        //   maxFieldsInHead: 4,
+        //   expandDepth: 0,
+        //   exclude: [`array`, `function`]
+        // },
         // function: {
         //   expandDepth: 2,
         //   exclude: [ViewType.OBJECT, ViewType.ARRAY]
@@ -128,10 +128,8 @@ asddsd`;
       const reLiteral = /kekliteral/;
       const sym = Symbol('kek');
       const ab = new ArrayBuffer();
-
       jsConsole.log('log —------------------------------------');
       jsConsole.log('123', '456')
-      // jsConsole.log(window);
       jsConsole.log(undefined);
       jsConsole.log(NaN);
       jsConsole.log(null);
