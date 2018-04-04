@@ -15,8 +15,8 @@ export default class ArrayView extends TypeView {
   afterRender() {
     const {isShowConstructor, isHeadContentShowed, isShowLength} = this._getHeadContent();
     this.toggleHeadContentBraced();
+    this._headInfoEl.textContent = this.value.constructor.name;
     if (isShowConstructor) {
-      this._headInfoEl.textContent = this.value.constructor.name;
       this.toggleInfoShowed();
     }
     if (isHeadContentShowed) {
@@ -38,6 +38,7 @@ export default class ArrayView extends TypeView {
   _additionHeadClickHandler() {
     if (this._mode === Mode.PROP) {
       this.toggleInfoShowed();
+      this.toggleContentLengthShowed();
       this.toggleHeadContentShowed();
     }
   }
