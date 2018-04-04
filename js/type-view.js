@@ -68,7 +68,7 @@ export default class TypeView extends AbstractView {
   }
 
   toggleContentShowed() {
-    this._contentEl.classList.toggle(`item__content--show`);
+    this.el.classList.toggle(`item--show-content`);
   }
 
   toggleError() {
@@ -76,7 +76,7 @@ export default class TypeView extends AbstractView {
   }
 
   _setCursorPointer() {
-    this._headEl.classList.add(`pointer`);
+    this._headEl.classList.add(`item__head--pointer`);
   }
 
   get value() {
