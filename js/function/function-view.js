@@ -27,6 +27,7 @@ export default class FunctionView extends TypeView {
   }
 
   afterRender() {
+    this._headEl.classList.add(`item__head--italic`);
     this._headInfoEl.classList.add(`item__head-info--function`);
     switch (this._fnType) {
       case FnType.CLASS:

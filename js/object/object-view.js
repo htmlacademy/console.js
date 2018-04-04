@@ -55,6 +55,10 @@ export default class ObjectView extends TypeView {
       this.toggleHeadContentShowed();
     }
 
+    if (this._mode === Mode.LOG || this._mode === Mode.ERROR && !this._parentView && !isStringified) {
+      this._headEl.classList.add(`item__head--italic`);
+    }
+
     if (this._mode === Mode.ERROR && isStringified) {
       this.toggleError();
     }

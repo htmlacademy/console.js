@@ -61,7 +61,6 @@ block__elem--mod — element's modifier
 
   &__head {
     display: inline-block;
-    font-style: italic;
 
     &-content,
     &-content-length,
@@ -88,11 +87,13 @@ block__elem--mod — element's modifier
         vertical-align: baseline;
       }
     }
+
+    &--italic {
+      font-style: italic;
+    }
   }
 
   &__head-info {
-    // font-style: italic;
-
     &--function {
       color: rgb(9, 41, 195);
     }
@@ -123,18 +124,6 @@ block__elem--mod — element's modifier
 
       &::after {
         content: ')';
-      }
-    }
-  }
-
-  &--function {
-    &__classifier {
-      &_plain::after {
-        content: "f";
-      }
-
-      &_class::after {
-        content: "class";
       }
     }
   }

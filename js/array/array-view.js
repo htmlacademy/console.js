@@ -26,6 +26,9 @@ export default class ArrayView extends TypeView {
     if (isShowLength) {
       this.toggleContentLengthShowed();
     }
+    if (this._mode === Mode.LOG || this._mode === Mode.ERROR && !this._parentView) {
+      this._headEl.classList.add(`item__head--italic`);
+    }
     if (this._mode === Mode.PREVIEW) {
       return;
     }
