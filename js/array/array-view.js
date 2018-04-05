@@ -41,8 +41,11 @@ export default class ArrayView extends TypeView {
   _additionHeadClickHandler() {
     if (this._mode === Mode.PROP) {
       this.toggleInfoShowed();
-      this.toggleContentLengthShowed();
       this.toggleHeadContentShowed();
+
+      if (this.value.length <= 1) {
+        this.toggleContentLengthShowed();
+      }
     }
   }
 
