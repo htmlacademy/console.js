@@ -46,6 +46,19 @@ const ViewType = {
   PRIMITIVE: `primitive`
 };
 
+const toggleMiddleware = (el, className, isEnable) => {
+  if (typeof isEnable === `undefined`) {
+    return el.classList.toggle(className);
+  }
+  if (isEnable) {
+    el.classList.add(className);
+    return true;
+  } else {
+    el.classList.remove(className);
+    return false;
+  }
+};
+
 class TypeView extends AbstractView {
   constructor(params, cons) {
     super();
@@ -91,36 +104,36 @@ class TypeView extends AbstractView {
     this.afterRender();
   }
 
-  toggleHeadContentBraced() {
-    this._headContentEl.classList.toggle(`entry-container--braced`);
+  toggleHeadContentBraced(isEnable) {
+    return toggleMiddleware(this._headContentEl, `entry-container--braced`, isEnable);
   }
 
-  toggleHeadContentOversized() {
-    this._headContentEl.classList.toggle(`entry-container--oversize`);
+  toggleHeadContentOversized(isEnable) {
+    return toggleMiddleware(this._headContentEl, `entry-container--oversize`, isEnable);
   }
 
-  toggleInfoShowed() {
-    this._headInfoEl.classList.toggle(`item__head-info--show`);
+  toggleInfoShowed(isEnable) {
+    return toggleMiddleware(this._headInfoEl, `item__head-info--show`, isEnable);
   }
 
-  toggleContentLengthShowed() {
-    this._headContentLengthEl.classList.toggle(`item__head-content-length--show`);
+  toggleContentLengthShowed(isEnable) {
+    return toggleMiddleware(this._headContentLengthEl, `item__head-content-length--show`, isEnable);
   }
 
-  toggleHeadContentShowed() {
-    this._headContentEl.classList.toggle(`item__head-content--show`);
+  toggleHeadContentShowed(isEnable) {
+    return toggleMiddleware(this._headContentEl, `item__head-content--show`, isEnable);
   }
 
-  toggleContentShowed() {
-    this.el.classList.toggle(`item--show-content`);
+  toggleContentShowed(isEnable) {
+    return toggleMiddleware(this.el, `item--show-content`, isEnable);
   }
 
-  toggleError() {
-    this.el.classList.toggle(Mode.ERROR);
+  toggleError(isEnable) {
+    return toggleMiddleware(this.el, Mode.ERROR, isEnable);
   }
 
-  _setCursorPointer() {
-    this._headEl.classList.add(`item__head--pointer`);
+  _setCursorPointer(isEnable) {
+    return toggleMiddleware(this._headEl, `item__head--pointer`, isEnable);
   }
 
   get value() {
@@ -456,8 +469,11 @@ class ArrayView extends TypeView {
   _additionHeadClickHandler() {
     if (this._mode === Mode.PROP) {
       this.toggleInfoShowed();
-      this.toggleContentLengthShowed();
       this.toggleHeadContentShowed();
+
+      if (this.value.length <= 1) {
+        this.toggleContentLengthShowed();
+      }
     }
   }
 

@@ -11,18 +11,16 @@
 
     <script>
       const jsConsole = new Console(document.querySelector(`.console`), {
-        // object: {
-        //   maxFieldsInHead: 4,
-        //   expandDepth: 0,
-        //   exclude: [`array`, `function`]
-        // },
+        object: {
+          expandDepth: 2,
+          exclude: [`function`]
+        },
         // function: {
         //   expandDepth: 2,
         //   exclude: [ViewType.OBJECT, ViewType.ARRAY]
         // },
         // array: {
-        //   expandDepth: 2,
-        //   exclude: [ViewType.OBJECT, ViewType.FUNCTION]
+        //   expandDepth: 2
         // }
       });
       // jsConsole.extend(console);
@@ -88,7 +86,8 @@ asddsd`;
       var str = new String('qwe');
       var s3 = {num, str};
 
-      var div = document.querySelector('div');
+      var div = document.createElement('div');
+      div.classList.add('test');
 
       const kot = {
         cat: {
@@ -173,14 +172,14 @@ asddsd`;
       jsConsole.log(reLiteral);
       jsConsole.log(sym);
       jsConsole.log(ab);
-
-      try {
-        const viewModel = new ViewModel();
-        viewModel.init();
-      } catch (err1) {
-        jsConsole.log(err1);
-      }
-
+      //
+      // try {
+      //   const viewModel = new ViewModel();
+      //   viewModel.init();
+      // } catch (err1) {
+      //   jsConsole.log(err1);
+      // }
+      //
       console.log(undefined);
       console.log(NaN);
       console.log(null);
@@ -222,15 +221,14 @@ asddsd`;
       console.log(sym);
       console.log(ab);
 
-      // try {
-      //   const viewModel = new ViewModel();
-      //   viewModel.init();
-      // } catch (err1) {
-      //   console.log(err1);
-      // }
+      try {
+        const viewModel = new ViewModel();
+        viewModel.init();
+      } catch (err1) {
+        console.log(err1);
+      }
 
       jsConsole.log('dir —------------------------------------');
-      // jsConsole.dir(window);
       jsConsole.dir(undefined);
       jsConsole.dir(NaN);
       jsConsole.dir(null);
@@ -259,7 +257,7 @@ asddsd`;
       jsConsole.dir(date);
       jsConsole.dir(str);
       jsConsole.dir(s3);
-      jsConsole.dir(div);
+      // jsConsole.dir(div);
       jsConsole.dir(kot);
       jsConsole.dir(Cat);
       jsConsole.dir(cat);
@@ -320,14 +318,14 @@ asddsd`;
       console.dir(sym);
       console.dir(ab);
 
-      try {
-        const viewModel = new ViewModel();
-        viewModel.init();
-      } catch (err1) {
-        console.dir(err1);
-      }
+      // try {
+      //   const viewModel = new ViewModel();
+      //   viewModel.init();
+      // } catch (err1) {
+      //   console.dir(err1);
+      // }
 
-      // jsConsole.log('error ---------------------------------------------------------------------------------------------------------------');
+      jsConsole.log('error ---------------------------------------------------------------------------------------------------------------');
 
       jsConsole.error(undefined);
       jsConsole.error(NaN);
@@ -367,13 +365,15 @@ asddsd`;
       jsConsole.error(errNum);
       jsConsole.error(reConstr);
       jsConsole.error(reLiteral);
+      jsConsole.error(sym);
+      jsConsole.error(ab);
 
-      try {
-        const viewModel = new ViewModel();
-        viewModel.init();
-      } catch (err1) {
-        jsConsole.error(err1);
-      }
+      // try {
+      //   const viewModel = new ViewModel();
+      //   viewModel.init();
+      // } catch (err1) {
+      //   jsConsole.error(err1);
+      // }
 
       console.error(undefined);
       console.error(NaN);
