@@ -74,9 +74,13 @@ asddsd`;
       const fn = (bar = 123) => {console.log(456); return 123;};
       fn.kek = 123;
       fn.obj = s1;
-      const fn1 = (bar = 123) => {'sssssssssssssssssssssssssssssssssssssssss'};
+      const fn1 = (bar = 123) => {
+        'sssssssssssssssssssssssssssssssssssssssss'
+      };
       const fn2 = (bar = 123) => {'sssssssssssssssssssssssssssssssssssssssssss'};
-      function test (bar456 = 123) {console.log(456); return 123;}
+      function test (bar456 = 123) {
+        console.log(456); return 123;
+      }
       const test1 = function (bar1 = 123) {console.log(456); return 123;}
       const test2 = function named (bar2 = 123) {console.log(456); return 123;}
       const s2 = { Person, bar, fn, fn1, fn2, test, test1, test2};

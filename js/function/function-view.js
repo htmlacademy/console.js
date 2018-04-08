@@ -69,15 +69,16 @@ export default class FunctionView extends TypeView {
   }
 
   _getHeadPropMarkup() {
-    const {name, params, lines} = this.parseFunction(this.value);
-    const joinedLines = lines.join(`\n`);
+    const bodyLines = this._parseBody();
+    const params = this._parseParams();
+    const joinedLines = bodyLines.join(`\n`);
 
     let markup = `\
 <span>\
-${name ? name : ``}\
+${this.value.name ? this.value.name : ``}\
 ${this._fnType !== FnType.CLASS ? `(${params.join(`, `)})` : ``}\
 ${this._fnType === FnType.ARROW ? ` => ` : ` `}`;
-    if (this._fnType !== FnType.CLASS) {
+    if (this._fnType === FnType.ARROW) {
       markup += `${joinedLines.length <= MAX_PREVIEW_FN_BODY_LENGTH ? joinedLines : `{...}`}`;
     }
     markup += `</span>`;
@@ -85,73 +86,54 @@ ${this._fnType === FnType.ARROW ? ` => ` : ` `}`;
   }
 
   _getHeadDirMarkup() {
-    const {name, params} = this.parseFunction(this.value);
+    const params = this._parseParams();
 
     let markup = `\
-${name ? name : ``}\
+${this.value.name ? this.value.name : ``}\
 ${this._fnType === FnType.PLAIN ? `(${params.join(`, `)})` : ``}\
 ${this._fnType === FnType.ARROW ? `()` : ``}`;
     return markup;
   }
 
   _getHeadLogMarkup() {
-    const {name, params, lines} = this.parseFunction(this.value);
+    const bodyLines = this._parseBody();
+    const params = this._parseParams();
     return `\
 <pre>\
-${name && this._fnType !== FnType.ARROW ? `${name} ` : ``}\
+${this.value.name && this._fnType !== FnType.ARROW ? `${this.value.name} ` : ``}\
 ${this._fnType !== FnType.CLASS ? `(${params.join(`, `)})` : ``}\
-${this._fnType === FnType.ARROW ? ` => ` : ` `}${lines.join(`\n`)}\
+${this._fnType === FnType.ARROW ? ` => ` : ` `}${bodyLines.join(`\n`)}\
 </pre>`;
   }
 
-  parseParams(funString) {
-    const paramsStart = funString.indexOf(`(`);
-    const paramsEnd = funString.indexOf(`)`);
+  _parseParams() {
+    const str = this.value.toString();
+    const paramsStart = str.indexOf(`(`);
+    const paramsEnd = str.indexOf(`)`);
 
-    const paramsContent = funString.substring(paramsStart + 1, paramsEnd).trim();
+    const paramsContent = str.substring(paramsStart + 1, paramsEnd).trim();
 
     return paramsContent ? paramsContent.split(`,`).map((it) => it.trim()) : [];
   }
 
-  parseName(funString) {
-    let endingChar;
-    if (this._fnType === FnType.CLASS) {
-      endingChar = `{`;
-    } else if (this._fnType === FnType.PLAIN) {
-      endingChar = `(`;
-    }
-    let name;
-    const re = new RegExp(`(?:class|function)\\s+(\\w+)\\s*(?:\\${endingChar})`);
-    const ex = re.exec(funString);
-    if (ex !== null) {
-      name = ex[1];
-    }
-    return name;
-  }
+  _parseBody() {
+    const str = this.value.toString();
 
-  parseBody(funString) {
-    const bodyStart = funString.indexOf(`{`);
-    const bodyEnd = funString.lastIndexOf(`}`);
-
-    const bodyContent = funString.substring(bodyStart, bodyEnd + 1).trim();
+    let bodyContent;
+    if (this._fnType === FnType.ARROW) {
+      const arrowIndex = str.indexOf(`=>`);
+      bodyContent = str.substring(arrowIndex + 2).trim();
+    } else {
+      const bodyStart = str.indexOf(`{`);
+      const bodyEnd = str.lastIndexOf(`}`);
+      bodyContent = str.substring(bodyStart, bodyEnd + 1).trim();
+    }
 
     if (!bodyContent) {
       return [];
     }
 
     return bodyContent.split(`\n`);
-  }
-
-  parseFunction(fnOrString) {
-    let str;
-    if (typeof fnOrString !== `string`) {
-      str = fnOrString.toString();
-    }
-    return {
-      name: fnOrString.name, // this.parseName(str),
-      params: this.parseParams(str),
-      lines: this.parseBody(str)
-    };
   }
 
   createContent(fn) {
@@ -178,12 +160,12 @@ ${this._fnType === FnType.ARROW ? ` => ` : ` `}${lines.join(`\n`)}\
   }
 
   static checkFnType(fn) {
-    let str = fn.toString();
+    const str = fn.toString();
     const firstParenthesisIndex = str.indexOf(`(`);
 
     const classIndex = str.indexOf(`class`);
     const arrowIndex = str.indexOf(`=>`);
-    if (classIndex !== -1 && classIndex < firstParenthesisIndex) {
+    if (classIndex !== -1 && (firstParenthesisIndex === -1 || classIndex < firstParenthesisIndex)) {
       return FnType.CLASS;
     } else if (arrowIndex !== -1 && arrowIndex > firstParenthesisIndex) {
       return FnType.ARROW;
