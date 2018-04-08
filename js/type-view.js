@@ -72,15 +72,10 @@ export default class TypeView extends AbstractView {
           this._state,
           Object.getOwnPropertyDescriptors(this._getStateProxyObject())
       );
-      if (this._viewType === `function`) {
-        console.log(this._state);
-      }
       Object.seal(this._state);
     }
-
-    for (let key in this._state) {
-      const paramValue = params[key];
-      this._state[key] = typeof paramValue !== `undefined` ? paramValue : false;
+    for (let key in params) {
+      this._state[key] = params[key];
     }
   }
 
@@ -99,20 +94,41 @@ export default class TypeView extends AbstractView {
   _getStateCommonProxyObject() {
     const self = this;
     return {
+      set isShowInfo(bool) {
+        self.toggleInfoShowed(bool);
+      },
+      set isShowLength(bool) {
+        self.toggleContentLengthShowed(bool);
+      },
+      set isHeadContentShowed(bool) {
+        self.toggleHeadContentShowed(bool);
+      },
       set isOpeningDisabled(bool) {
         if (self._mode === Mode.PREVIEW || self._isOpeningDisabled === bool) {
           return;
         }
         if (bool) {
-          self._toggleContent(false);
+          self.state.isContentShowed = false;
           self._addOrRemoveHeadClickHandler(false);
         } else {
           if (self._isAutoExpandNeeded) {
-            self._toggleContent(true);
+            self.state.isContentShowed = true;
           }
           self._addOrRemoveHeadClickHandler(true);
         }
         self._isOpeningDisabled = bool;
+      },
+      get isOpeningDisabled() {
+        return self._isOpeningDisabled;
+      },
+      set isContentShowed(bool) {
+        self._isContentShowed = self.toggleContentShowed(bool);
+        if (self._isContentShowed && self._contentEl.childElementCount === 0) {
+          self._contentEl.appendChild(self.createContent(self.value, false).fragment);
+        }
+      },
+      get isContentShowed() {
+        return self._isContentShowed;
       }
     };
   }
@@ -190,18 +206,11 @@ export default class TypeView extends AbstractView {
     return this._isAutoExpandNeededProxied;
   }
 
-  _toggleContent(bool) {
-    const isShowed = this.toggleContentShowed(bool);
-    if (isShowed && this._contentEl.childElementCount === 0) {
-      this._contentEl.appendChild(this.createContent(this.value, false).fragment);
-    }
-  }
-
   _additionHeadClickHandler() {}
 
   _headClickHandler(evt) {
     evt.preventDefault();
-    this._toggleContent();
+    this.state.isContentShowed = !this.state.isContentShowed;
     this._additionHeadClickHandler();
   }
 

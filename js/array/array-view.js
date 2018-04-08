@@ -17,63 +17,58 @@ export default class ArrayView extends TypeView {
     this._headInfoEl.textContent = this.value.constructor.name;
     this.state = this._getStateParams();
 
-    if (this._mode === Mode.LOG || this._mode === Mode.ERROR && !this._parentView) {
+    if ((this._mode === Mode.LOG || this._mode === Mode.ERROR) && !this._parentView) {
       this.toggleItalic(true);
     }
-    // if (this._mode === Mode.PREVIEW) {
-    //   return;
-    // }
-    //
-    // if (this._isAutoExpandNeeded) {
-    //   this._toggleContent(true);
-    // }
-    // this._addOrRemoveHeadClickHandler(true);
   }
 
   _getStateProxyObject() {
     const self = this;
     return {
-      set isShowConstructor(bool) {
-        self.toggleInfoShowed(bool);
-        return bool;
-      },
-      set isShowLength(bool) {
-        self.toggleContentLengthShowed(bool);
-        return bool;
-      },
       set isHeadContentShowed(bool) {
         if (bool && self._headContentEl.childElementCount === 0) {
           self._headContentEl.appendChild(self.createContent(self.value, true).fragment);
         }
         self.toggleHeadContentShowed(bool);
+      },
+      set isContentShowed(bool) {
+        self._isContentShowed = self.toggleContentShowed(bool);
+        if (self._mode === Mode.PROP) {
+          self.state.isShowInfo = bool;
+          self.state.isHeadContentShowed = !bool;
+          self.state.isShowLength = bool || self.value.length > 1;
+        }
+        if (self._isContentShowed && self._contentEl.childElementCount === 0) {
+          self._contentEl.appendChild(self.createContent(self.value, false).fragment);
+        }
+      },
+      get isContentShowed() {
+        return self._isContentShowed;
       }
     };
   }
 
-  _additionHeadClickHandler() {
-    this.state = this._getStateParams();
-  }
-
   _getStateParams() {
-    let isShowConstructor = false;
+    let isShowInfo = false;
     let isHeadContentShowed = true;
     let isShowLength = this.value.length > 1;
     if (this._mode === Mode.DIR) {
-      isShowConstructor = true;
+      isShowInfo = true;
       isHeadContentShowed = false;
       isShowLength = true;
     } else if (this._mode === Mode.PREVIEW) {
-      isShowConstructor = true;
+      isShowInfo = true;
       isHeadContentShowed = false;
       isShowLength = true;
     } else if (this._mode === Mode.PROP) {
-      isShowConstructor = true;
-      isShowLength = true;
+      isShowInfo = false;
+      isHeadContentShowed = true;
     }
     return {
-      isShowConstructor,
+      isShowInfo,
       isHeadContentShowed,
-      isShowLength
+      isShowLength,
+      isOpeningDisabled: false
     };
   }
 

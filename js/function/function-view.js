@@ -57,24 +57,15 @@ export default class FunctionView extends TypeView {
         isShowInfo = true;
         break;
     }
-    if (isShowInfo) {
-      this.toggleInfoShowed();
-    }
-
-    if (this._mode !== Mode.PREVIEW) {
-      this.toggleHeadContentShowed();
-    }
-    const params = {};
+    const params = {
+      isOpeningDisabled: false,
+      isShowInfo,
+      isHeadContentShowed: this._mode !== Mode.PREVIEW
+    };
     if (this._mode !== Mode.DIR && this._mode !== Mode.PROP) {
       params.isOpeningDisabled = true;
-      console.log(params);
     }
     this.state = params;
-    window.consoleViews.set(this.el, this);
-    // if (this._isAutoExpandNeeded) {
-    //   this._toggleContent(true);
-    // }
-    // this._addOrRemoveHeadClickHandler(true);
   }
 
   _getHeadPropMarkup() {

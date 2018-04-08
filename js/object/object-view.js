@@ -36,7 +36,7 @@ export default class ObjectView extends TypeView {
   _getStateProxyObject() {
     const self = this;
     return {
-      set isShowConstructor(bool) {
+      set isShowInfo(bool) {
         self.toggleInfoShowed(bool);
       },
       set isHeadContentShowed(bool) {
@@ -52,26 +52,11 @@ export default class ObjectView extends TypeView {
       set isBraced(bool) {
         self.toggleHeadContentBraced(bool);
       },
-      // set isOpeningDisabled(bool) {
-      //   if (self._mode === Mode.PREVIEW || self._isOpeningDisabled === bool) {
-      //     return;
-      //   }
-      //   if (bool) {
-      //     self._toggleContent(false);
-      //     self._addOrRemoveHeadClickHandler(false);
-      //   } else {
-      //     if (self._isAutoExpandNeeded) {
-      //       self._toggleContent(true);
-      //     }
-      //     self._addOrRemoveHeadClickHandler(true);
-      //   }
-      //   self._isOpeningDisabled = bool;
-      // },
       set isOversized(bool) {
         self.toggleHeadContentOversized(bool);
       },
       set isStringified(bool) {
-        if (!bool && self._mode === Mode.LOG || self._mode === Mode.ERROR && !self._parentView) {
+        if (!bool && (self._mode === Mode.LOG || self._mode === Mode.ERROR) && !self._parentView) {
           self.toggleItalic(bool);
         }
         if (bool && self._mode === Mode.ERROR) {
@@ -98,7 +83,7 @@ export default class ObjectView extends TypeView {
       return {
         elOrStr: `...`,
         stateParams: {
-          isShowConstructor: false,
+          isShowInfo: false,
           isHeadContentShowed: true,
           isBraced: true
         }
@@ -109,7 +94,7 @@ export default class ObjectView extends TypeView {
 
   _getHeadLogContent() {
     let val;
-    let isShowConstructor = false;
+    let isShowInfo = false;
     let isBraced = true;
     let isOpeningDisabled = false;
     let isOversized = false;
@@ -125,11 +110,11 @@ export default class ObjectView extends TypeView {
     } else if (this.value instanceof Number) {
       const view = this._console.createTypedView(Number.parseInt(this.value, 10), Mode.PREVIEW, this.nextNestingLevel, this);
       val = view.el;
-      isShowConstructor = true;
+      isShowInfo = true;
     } else if (this.value instanceof String) {
       const view = this._console.createTypedView(this.value.toString(), Mode.PREVIEW, this.nextNestingLevel, this);
       val = view.el;
-      isShowConstructor = true;
+      isShowInfo = true;
     } else if (this.value instanceof Date) {
       val = this.value.toString();
       isStringified = true;
@@ -144,14 +129,14 @@ export default class ObjectView extends TypeView {
       val = obj.fragment;
       isOversized = obj.isOversized;
       if (this._stringTagName !== `Object` || this._constructorName !== `Object`) {
-        isShowConstructor = true;
+        isShowInfo = true;
       }
     }
     return {
       elOrStr: val,
       headContentClassName,
       stateParams: {
-        isShowConstructor,
+        isShowInfo,
         isHeadContentShowed: true,
         isBraced,
         isOpeningDisabled,
@@ -163,7 +148,7 @@ export default class ObjectView extends TypeView {
 
   _getHeadDirContent() {
     let val;
-    let isShowConstructor = false;
+    let isShowInfo = false;
     let isHeadContentShowed = true;
     let isBraced = false;
     if (this.value instanceof HTMLElement) {
@@ -181,13 +166,13 @@ export default class ObjectView extends TypeView {
       val = this.value.toString();
     } else {
       val = this.value;
-      isShowConstructor = true;
+      isShowInfo = true;
       isHeadContentShowed = false;
     }
     return {
       elOrStr: val,
       stateParams: {
-        isShowConstructor,
+        isShowInfo,
         isHeadContentShowed,
         isBraced,
         isOpeningDisabled: false
