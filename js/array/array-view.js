@@ -13,43 +13,48 @@ export default class ArrayView extends TypeView {
   }
 
   afterRender() {
-    const {isShowConstructor, isHeadContentShowed, isShowLength} = this._getHeadContent();
     this.toggleHeadContentBraced();
     this._headInfoEl.textContent = this.value.constructor.name;
-    if (isShowConstructor) {
-      this.toggleInfoShowed();
-    }
-    if (isHeadContentShowed) {
-      this.toggleHeadContentShowed();
-      this._headContentEl.appendChild(this.createContent(this.value, true).fragment);
-    }
-    if (isShowLength) {
-      this.toggleContentLengthShowed();
-    }
+    this.state = this._getStateParams();
+
     if (this._mode === Mode.LOG || this._mode === Mode.ERROR && !this._parentView) {
-      this._headEl.classList.add(`item__head--italic`);
+      this.toggleItalic(true);
     }
-    if (this._mode === Mode.PREVIEW) {
-      return;
-    }
-    if (this._isAutoExpandNeeded) {
-      this._toggleContent();
-    }
-    this._setHeadClickHandler();
+    // if (this._mode === Mode.PREVIEW) {
+    //   return;
+    // }
+    //
+    // if (this._isAutoExpandNeeded) {
+    //   this._toggleContent(true);
+    // }
+    // this._addOrRemoveHeadClickHandler(true);
+  }
+
+  _getStateProxyObject() {
+    const self = this;
+    return {
+      set isShowConstructor(bool) {
+        self.toggleInfoShowed(bool);
+        return bool;
+      },
+      set isShowLength(bool) {
+        self.toggleContentLengthShowed(bool);
+        return bool;
+      },
+      set isHeadContentShowed(bool) {
+        if (bool && self._headContentEl.childElementCount === 0) {
+          self._headContentEl.appendChild(self.createContent(self.value, true).fragment);
+        }
+        self.toggleHeadContentShowed(bool);
+      }
+    };
   }
 
   _additionHeadClickHandler() {
-    if (this._mode === Mode.PROP) {
-      this.toggleInfoShowed();
-      this.toggleHeadContentShowed();
-
-      if (this.value.length <= 1) {
-        this.toggleContentLengthShowed();
-      }
-    }
+    this.state = this._getStateParams();
   }
 
-  _getHeadContent() {
+  _getStateParams() {
     let isShowConstructor = false;
     let isHeadContentShowed = true;
     let isShowLength = this.value.length > 1;
@@ -60,6 +65,9 @@ export default class ArrayView extends TypeView {
     } else if (this._mode === Mode.PREVIEW) {
       isShowConstructor = true;
       isHeadContentShowed = false;
+      isShowLength = true;
+    } else if (this._mode === Mode.PROP) {
+      isShowConstructor = true;
       isShowLength = true;
     }
     return {

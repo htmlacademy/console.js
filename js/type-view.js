@@ -1,3 +1,4 @@
+/* eslint guard-for-in: "off"*/
 import AbstractView from './abstract-view';
 import {getElement} from './utils';
 import {Mode} from './enums';
@@ -60,6 +61,62 @@ export default class TypeView extends AbstractView {
     this.afterRender();
   }
 
+  set state(params) {
+    if (!this._state) {
+      this._state = {};
+      Object.defineProperties(
+          this._state,
+          Object.getOwnPropertyDescriptors(this._getStateCommonProxyObject())
+      );
+      Object.defineProperties(
+          this._state,
+          Object.getOwnPropertyDescriptors(this._getStateProxyObject())
+      );
+      if (this._viewType === `function`) {
+        console.log(this._state);
+      }
+      Object.seal(this._state);
+    }
+
+    for (let key in this._state) {
+      const paramValue = params[key];
+      this._state[key] = typeof paramValue !== `undefined` ? paramValue : false;
+    }
+  }
+
+  get state() {
+    return this._state;
+  }
+
+  /**
+   * @abstract
+   * @return {{}} if not overriden return object without descriptors
+   */
+  _getStateProxyObject() {
+    return {};
+  }
+
+  _getStateCommonProxyObject() {
+    const self = this;
+    return {
+      set isOpeningDisabled(bool) {
+        if (self._mode === Mode.PREVIEW || self._isOpeningDisabled === bool) {
+          return;
+        }
+        if (bool) {
+          self._toggleContent(false);
+          self._addOrRemoveHeadClickHandler(false);
+        } else {
+          if (self._isAutoExpandNeeded) {
+            self._toggleContent(true);
+          }
+          self._addOrRemoveHeadClickHandler(true);
+        }
+        self._isOpeningDisabled = bool;
+      }
+    };
+  }
+
   toggleHeadContentBraced(isEnable) {
     return toggleMiddleware(this._headContentEl, `entry-container--braced`, isEnable);
   }
@@ -88,7 +145,11 @@ export default class TypeView extends AbstractView {
     return toggleMiddleware(this.el, Mode.ERROR, isEnable);
   }
 
-  _setCursorPointer(isEnable) {
+  toggleItalic(isEnable) {
+    return toggleMiddleware(this._headEl, `item__head--italic`, isEnable);
+  }
+
+  _toggleCursorPointer(isEnable) {
     return toggleMiddleware(this._headEl, `item__head--pointer`, isEnable);
   }
 
@@ -106,6 +167,13 @@ export default class TypeView extends AbstractView {
 
   get _isAutoExpandNeeded() {
     if (!this._isAutoExpandNeededProxied) {
+      this._isAutoExpandNeededProxied = false;
+
+      if (this._viewType === null ||
+        this._currentDepth > this._console.params[this._rootViewType].expandDepth) {
+        return this._isAutoExpandNeededProxied;
+      }
+
       let rootFieldsMoreThanNeed = false;
       if (this._parentView && this._parentView._isAutoExpandNeeded) {
         rootFieldsMoreThanNeed = true;
@@ -113,9 +181,8 @@ export default class TypeView extends AbstractView {
       this._console.params[this._rootViewType].minFieldsToExpand) {
         rootFieldsMoreThanNeed = true;
       }
-      if (this._viewType !== null &&
-      this._currentDepth <= this._console.params[this._rootViewType].expandDepth &&
-      rootFieldsMoreThanNeed &&
+
+      if (rootFieldsMoreThanNeed &&
       !this._console.params[this._rootViewType].exclude.includes(this._viewType)) {
         this._isAutoExpandNeededProxied = true;
       }
@@ -123,26 +190,31 @@ export default class TypeView extends AbstractView {
     return this._isAutoExpandNeededProxied;
   }
 
-  _toggleContent() {
-    this.toggleContentShowed();
-    if (this._contentEl.childElementCount === 0) {
+  _toggleContent(bool) {
+    const isShowed = this.toggleContentShowed(bool);
+    if (isShowed && this._contentEl.childElementCount === 0) {
       this._contentEl.appendChild(this.createContent(this.value, false).fragment);
     }
   }
 
-  _hideContent() {
-    this._proxiedContentEl.style.display = `none`;
-  }
-
   _additionHeadClickHandler() {}
 
-  _setHeadClickHandler() {
-    this._setCursorPointer();
-    this._headEl.addEventListener(`click`, (evt) => {
-      evt.preventDefault();
-      this._toggleContent();
-      this._additionHeadClickHandler();
-    });
+  _headClickHandler(evt) {
+    evt.preventDefault();
+    this._toggleContent();
+    this._additionHeadClickHandler();
+  }
+
+  _addOrRemoveHeadClickHandler(bool) {
+    this._toggleCursorPointer(bool);
+    if (!this._bindedHeadClickHandler) {
+      this._bindedHeadClickHandler = this._headClickHandler.bind(this);
+    }
+    if (bool) {
+      this._headEl.addEventListener(`click`, this._bindedHeadClickHandler);
+    } else {
+      this._headEl.removeEventListener(`click`, this._bindedHeadClickHandler);
+    }
   }
 
   static createEntryEl(index, valueEl, withoutKey) {

@@ -16,25 +16,11 @@ export default class ObjectView extends TypeView {
   }
 
   afterRender() {
-    const {
-      elOrStr,
-      isShowConstructor,
-      isHeadContentShowed,
-      isBraced,
-      isOpeningDisabled,
-      isOversized,
-      isStringified,
-      headContentClassName
-    } = this._getHeadContent();
+    const {elOrStr, stateParams, headContentClassName} = this._getHeadContent();
+    this._headContent = elOrStr;
 
     if (headContentClassName) {
       this._headContentEl.classList.add(headContentClassName);
-    }
-    if (isBraced) {
-      this.toggleHeadContentBraced();
-    }
-    if (isOversized) {
-      this.toggleHeadContentOversized();
     }
 
     if (this._constructorName === `Object` && this._stringTagName !== `Object`) {
@@ -42,56 +28,80 @@ export default class ObjectView extends TypeView {
     } else {
       this._headInfoEl.textContent = this._constructorName;
     }
-    if (isShowConstructor) {
-      this.toggleInfoShowed();
-    }
 
-    if (isHeadContentShowed) {
-      if (elOrStr instanceof HTMLElement || elOrStr instanceof DocumentFragment) {
-        this._headContentEl.appendChild(elOrStr);
-      } else {
-        this._headContentEl.innerHTML = elOrStr;
-      }
-      this.toggleHeadContentShowed();
-    }
+    this.state = stateParams;
+    window.consoleViews.set(this.el, this);
+  }
 
-    if (this._mode === Mode.LOG || this._mode === Mode.ERROR && !this._parentView && !isStringified) {
-      this._headEl.classList.add(`item__head--italic`);
-    }
-
-    if (this._mode === Mode.ERROR && isStringified) {
-      this.toggleError();
-    }
-
-    if (this._mode === Mode.PREVIEW) {
-      return;
-    }
-    if (!isOpeningDisabled) {
-      if (this._isAutoExpandNeeded) {
-        this._toggleContent();
-      }
-      this._setHeadClickHandler();
-    }
+  _getStateProxyObject() {
+    const self = this;
+    return {
+      set isShowConstructor(bool) {
+        self.toggleInfoShowed(bool);
+      },
+      set isHeadContentShowed(bool) {
+        if (!self._headContentEl.innerHTML) {
+          if (self._headContent instanceof HTMLElement || self._headContent instanceof DocumentFragment) {
+            self._headContentEl.appendChild(self._headContent);
+          } else {
+            self._headContentEl.innerHTML = self._headContent;
+          }
+        }
+        self.toggleHeadContentShowed(bool);
+      },
+      set isBraced(bool) {
+        self.toggleHeadContentBraced(bool);
+      },
+      // set isOpeningDisabled(bool) {
+      //   if (self._mode === Mode.PREVIEW || self._isOpeningDisabled === bool) {
+      //     return;
+      //   }
+      //   if (bool) {
+      //     self._toggleContent(false);
+      //     self._addOrRemoveHeadClickHandler(false);
+      //   } else {
+      //     if (self._isAutoExpandNeeded) {
+      //       self._toggleContent(true);
+      //     }
+      //     self._addOrRemoveHeadClickHandler(true);
+      //   }
+      //   self._isOpeningDisabled = bool;
+      // },
+      set isOversized(bool) {
+        self.toggleHeadContentOversized(bool);
+      },
+      set isStringified(bool) {
+        if (!bool && self._mode === Mode.LOG || self._mode === Mode.ERROR && !self._parentView) {
+          self.toggleItalic(bool);
+        }
+        if (bool && self._mode === Mode.ERROR) {
+          self.toggleError(bool);
+        }
+      },
+    };
   }
 
   _getHeadContent() {
+    let obj;
     if (this._mode === Mode.DIR) {
-      return this._getHeadDirContent();
+      obj = this._getHeadDirContent();
     } else if (this._mode === Mode.LOG || this._mode === Mode.PROP || this._mode === Mode.ERROR) {
-      return this._getHeadLogContent();
+      obj = this._getHeadLogContent();
     } else if (this._mode === Mode.PREVIEW) {
-      return this._getHeadPreviewContent();
+      obj = this._getHeadPreviewContent();
     }
-    return ``;
+    return obj;
   }
 
   _getHeadPreviewContent() {
     if (this._stringTagName === `Object`) {
       return {
         elOrStr: `...`,
-        isShowConstructor: false,
-        isHeadContentShowed: true,
-        isBraced: true
+        stateParams: {
+          isShowConstructor: false,
+          isHeadContentShowed: true,
+          isBraced: true
+        }
       };
     }
     return this._getHeadDirContent();
@@ -139,13 +149,15 @@ export default class ObjectView extends TypeView {
     }
     return {
       elOrStr: val,
-      isShowConstructor,
-      isHeadContentShowed: true,
-      isBraced,
-      isOpeningDisabled,
-      isOversized,
-      isStringified,
-      headContentClassName
+      headContentClassName,
+      stateParams: {
+        isShowConstructor,
+        isHeadContentShowed: true,
+        isBraced,
+        isOpeningDisabled,
+        isOversized,
+        isStringified
+      }
     };
   }
 
@@ -174,9 +186,12 @@ export default class ObjectView extends TypeView {
     }
     return {
       elOrStr: val,
-      isShowConstructor,
-      isHeadContentShowed,
-      isBraced
+      stateParams: {
+        isShowConstructor,
+        isHeadContentShowed,
+        isBraced,
+        isOpeningDisabled: false
+      }
     };
   }
 
