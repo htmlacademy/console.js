@@ -24,6 +24,7 @@ export default class Console {
     if (!container) {
       throw new Error(`Console is not inited!`);
     }
+    window.consoleViews = new Map();
     this._container = container;
     this.params = {
       object: this._parseParams(params.object, `object`),

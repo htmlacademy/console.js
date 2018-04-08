@@ -13,59 +13,62 @@ export default class ArrayView extends TypeView {
   }
 
   afterRender() {
-    const {isShowConstructor, isHeadContentShowed, isShowLength} = this._getHeadContent();
     this.toggleHeadContentBraced();
     this._headInfoEl.textContent = this.value.constructor.name;
-    if (isShowConstructor) {
-      this.toggleInfoShowed();
+    this.state = this._getStateParams();
+
+    if ((this._mode === Mode.LOG || this._mode === Mode.ERROR) && !this._parentView) {
+      this.toggleItalic(true);
     }
-    if (isHeadContentShowed) {
-      this.toggleHeadContentShowed();
-      this._headContentEl.appendChild(this.createContent(this.value, true).fragment);
-    }
-    if (isShowLength) {
-      this.toggleContentLengthShowed();
-    }
-    if (this._mode === Mode.LOG || this._mode === Mode.ERROR && !this._parentView) {
-      this._headEl.classList.add(`item__head--italic`);
-    }
-    if (this._mode === Mode.PREVIEW) {
-      return;
-    }
-    if (this._isAutoExpandNeeded) {
-      this._toggleContent();
-    }
-    this._setHeadClickHandler();
   }
 
-  _additionHeadClickHandler() {
-    if (this._mode === Mode.PROP) {
-      this.toggleInfoShowed();
-      this.toggleHeadContentShowed();
-
-      if (this.value.length <= 1) {
-        this.toggleContentLengthShowed();
+  _getStateProxyObject() {
+    const self = this;
+    return {
+      set isHeadContentShowed(bool) {
+        if (bool && self._headContentEl.childElementCount === 0) {
+          self._headContentEl.appendChild(self.createContent(self.value, true).fragment);
+        }
+        self.toggleHeadContentShowed(bool);
+      },
+      set isContentShowed(bool) {
+        self._isContentShowed = self.toggleContentShowed(bool);
+        if (self._mode === Mode.PROP) {
+          self.state.isShowInfo = bool;
+          self.state.isHeadContentShowed = !bool;
+          self.state.isShowLength = bool || self.value.length > 1;
+        }
+        if (self._isContentShowed && self._contentEl.childElementCount === 0) {
+          self._contentEl.appendChild(self.createContent(self.value, false).fragment);
+        }
+      },
+      get isContentShowed() {
+        return self._isContentShowed;
       }
-    }
+    };
   }
 
-  _getHeadContent() {
-    let isShowConstructor = false;
+  _getStateParams() {
+    let isShowInfo = false;
     let isHeadContentShowed = true;
     let isShowLength = this.value.length > 1;
     if (this._mode === Mode.DIR) {
-      isShowConstructor = true;
+      isShowInfo = true;
       isHeadContentShowed = false;
       isShowLength = true;
     } else if (this._mode === Mode.PREVIEW) {
-      isShowConstructor = true;
+      isShowInfo = true;
       isHeadContentShowed = false;
       isShowLength = true;
+    } else if (this._mode === Mode.PROP) {
+      isShowInfo = false;
+      isHeadContentShowed = true;
     }
     return {
-      isShowConstructor,
+      isShowInfo,
       isHeadContentShowed,
-      isShowLength
+      isShowLength,
+      isOpeningDisabled: false
     };
   }
 
