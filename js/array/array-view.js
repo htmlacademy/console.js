@@ -30,22 +30,16 @@ export default class ArrayView extends TypeView {
           self._headContentEl.appendChild(self.createContent(self.value, true).fragment);
         }
         self.toggleHeadContentShowed(bool);
-      },
-      set isContentShowed(bool) {
-        self._isContentShowed = self.toggleContentShowed(bool);
-        if (self._mode === Mode.PROP) {
-          self.state.isShowInfo = bool;
-          self.state.isHeadContentShowed = !bool;
-          self.state.isShowLength = bool || self.value.length > 1;
-        }
-        if (self._isContentShowed && self._contentEl.childElementCount === 0) {
-          self._contentEl.appendChild(self.createContent(self.value, false).fragment);
-        }
-      },
-      get isContentShowed() {
-        return self._isContentShowed;
       }
     };
+  }
+
+  _additionHeadClickHandler() {
+    if (this._mode === Mode.PROP) {
+      this.state.isShowInfo = this._isContentShowed;
+      this.state.isHeadContentShowed = !this._isContentShowed;
+      this.state.isShowLength = this._isContentShowed || this.value.length > 1;
+    }
   }
 
   _getStateParams() {

@@ -16,13 +16,13 @@ obj.fn = fn;
 
 const getLengths = () => {
   const objects = Array.from(
-      document.querySelectorAll(`.item.item--object.item--show-content > .item__content.entry-container--object`)
+      document.querySelectorAll(`.item--object:not(.hidden) > .item__content.entry-container--object:not(.hidden)`)
   );
   const arrays = Array.from(
-      document.querySelectorAll(`.item.item--array.item--show-content > .item__content.entry-container--array`)
+      document.querySelectorAll(`.item--array:not(.hidden) > .item__content.entry-container--array:not(.hidden)`)
   );
   const functions = Array.from(
-      document.querySelectorAll(`.item.item--function.item--show-content > .item__content.entry-container--function`)
+      document.querySelectorAll(`.item--function:not(.hidden) > .item__content.entry-container--function:not(.hidden)`)
   );
   return {
     objLength: objects.length,
