@@ -82,27 +82,26 @@ class TypeView extends AbstractView {
     return `\
 <div class="console__item item item--${this._viewType}">\
   <div class="item__head">\
-    <span class="item__head-info"></span>\
-    ${this._templateParams.withHeadContentlength ? `<span class="item__head-content-length">${this.value.length}</span>` : ``}\
-    <div class="item__head-content entry-container entry-container--head entry-container--${this._viewType}"></div>\
+    <span class="item__head-info hidden"></span>\
+    ${this._templateParams.withHeadContentlength ? `<span class="item__head-content-length hidden">${this.value.length}</span>` : ``}\
+    <div class="item__head-content entry-container entry-container--head entry-container--${this._viewType} hidden"></div>\
   </div>\
-  <div class="item__content entry-container entry-container--${this._viewType}"></div>\
+  <div class="item__content entry-container entry-container--${this._viewType} hidden"></div>\
 </div>`;
   }
 
   afterRender() {}
 
   bind() {
-    if (!this._templateParams.onlyWrapper) {
-      this._headEl = this.el.querySelector(`.item__head`);
-      this._headContentEl = this._headEl.querySelector(`.item__head-content`);
-      this._headInfoEl = this._headEl.querySelector(`.item__head-info`);
-      if (this._templateParams.withHeadContentlength) {
-        this._headContentLengthEl = this._headEl.querySelector(`.item__head-content-length`);
-      }
-
-      this._contentEl = this.el.querySelector(`.item__content`);
+    this._headEl = this.el.querySelector(`.item__head`);
+    this._headContentEl = this._headEl.querySelector(`.item__head-content`);
+    this._headInfoEl = this._headEl.querySelector(`.item__head-info`);
+    if (this._templateParams.withHeadContentlength) {
+      this._headContentLengthEl = this._headEl.querySelector(`.item__head-content-length`);
     }
+
+    this._contentEl = this.el.querySelector(`.item__content`);
+
     this.afterRender();
   }
 
@@ -152,21 +151,16 @@ class TypeView extends AbstractView {
         if (self._mode === Mode.PREVIEW || self._isOpeningDisabled === bool) {
           return;
         }
-        if (bool) {
-          self.state.isContentShowed = false;
-          self._addOrRemoveHeadClickHandler(false);
-        } else {
-          if (self._isAutoExpandNeeded) {
-            self.state.isContentShowed = true;
-          }
-          self._addOrRemoveHeadClickHandler(true);
-        }
+        self.togglePointer(!bool);
+        self._addOrRemoveHeadClickHandler(!bool);
+        self.state.isContentShowed = !bool && self._isAutoExpandNeeded;
         self._isOpeningDisabled = bool;
       },
       get isOpeningDisabled() {
         return self._isOpeningDisabled;
       },
       set isContentShowed(bool) {
+        self.toggleArrowBottom(bool);
         self._isContentShowed = self.toggleContentShowed(bool);
         if (self._isContentShowed && self._contentEl.childElementCount === 0) {
           self._contentEl.appendChild(self.createContent(self.value, false).fragment);
@@ -187,19 +181,19 @@ class TypeView extends AbstractView {
   }
 
   toggleInfoShowed(isEnable) {
-    return toggleMiddleware(this._headInfoEl, `item__head-info--show`, isEnable);
+    return !toggleMiddleware(this._headInfoEl, `hidden`, !isEnable);
   }
 
   toggleContentLengthShowed(isEnable) {
-    return toggleMiddleware(this._headContentLengthEl, `item__head-content-length--show`, isEnable);
+    return !toggleMiddleware(this._headContentLengthEl, `hidden`, !isEnable);
   }
 
   toggleHeadContentShowed(isEnable) {
-    return toggleMiddleware(this._headContentEl, `item__head-content--show`, isEnable);
+    return !toggleMiddleware(this._headContentEl, `hidden`, !isEnable);
   }
 
   toggleContentShowed(isEnable) {
-    return toggleMiddleware(this.el, `item--show-content`, isEnable);
+    return !toggleMiddleware(this._contentEl, `hidden`, !isEnable);
   }
 
   toggleError(isEnable) {
@@ -210,8 +204,12 @@ class TypeView extends AbstractView {
     return toggleMiddleware(this._headEl, `item__head--italic`, isEnable);
   }
 
-  _toggleCursorPointer(isEnable) {
+  togglePointer(isEnable) {
     return toggleMiddleware(this._headEl, `item__head--pointer`, isEnable);
+  }
+
+  toggleArrowBottom(isEnable) {
+    return toggleMiddleware(this._headEl, `item__head--arrow-bottom`, isEnable);
   }
 
   get value() {
@@ -255,12 +253,12 @@ class TypeView extends AbstractView {
 
   _headClickHandler(evt) {
     evt.preventDefault();
+    this.toggleArrowBottom();
     this.state.isContentShowed = !this.state.isContentShowed;
     this._additionHeadClickHandler();
   }
 
   _addOrRemoveHeadClickHandler(bool) {
-    this._toggleCursorPointer(bool);
     if (!this._bindedHeadClickHandler) {
       this._bindedHeadClickHandler = this._headClickHandler.bind(this);
     }
@@ -540,22 +538,16 @@ class ArrayView extends TypeView {
           self._headContentEl.appendChild(self.createContent(self.value, true).fragment);
         }
         self.toggleHeadContentShowed(bool);
-      },
-      set isContentShowed(bool) {
-        self._isContentShowed = self.toggleContentShowed(bool);
-        if (self._mode === Mode.PROP) {
-          self.state.isShowInfo = bool;
-          self.state.isHeadContentShowed = !bool;
-          self.state.isShowLength = bool || self.value.length > 1;
-        }
-        if (self._isContentShowed && self._contentEl.childElementCount === 0) {
-          self._contentEl.appendChild(self.createContent(self.value, false).fragment);
-        }
-      },
-      get isContentShowed() {
-        return self._isContentShowed;
       }
     };
+  }
+
+  _additionHeadClickHandler() {
+    if (this._mode === Mode.PROP) {
+      this.state.isShowInfo = this._isContentShowed;
+      this.state.isHeadContentShowed = !this._isContentShowed;
+      this.state.isShowLength = this._isContentShowed || this.value.length > 1;
+    }
   }
 
   _getStateParams() {
