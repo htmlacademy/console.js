@@ -24,6 +24,9 @@ export default class FunctionView extends TypeView {
       this._rootViewType = this._viewType;
     }
     this._fnType = FunctionView.checkFnType(this.value);
+    this._templateParams = {
+      pre: true
+    };
   }
 
   afterRender() {
@@ -119,21 +122,30 @@ ${this._fnType === FnType.ARROW ? ` => ` : ` `}${bodyLines.join(`\n`)}\
   _parseBody() {
     const str = this.value.toString();
 
-    let bodyContent;
+    let bodyContent = [];
     if (this._fnType === FnType.ARROW) {
       const arrowIndex = str.indexOf(`=>`);
-      bodyContent = str.substring(arrowIndex + 2).trim();
+      bodyContent = str.substring(arrowIndex + 2).trim().split(`\n`);
     } else {
-      const bodyStart = str.indexOf(`{`);
-      const bodyEnd = str.lastIndexOf(`}`);
-      bodyContent = str.substring(bodyStart, bodyEnd + 1).trim();
+      // const bodyStart = str.indexOf(`{`);
+      // const bodyEnd = str.lastIndexOf(`}`);
+      // bodyContent = str.substring(bodyStart, bodyEnd + 1).trim();
+      const lines = str.split(`\n`);
+      lines.shift();
+      const firstWhitespaceIndexes = lines.map((line) => {
+        const ex = /^\s+/.exec(line);
+        if (ex && ex[0].hasOwnProperty(`length`)) {
+          return ex[0].length;
+        }
+        return 0;
+      });
+      console.log(firstWhitespaceIndexes);
+
+      const min = Math.min(...firstWhitespaceIndexes);
+      bodyContent = lines.map((line) => line.slice(min));
     }
 
-    if (!bodyContent) {
-      return [];
-    }
-
-    return bodyContent.split(`\n`);
+    return bodyContent;
   }
 
   createContent(fn) {

@@ -40,6 +40,7 @@ block__elem--mod — element's modifier
     padding: 5px;
     overflow: auto;
     background: #f8faf3;
+    white-space: nowrap;
 
     &--error {
       background-color: #ff00001a;
@@ -61,6 +62,7 @@ block__elem--mod — element's modifier
 
   &__head {
     display: inline-block;
+    white-space: nowrap;
 
     &-content,
     &-content-length,
