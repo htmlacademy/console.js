@@ -15,9 +15,9 @@
     </style>
   </head>
   <body>
-    <form class="console-form">
+    <!-- <form class="console-form">
       <input class="console-input" type="text">
-    </form>
+    </form> -->
     <div class="console"></div>
     <script src="js/index.js"></script>
 
@@ -38,13 +38,13 @@
       });
       // jsConsole.extend(console);
 
-      const form = document.querySelector(`.console-form`);
-      const input = form.querySelector(`.console-input`);
-      form.addEventListener(`submit`, (evt) => {
-        evt.preventDefault();
-        jsConsole.log(input.value);
-        consoleEl.lastElementChild.scrollIntoView();
-      });
+      // const form = document.querySelector(`.console-form`);
+      // const input = form.querySelector(`.console-input`);
+      // form.addEventListener(`submit`, (evt) => {
+      //   evt.preventDefault();
+      //   jsConsole.log(input.value);
+      //   consoleEl.lastElementChild.scrollIntoView();
+      // });
 
       // const obj = {};
       // const arr = [obj];
@@ -83,8 +83,8 @@ class Person {
       this._bar = val;
         }
   }
-  get [Symbol.species]() { this.constructor = Array; }
-}
+get [Symbol.species]() { this.constructor = Array; }
+    }
 
       class bar {
         constructor(va) {

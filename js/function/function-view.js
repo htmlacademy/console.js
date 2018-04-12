@@ -132,13 +132,14 @@ ${this._fnType === FnType.ARROW ? ` => ` : ` `}${bodyLines.join(`\n`)}\
       // bodyContent = str.substring(bodyStart, bodyEnd + 1).trim();
       const lines = str.split(`\n`);
       lines.shift();
-      const firstWhitespaceIndexes = [];
-      lines.forEach((line) => {
+      const firstWhitespaceIndexes = lines.map((line) => {
         const ex = /^\s+/.exec(line);
         if (ex && ex[0].hasOwnProperty(`length`)) {
-          firstWhitespaceIndexes.push(ex[0].length);
+          return ex[0].length;
         }
+        return 0;
       });
+      console.log(firstWhitespaceIndexes);
 
       const min = Math.min(...firstWhitespaceIndexes);
       bodyContent = lines.map((line) => line.slice(min));
