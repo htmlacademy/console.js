@@ -62,19 +62,6 @@ block__elem--mod — element's modifier
   &__head {
     display: inline-block;
 
-    &-content,
-    &-content-length,
-    &-info {
-      display: inline-block;
-      vertical-align: top;
-      // display: none;
-      //
-      // &--show {
-      //   display: inline-block;
-      //   vertical-align: top;
-      // }
-    }
-
     &::before {
       background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAQAAABKfvVzAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAAmJLR0QAAKqNIzIAAAAJcEhZcwAADdcAAA3XAUIom3gAAAAHdElNRQfiBAQVByn6pE6OAAAA/0lEQVQ4y42RIW4CYRSEv3+7CCRIDoCpxdVUcAWuQNOw7LaKkCCKA9VAaRoQHAC4ASR4gsUQalcWSdLC/ogmTXcTlhn9vsy8Gbw7f+gVkOW4GarOLug85kQAgKxtZD7rjeesCgDkTOe086svrgoAFBh+bYIKRgUAinYSrOplHQBsycz9uVeSAQDKzsqf1Io6AIbKzSa5UhoA4CZXugZAYiXzdB8tBQggpJ0fKw6JjJr2tuv2Xw8acDD97+7HXnM4Mo7ag1CLZJmdWu9b9YdF1BysxafNOmq+LdSWtqbVm2EvGcd3CHnI3/aml8//O/w1na5fINb0FeD444ziTafrDOtDV1ZINst0AAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDE4LTA0LTA0VDIxOjA3OjQxKzAyOjAwqHPzPgAAACV0RVh0ZGF0ZTptb2RpZnkAMjAxOC0wNC0wNFQyMTowNzo0MSswMjowMNkuS4IAAAAZdEVYdFNvZnR3YXJlAHd3dy5pbmtzY2FwZS5vcmeb7jwaAAAAAElFTkSuQmCC');
       width: 9px;
@@ -98,18 +85,7 @@ block__elem--mod — element's modifier
         transform: rotate(90deg);
       }
     }
-
-    &--italic {
-      font-style: italic;
-    }
   }
-
-  &__head-info {
-    &--function {
-      color: rgb(9, 41, 195);
-    }
-  }
-
 
   &__content {
     display: flex;
@@ -122,18 +98,6 @@ block__elem--mod — element's modifier
   //     display: flex;
   //   }
   // }
-
-  &--array {
-    #{$parent}__head-content-length {
-      &::before {
-        content: '(';
-      }
-
-      &::after {
-        content: ')';
-      }
-    }
-  }
 
   &--primitive {}
 }
@@ -197,6 +161,41 @@ block__elem--mod — element's modifier
     content: ": ";
     white-space: pre;
   }
+}
+
+.head {
+  &__content,
+  &__length,
+  &__info {
+    display: inline-block;
+    vertical-align: top;
+    // display: none;
+    //
+    // &--show {
+    //   display: inline-block;
+    //   vertical-align: top;
+    // }
+  }
+}
+
+.length {
+  &::before {
+    content: '(';
+  }
+
+  &::after {
+    content: ')';
+  }
+}
+
+.info {
+  &--function {
+    color: rgb(9, 41, 195);
+  }
+}
+
+.italic {
+  font-style: italic;
 }
 
 .undefined {

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>console.js</title>
+    <link href="css/style.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="console"></div>
+    <script src="js/index.js"></script>
+
+    <script>
+      const jsConsole = new Console(document.querySelector(`.console`));
+      class Person {
+        constructor(val) {
+          this._bar = val;
+          if (val === 123) {
+            this._bar = val;
+              }
+        }
+        get [Symbol.species]() { this.constructor = Array; }
+      }
+
+      class bar {
+        constructor(va) {
+          console.log(va)
+        }
+      }
+
+      const fn = (bar = 123) => {console.log(456); return 123;};
+      const fn1 = (bar = 123) => {
+        'sssssssssssssssssssssssssssssssssssssssss'
+      };
+      const fn2 = (bar = 123) => {'sssssssssssssssssssssssssssssssssssssssssss'};
+      function test (bar456 = 123) {
+        console.log(456); return 123;
+      }
+      const test1 = function (bar1 = 123) {console.log(456); return 123;}
+      const test2 = function named (bar2 = 123) {console.log(456); return 123;}
+      jsConsole.log(Person);
+    </script>
+  </body>
+</html>

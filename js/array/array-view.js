@@ -14,7 +14,7 @@ export default class ArrayView extends TypeView {
 
   afterRender() {
     this.toggleHeadContentBraced();
-    this._headInfoEl.textContent = this.value.constructor.name;
+    this._infoEl.textContent = this.value.constructor.name;
     this.state = this._getStateParams();
 
     if ((this._mode === Mode.LOG || this._mode === Mode.ERROR) && !this._parentView) {

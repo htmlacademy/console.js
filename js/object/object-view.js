@@ -24,9 +24,9 @@ export default class ObjectView extends TypeView {
     }
 
     if (this._constructorName === `Object` && this._stringTagName !== `Object`) {
-      this._headInfoEl.textContent = this._stringTagName;
+      this._infoEl.textContent = this._stringTagName;
     } else {
-      this._headInfoEl.textContent = this._constructorName;
+      this._infoEl.textContent = this._constructorName;
     }
 
     this.state = stateParams;

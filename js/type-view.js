@@ -33,13 +33,25 @@ export default class TypeView extends AbstractView {
     this._templateParams = {};
   }
 
+//   get template() {
+//     return `\
+// <div class="console__item item item--${this._viewType}">\
+//   <div class="item__head">\
+//     <span class="item__head-info hidden"></span>\
+//     ${this._templateParams.withHeadContentlength ? `<span class="item__head-content-length hidden">${this.value.length}</span>` : ``}\
+//     <div class="item__head-content entry-container entry-container--head entry-container--${this._viewType} hidden"></div>\
+//   </div>\
+//   <div class="item__content entry-container entry-container--${this._viewType} hidden"></div>\
+// </div>`;
+//   }
+
   get template() {
     return `\
 <div class="console__item item item--${this._viewType}">\
-  <div class="item__head">\
-    <span class="item__head-info hidden"></span>\
-    ${this._templateParams.withHeadContentlength ? `<span class="item__head-content-length hidden">${this.value.length}</span>` : ``}\
-    <div class="item__head-content entry-container entry-container--head entry-container--${this._viewType} hidden"></div>\
+  <div class="head item__head">\
+    <span class="info head__info hidden"></span>\
+    ${this._templateParams.withHeadContentlength ? `<span class="length head__length hidden">${this.value.length}</span>` : ``}\
+    <div class="head__content entry-container entry-container--head entry-container--${this._viewType} hidden"></div>\
   </div>\
   <div class="item__content entry-container entry-container--${this._viewType} hidden"></div>\
 </div>`;
@@ -48,11 +60,11 @@ export default class TypeView extends AbstractView {
   afterRender() {}
 
   bind() {
-    this._headEl = this.el.querySelector(`.item__head`);
-    this._headContentEl = this._headEl.querySelector(`.item__head-content`);
-    this._headInfoEl = this._headEl.querySelector(`.item__head-info`);
+    this._headEl = this.el.querySelector(`.head`);
+    this._headContentEl = this.el.querySelector(`.head__content`);
+    this._infoEl = this.el.querySelector(`.info`);
     if (this._templateParams.withHeadContentlength) {
-      this._headContentLengthEl = this._headEl.querySelector(`.item__head-content-length`);
+      this._lengthEl = this.el.querySelector(`.length`);
     }
 
     this._contentEl = this.el.querySelector(`.item__content`);
@@ -136,11 +148,11 @@ export default class TypeView extends AbstractView {
   }
 
   toggleInfoShowed(isEnable) {
-    return !toggleMiddleware(this._headInfoEl, `hidden`, !isEnable);
+    return !toggleMiddleware(this._infoEl, `hidden`, !isEnable);
   }
 
   toggleContentLengthShowed(isEnable) {
-    return !toggleMiddleware(this._headContentLengthEl, `hidden`, !isEnable);
+    return !toggleMiddleware(this._lengthEl, `hidden`, !isEnable);
   }
 
   toggleHeadContentShowed(isEnable) {
@@ -156,7 +168,7 @@ export default class TypeView extends AbstractView {
   }
 
   toggleItalic(isEnable) {
-    return toggleMiddleware(this._headEl, `item__head--italic`, isEnable);
+    return toggleMiddleware(this._headEl, `italic`, isEnable);
   }
 
   togglePointer(isEnable) {
