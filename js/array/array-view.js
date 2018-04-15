@@ -7,9 +7,9 @@ const EMPTY = `empty`;
 export default class ArrayView extends TypeView {
   constructor(params, cons) {
     super(params, cons);
-    this._viewType = ViewType.ARRAY;
+    this.viewType = ViewType.ARRAY;
     if (!params.parentView) {
-      this._rootViewType = this._viewType;
+      this._rootView = this;
     }
 
     this._templateParams.withHeadContentlength = true;
@@ -17,13 +17,13 @@ export default class ArrayView extends TypeView {
 
   get template() {
     return `\
-<div class="console__item item item--${this._viewType}">\
+<div class="console__item item item--${this.viewType}">\
   <div class="head item__head">\
     <span class="info head__info hidden"></span>\
     <span class="length head__length hidden">${this.value.length}</span>\
-    <div class="head__content entry-container entry-container--head entry-container--${this._viewType} hidden"></div>\
+    <div class="head__content entry-container entry-container--head entry-container--${this.viewType} hidden"></div>\
   </div>\
-  <div class="item__content entry-container entry-container--${this._viewType} hidden"></div>\
+  <div class="item__content entry-container entry-container--${this.viewType} hidden"></div>\
 </div>`;
   }
 
@@ -90,7 +90,6 @@ export default class ArrayView extends TypeView {
   }
 
   createContent(arr, isPreview) {
-    const keys = Object.keys(arr);
     const ownPropertyNamesSet = new Set(Object.getOwnPropertyNames(arr));
     const fragment = document.createDocumentFragment();
     for (let i = 0, l = arr.length; i < l; i++) {
@@ -105,7 +104,7 @@ export default class ArrayView extends TypeView {
       }
     }
     for (let key of ownPropertyNamesSet) {
-      if (isPreview && keys.indexOf(key) === -1) {
+      if (isPreview && key === `length`) {
         continue;
       }
       const val = arr[key];
@@ -116,7 +115,7 @@ export default class ArrayView extends TypeView {
 
   _createArrayEntryEl(key, val, isPreview) {
     const isKeyNaN = Number.isNaN(Number.parseInt(key, 10));
-    const view = this._console.createTypedView(val, isPreview ? Mode.PREVIEW : Mode.PROP, this.nextNestingLevel, this);
+    const view = this._console.createTypedView(val, isPreview ? Mode.PREVIEW : Mode.PROP, this.nextNestingLevel, this, key);
     return ArrayView.createEntryEl(key.toString(), view.el, isPreview ? !isKeyNaN : isPreview);
   }
 }

@@ -6,9 +6,9 @@ import {Mode, ViewType} from '../enums';
 export default class ObjectView extends TypeView {
   constructor(params, cons) {
     super(params, cons);
-    this._viewType = ViewType.OBJECT;
+    this.viewType = ViewType.OBJECT;
     if (!params.parentView) {
-      this._rootViewType = this._viewType;
+      this._rootView = this;
     }
     const stringTag = Object.prototype.toString.call(this.value);
     this._stringTagName = stringTag.substring(8, stringTag.length - 1);
@@ -17,12 +17,12 @@ export default class ObjectView extends TypeView {
 
   get template() {
     return `\
-<div class="console__item item item--${this._viewType}">\
+<div class="console__item item item--${this.viewType}">\
   <div class="head item__head">\
     <span class="info head__info hidden"></span>\
-    <div class="head__content entry-container entry-container--head entry-container--${this._viewType} hidden"></div>\
+    <div class="head__content entry-container entry-container--head entry-container--${this.viewType} hidden"></div>\
   </div>\
-  <div class="item__content entry-container entry-container--${this._viewType} hidden"></div>\
+  <div class="item__content entry-container entry-container--${this.viewType} hidden"></div>\
 </div>`;
   }
 
@@ -115,7 +115,8 @@ export default class ObjectView extends TypeView {
       return this._getHeadDirContent();
     } else if (this.value instanceof Error) {
       isBraced = false;
-      val = this.value.toString();
+      val = `<pre>${this.value.stack}</pre>`;
+      isOpeningDisabled = true;
       isStringified = true;
     } else if (this.value instanceof Number) {
       const view = this._console.createTypedView(Number.parseInt(this.value, 10), Mode.PREVIEW, this.nextNestingLevel, this);
@@ -141,7 +142,7 @@ export default class ObjectView extends TypeView {
       isOpeningDisabled = val.childElementCount === 0;
       if (this._stringTagName !== `Object` || (
         this._constructorName !== `Object` && !this.value.hasOwnProperty(`constructor`)
-      )) {
+      ) || this._propKey === `__proto__`) {
         isShowInfo = true;
       }
     }
@@ -150,7 +151,7 @@ export default class ObjectView extends TypeView {
       headContentClassName,
       stateParams: {
         isShowInfo,
-        isHeadContentShowed: true,
+        isHeadContentShowed: this._propKey !== `__proto__`,
         isBraced,
         isOpeningDisabled,
         isOversized,
@@ -201,7 +202,7 @@ export default class ObjectView extends TypeView {
       if (isPreview && !obj.hasOwnProperty(key)) { // Перечисляемые свои
         continue;
       }
-      if (isPreview && addedKeys.size === this._console.params[this._viewType].maxFieldsInHead) {
+      if (isPreview && addedKeys.size === this._console.params[this.viewType].maxFieldsInHead) {
         return {
           fragment,
           isOversized: true
@@ -214,11 +215,14 @@ export default class ObjectView extends TypeView {
       } catch (err) {}
     }
     const ownPropertyNamesAndSymbols = Object.getOwnPropertyNames(obj).concat(Object.getOwnPropertySymbols(obj));
+    ownPropertyNamesAndSymbols.push(`__proto__`);
+    // вытащить __proto__ из неперечисляемых своих
+    // сделать доп обертку
     for (let key of ownPropertyNamesAndSymbols) { // Неперечисляемые свои
-      if (addedKeys.has(key)) {
+      if (addedKeys.has(key) || (isPreview && key === `__proto__`)) {
         continue;
       }
-      if (isPreview && addedKeys.size === this._console.params[this._viewType].maxFieldsInHead) {
+      if (isPreview && addedKeys.size === this._console.params[this.viewType].maxFieldsInHead) {
         return {
           fragment,
           isOversized: true
@@ -237,7 +241,7 @@ export default class ObjectView extends TypeView {
   }
 
   _createObjectEntryEl(key, val, isPreview) {
-    const view = this._console.createTypedView(val, isPreview ? Mode.PREVIEW : Mode.PROP, this.nextNestingLevel, this);
+    const view = this._console.createTypedView(val, isPreview ? Mode.PREVIEW : Mode.PROP, this.nextNestingLevel, this, key);
     return ObjectView.createEntryEl(key.toString(), view.el);
   }
 }

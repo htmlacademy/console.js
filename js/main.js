@@ -130,8 +130,8 @@ export default class Console {
     this._container.innerHTML = ``;
   }
 
-  createTypedView(val, mode, depth, parentView) {
-    const params = {val, mode, depth, parentView, type: typeof val};
+  createTypedView(val, mode, depth, parentView, propKey) {
+    const params = {val, mode, depth, parentView, type: typeof val, propKey};
     let view;
     switch (params.type) {
       case `function`:

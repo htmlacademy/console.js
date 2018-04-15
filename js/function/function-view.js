@@ -19,9 +19,9 @@ const FnType = {
 export default class FunctionView extends TypeView {
   constructor(params, cons) {
     super(params, cons);
-    this._viewType = ViewType.FUNCTION;
+    this.viewType = ViewType.FUNCTION;
     if (!params.parentView) {
-      this._rootViewType = this._viewType;
+      this._rootView = this;
     }
     this._fnType = FunctionView.checkFnType(this.value);
   }
@@ -30,11 +30,11 @@ export default class FunctionView extends TypeView {
     const isShowInfo = this._fnType !== FnType.ARROW || this._mode === Mode.PREVIEW;
     const body = this._getBody();
     return `\
-<div class="console__item item item--${this._viewType}">\
+<div class="console__item item item--${this.viewType} ${this._mode === Mode.ERROR ? `error` : ``}">\
   <div class="head item__head italic">\
     <pre class="head__content"><span class="info info--function ${isShowInfo ? `` : `hidden`}">${this._getInfo()}</span>${isShowInfo && body ? ` ` : ``}${this._getBody()}</pre>\
   </div>\
-  <div class="item__content entry-container entry-container--${this._viewType} hidden"></div>\
+  <div class="item__content entry-container entry-container--${this.viewType} hidden"></div>\
 </div>`;
   }
 
@@ -166,7 +166,7 @@ ${this._fnType === FnType.ARROW ? ` => ` : ` `}${bodyLines.join(`\n`)}`;
       } catch (err) {
         continue;
       }
-      const view = this._console.createTypedView(value, Mode.PROP, this.nextNestingLevel, this);
+      const view = this._console.createTypedView(value, Mode.PROP, this.nextNestingLevel, this, key);
       const entryEl = FunctionView.createEntryEl(key.toString(), view.el);
       fragment.appendChild(entryEl);
     }

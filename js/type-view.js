@@ -8,13 +8,14 @@ export default class TypeView extends AbstractView {
     super();
     if (params.parentView) {
       this._parentView = params.parentView;
-      this._rootViewType = params.parentView._rootViewType;
+      this._rootView = params.parentView._rootView;
     }
-    this._viewType = null;
+    this.viewType = null;
     this._console = cons;
     this._value = params.val;
     this._mode = params.mode;
     this._type = params.type;
+    this._propKey = params.propKey;
     this._isOpened = false;
     this._currentDepth = typeof params.depth === `number` ? params.depth : 1;
     this._templateParams = {};
@@ -147,8 +148,8 @@ export default class TypeView extends AbstractView {
     if (!this._isAutoExpandNeededProxied) {
       this._isAutoExpandNeededProxied = false;
 
-      if (this._viewType === null ||
-        this._currentDepth > this._console.params[this._rootViewType].expandDepth) {
+      if (this.viewType === null ||
+        this._currentDepth > this._console.params[this._rootView.viewType].expandDepth) {
         return this._isAutoExpandNeededProxied;
       }
 
@@ -156,12 +157,13 @@ export default class TypeView extends AbstractView {
       if (this._parentView && this._parentView._isAutoExpandNeeded) {
         rootFieldsMoreThanNeed = true;
       } else if (Object.keys(this.value).length >= // Object.getOwnPropertyNames
-      this._console.params[this._rootViewType].minFieldsToExpand) {
+      this._console.params[this._rootView.viewType].minFieldsToExpand) {
         rootFieldsMoreThanNeed = true;
       }
 
       if (rootFieldsMoreThanNeed &&
-      !this._console.params[this._rootViewType].exclude.includes(this._viewType)) {
+      !this._console.params[this._rootView.viewType].exclude.includes(this.viewType) &&
+      this._propKey !== `__proto__`) {
         this._isAutoExpandNeededProxied = true;
       }
     }
