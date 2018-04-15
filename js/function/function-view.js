@@ -24,7 +24,6 @@ export default class FunctionView extends TypeView {
       this._rootViewType = this._viewType;
     }
     this._fnType = FunctionView.checkFnType(this.value);
-    console.log(this._fnType, this.value);
   }
 
   get template() {
