@@ -37,7 +37,22 @@
       }
       const test1 = function (bar1 = 123) {console.log(456); return 123;}
       const test2 = function named (bar2 = 123) {console.log(456); return 123;}
-      jsConsole.log(Person);
+      jsConsole.dir(Person);
+      jsConsole.dir(bar);
+      jsConsole.dir(fn);
+      jsConsole.dir(fn1);
+      jsConsole.dir(fn2);
+      jsConsole.dir(test);
+      jsConsole.dir(test1);
+      jsConsole.dir(test2);
+      console.dir(Person);
+      console.dir(bar);
+      console.dir(fn);
+      console.dir(fn1);
+      console.dir(fn2);
+      console.dir(test);
+      console.dir(test1);
+      console.dir(test2);
     </script>
   </body>
 </html>

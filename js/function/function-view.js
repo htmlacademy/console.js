@@ -24,13 +24,16 @@ export default class FunctionView extends TypeView {
       this._rootViewType = this._viewType;
     }
     this._fnType = FunctionView.checkFnType(this.value);
+    console.log(this._fnType, this.value);
   }
 
   get template() {
+    const isShowInfo = this._fnType !== FnType.ARROW || this._mode === Mode.PREVIEW;
+    const body = this._getBody();
     return `\
 <div class="console__item item item--${this._viewType}">\
   <div class="head item__head italic">\
-    <pre class="head__content"><span class="info info--function hidden">${this._getInfo()}</span>${this._getBody()}</pre>\
+    <pre class="head__content"><span class="info info--function ${isShowInfo ? `` : `hidden`}">${this._getInfo()}</span>${isShowInfo && body ? ` ` : ``}${this._getBody()}</pre>\
   </div>\
   <div class="item__content entry-container entry-container--${this._viewType} hidden"></div>\
 </div>`;
@@ -38,8 +41,6 @@ export default class FunctionView extends TypeView {
 
   afterRender() {
     const params = {
-      isShowInfo: this._fnType !== FnType.ARROW || this._mode === Mode.PREVIEW,
-      isHeadContentShowed: true,
       isOpeningDisabled: this._mode !== Mode.DIR && this._mode !== Mode.PROP
     };
 
@@ -83,14 +84,12 @@ export default class FunctionView extends TypeView {
     const joinedLines = bodyLines.join(`\n`);
 
     let markup = `\
-<span>\
 ${this.value.name ? this.value.name : ``}\
 ${this._fnType !== FnType.CLASS ? `(${params.join(`, `)})` : ``}\
 ${this._fnType === FnType.ARROW ? ` => ` : ` `}`;
     if (this._fnType === FnType.ARROW) {
       markup += `${joinedLines.length <= MAX_PREVIEW_FN_BODY_LENGTH ? joinedLines : `{...}`}`;
     }
-    markup += `</span>`;
     return markup;
   }
 
@@ -107,6 +106,7 @@ ${this._fnType === FnType.ARROW ? `()` : ``}`;
   _getHeadLogMarkup() {
     const bodyLines = this._parseBody();
     const params = this._parseParams();
+
     return `\
 ${this.value.name && this._fnType !== FnType.ARROW ? `${this.value.name} ` : ``}\
 ${this._fnType !== FnType.CLASS ? `(${params.join(`, `)})` : ``}\
@@ -124,30 +124,30 @@ ${this._fnType === FnType.ARROW ? ` => ` : ` `}${bodyLines.join(`\n`)}`;
   }
 
   _parseBody() {
-    const str = this.value.toString();
+    let str = this.value.toString().trim();
 
     let bodyContent = [];
     if (this._fnType === FnType.ARROW) {
       const arrowIndex = str.indexOf(`=>`);
-      bodyContent = str.substring(arrowIndex + 2).trim().split(`\n`);
-    } else {
-      const lines = str.split(`\n`);
-      lines.shift();
-      const firstWhitespaceIndexes = lines
-          .filter((line) => line.length !== 0)
-          .map((line) => {
-            const ex = /^\s+/.exec(line);
-            if (ex && ex[0].hasOwnProperty(`length`)) {
-              return ex[0].length;
-            }
-            return 0;
-          });
-
-      const min = Math.min(...firstWhitespaceIndexes);
-      bodyContent = lines.map((line) => line.slice(min));
-      bodyContent.unshift(`{`);
+      str = str.substring(arrowIndex + 2);
     }
+    const firstBraceIndex = str.indexOf(`{`);
+    str = str.substring(firstBraceIndex);
+    const lines = str.split(`\n`);
+    const firstLine = lines.shift();
+    const firstWhitespaceIndexes = lines
+        .filter((line) => line.length !== 0)
+        .map((line) => {
+          const ex = /^\s+/.exec(line);
+          if (ex && ex[0].hasOwnProperty(`length`)) {
+            return ex[0].length;
+          }
+          return 0;
+        });
 
+    const min = Math.min(...firstWhitespaceIndexes);
+    bodyContent = lines.map((line) => line.slice(min));
+    bodyContent.unshift(firstLine);
     return bodyContent;
   }
 

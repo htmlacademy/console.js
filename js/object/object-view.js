@@ -15,6 +15,17 @@ export default class ObjectView extends TypeView {
     this._constructorName = this.value.constructor.name;
   }
 
+  get template() {
+    return `\
+<div class="console__item item item--${this._viewType}">\
+  <div class="head item__head">\
+    <span class="info head__info hidden"></span>\
+    <div class="head__content entry-container entry-container--head entry-container--${this._viewType} hidden"></div>\
+  </div>\
+  <div class="item__content entry-container entry-container--${this._viewType} hidden"></div>\
+</div>`;
+  }
+
   afterRender() {
     const {elOrStr, stateParams, headContentClassName} = this._getHeadContent();
     this._headContent = elOrStr;
@@ -30,7 +41,6 @@ export default class ObjectView extends TypeView {
     }
 
     this.state = stateParams;
-    window.consoleViews.set(this.el, this);
   }
 
   _getStateProxyObject() {
@@ -128,7 +138,10 @@ export default class ObjectView extends TypeView {
       const obj = this.createContent(this.value, true);
       val = obj.fragment;
       isOversized = obj.isOversized;
-      if (this._stringTagName !== `Object` || this._constructorName !== `Object`) {
+      isOpeningDisabled = val.childElementCount === 0;
+      if (this._stringTagName !== `Object` || (
+        this._constructorName !== `Object` && !this.value.hasOwnProperty(`constructor`)
+      )) {
         isShowInfo = true;
       }
     }

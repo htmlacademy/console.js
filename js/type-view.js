@@ -3,19 +3,6 @@ import AbstractView from './abstract-view';
 import {getElement} from './utils';
 import {Mode} from './enums';
 
-const toggleMiddleware = (el, className, isEnable) => {
-  if (typeof isEnable === `undefined`) {
-    return el.classList.toggle(className);
-  }
-  if (isEnable) {
-    el.classList.add(className);
-    return true;
-  } else {
-    el.classList.remove(className);
-    return false;
-  }
-};
-
 export default class TypeView extends AbstractView {
   constructor(params, cons) {
     super();
@@ -33,40 +20,12 @@ export default class TypeView extends AbstractView {
     this._templateParams = {};
   }
 
-//   get template() {
-//     return `\
-// <div class="console__item item item--${this._viewType}">\
-//   <div class="item__head">\
-//     <span class="item__head-info hidden"></span>\
-//     ${this._templateParams.withHeadContentlength ? `<span class="item__head-content-length hidden">${this.value.length}</span>` : ``}\
-//     <div class="item__head-content entry-container entry-container--head entry-container--${this._viewType} hidden"></div>\
-//   </div>\
-//   <div class="item__content entry-container entry-container--${this._viewType} hidden"></div>\
-// </div>`;
-//   }
-
-  get template() {
-    return `\
-<div class="console__item item item--${this._viewType}">\
-  <div class="head item__head">\
-    <span class="info head__info hidden"></span>\
-    ${this._templateParams.withHeadContentlength ? `<span class="length head__length hidden">${this.value.length}</span>` : ``}\
-    <div class="head__content entry-container entry-container--head entry-container--${this._viewType} hidden"></div>\
-  </div>\
-  <div class="item__content entry-container entry-container--${this._viewType} hidden"></div>\
-</div>`;
-  }
-
   afterRender() {}
 
   bind() {
     this._headEl = this.el.querySelector(`.head`);
     this._headContentEl = this.el.querySelector(`.head__content`);
     this._infoEl = this.el.querySelector(`.info`);
-    if (this._templateParams.withHeadContentlength) {
-      this._lengthEl = this.el.querySelector(`.length`);
-    }
-
     this._contentEl = this.el.querySelector(`.item__content`);
 
     this.afterRender();
@@ -108,9 +67,6 @@ export default class TypeView extends AbstractView {
       set isShowInfo(bool) {
         self.toggleInfoShowed(bool);
       },
-      set isShowLength(bool) {
-        self.toggleContentLengthShowed(bool);
-      },
       set isHeadContentShowed(bool) {
         self.toggleHeadContentShowed(bool);
       },
@@ -140,43 +96,39 @@ export default class TypeView extends AbstractView {
   }
 
   toggleHeadContentBraced(isEnable) {
-    return toggleMiddleware(this._headContentEl, `entry-container--braced`, isEnable);
+    return TypeView.toggleMiddleware(this._headContentEl, `entry-container--braced`, isEnable);
   }
 
   toggleHeadContentOversized(isEnable) {
-    return toggleMiddleware(this._headContentEl, `entry-container--oversize`, isEnable);
+    return TypeView.toggleMiddleware(this._headContentEl, `entry-container--oversize`, isEnable);
   }
 
   toggleInfoShowed(isEnable) {
-    return !toggleMiddleware(this._infoEl, `hidden`, !isEnable);
-  }
-
-  toggleContentLengthShowed(isEnable) {
-    return !toggleMiddleware(this._lengthEl, `hidden`, !isEnable);
+    return !TypeView.toggleMiddleware(this._infoEl, `hidden`, !isEnable);
   }
 
   toggleHeadContentShowed(isEnable) {
-    return !toggleMiddleware(this._headContentEl, `hidden`, !isEnable);
+    return !TypeView.toggleMiddleware(this._headContentEl, `hidden`, !isEnable);
   }
 
   toggleContentShowed(isEnable) {
-    return !toggleMiddleware(this._contentEl, `hidden`, !isEnable);
+    return !TypeView.toggleMiddleware(this._contentEl, `hidden`, !isEnable);
   }
 
   toggleError(isEnable) {
-    return toggleMiddleware(this.el, Mode.ERROR, isEnable);
+    return TypeView.toggleMiddleware(this.el, Mode.ERROR, isEnable);
   }
 
   toggleItalic(isEnable) {
-    return toggleMiddleware(this._headEl, `italic`, isEnable);
+    return TypeView.toggleMiddleware(this._headEl, `italic`, isEnable);
   }
 
   togglePointer(isEnable) {
-    return toggleMiddleware(this._headEl, `item__head--pointer`, isEnable);
+    return TypeView.toggleMiddleware(this._headEl, `item__head--pointer`, isEnable);
   }
 
   toggleArrowBottom(isEnable) {
-    return toggleMiddleware(this._headEl, `item__head--arrow-bottom`, isEnable);
+    return TypeView.toggleMiddleware(this._headEl, `item__head--arrow-bottom`, isEnable);
   }
 
   get value() {
@@ -245,5 +197,18 @@ export default class TypeView extends AbstractView {
     valueContEl.appendChild(valueEl);
 
     return entryEl;
+  }
+
+  static toggleMiddleware(el, className, isEnable) {
+    if (typeof isEnable === `undefined`) {
+      return el.classList.toggle(className);
+    }
+    if (isEnable) {
+      el.classList.add(className);
+      return true;
+    } else {
+      el.classList.remove(className);
+      return false;
+    }
   }
 }

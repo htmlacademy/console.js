@@ -24,7 +24,7 @@ export default class Console {
     if (!container) {
       throw new Error(`Console is not inited!`);
     }
-    window.consoleViews = new Map();
+    this._views = new Map();
     this._container = container;
     this.params = {
       object: this._parseParams(params.object, `object`),
@@ -152,6 +152,7 @@ export default class Console {
         view = new PrimitiveView(params, this);
         break;
     }
+    // this._views.set(view.el, view);
     return view;
   }
 

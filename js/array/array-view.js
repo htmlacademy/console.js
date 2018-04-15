@@ -1,5 +1,8 @@
 import TypeView from '../type-view';
+import {getElement} from '../utils';
 import {Mode, ViewType} from '../enums';
+
+const EMPTY = `empty`;
 
 export default class ArrayView extends TypeView {
   constructor(params, cons) {
@@ -12,7 +15,20 @@ export default class ArrayView extends TypeView {
     this._templateParams.withHeadContentlength = true;
   }
 
+  get template() {
+    return `\
+<div class="console__item item item--${this._viewType}">\
+  <div class="head item__head">\
+    <span class="info head__info hidden"></span>\
+    <span class="length head__length hidden">${this.value.length}</span>\
+    <div class="head__content entry-container entry-container--head entry-container--${this._viewType} hidden"></div>\
+  </div>\
+  <div class="item__content entry-container entry-container--${this._viewType} hidden"></div>\
+</div>`;
+  }
+
   afterRender() {
+    this._lengthEl = this.el.querySelector(`.length`);
     this.toggleHeadContentBraced();
     this._infoEl.textContent = this.value.constructor.name;
     this.state = this._getStateParams();
@@ -30,8 +46,15 @@ export default class ArrayView extends TypeView {
           self._headContentEl.appendChild(self.createContent(self.value, true).fragment);
         }
         self.toggleHeadContentShowed(bool);
+      },
+      set isShowLength(bool) {
+        self.toggleContentLengthShowed(bool);
       }
     };
+  }
+
+  toggleContentLengthShowed(isEnable) {
+    return !TypeView.toggleMiddleware(this._lengthEl, `hidden`, !isEnable);
   }
 
   _additionHeadClickHandler() {
@@ -68,17 +91,20 @@ export default class ArrayView extends TypeView {
 
   createContent(arr, isPreview) {
     const keys = Object.keys(arr);
-    const addedKeys = new Set();
+    const ownPropertyNamesSet = new Set(Object.getOwnPropertyNames(arr));
     const fragment = document.createDocumentFragment();
-    for (let key of keys) {
-      addedKeys.add(key);
-      const val = arr[key];
-      fragment.appendChild(this._createArrayEntryEl(key, val, isPreview));
-    }
-    for (let key of Object.getOwnPropertyNames(arr)) {
-      if (addedKeys.has(key)) {
-        continue;
+    for (let i = 0, l = arr.length; i < l; i++) {
+      const key = i.toString();
+      if (ownPropertyNamesSet.has(key)) {
+        const val = arr[i];
+        fragment.appendChild(this._createArrayEntryEl(i, val, isPreview));
+        ownPropertyNamesSet.delete(key);
+      } else if (isPreview) {
+        const entryEl = ArrayView.createEntryEl(key, getElement(`<span class="${EMPTY}">${EMPTY}</span>`), true);
+        fragment.appendChild(entryEl);
       }
+    }
+    for (let key of ownPropertyNamesSet) {
       if (isPreview && keys.indexOf(key) === -1) {
         continue;
       }
