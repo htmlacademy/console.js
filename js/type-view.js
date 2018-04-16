@@ -190,10 +190,10 @@ export default class TypeView extends AbstractView {
     }
   }
 
-  static createEntryEl(index, valueEl, withoutKey) {
+  static createEntryEl(index, valueEl, withoutKey, keyElClass) {
     const entryEl = getElement(`\
 <span class="entry-container__entry">\
-  ${withoutKey ? `` : `<span class="entry-container__key">${index}</span>`}<span class="entry-container__value-container"></span>\
+  ${withoutKey ? `` : `<span class="entry-container__key ${keyElClass ? keyElClass : ``}">${index}</span>`}<span class="entry-container__value-container"></span>\
 </span>`);
     const valueContEl = entryEl.querySelector(`.entry-container__value-container`);
     valueContEl.appendChild(valueEl);

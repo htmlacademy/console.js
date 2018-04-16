@@ -58,7 +58,7 @@ export default class ArrayView extends TypeView {
   }
 
   _additionHeadClickHandler() {
-    if (this._mode === Mode.PROP) {
+    if (this._mode === Mode.PROP && this._propKey !== `__proto__`) {
       this.state.isShowInfo = this._isContentShowed;
       this.state.isHeadContentShowed = !this._isContentShowed;
       this.state.isShowLength = this._isContentShowed || this.value.length > 1;
@@ -80,6 +80,12 @@ export default class ArrayView extends TypeView {
     } else if (this._mode === Mode.PROP) {
       isShowInfo = false;
       isHeadContentShowed = true;
+
+      if (this._propKey === `__proto__`) {
+        isShowInfo = true;
+        isHeadContentShowed = false;
+        isShowLength = true;
+      }
     }
     return {
       isShowInfo,
@@ -95,27 +101,32 @@ export default class ArrayView extends TypeView {
     for (let i = 0, l = arr.length; i < l; i++) {
       const key = i.toString();
       if (ownPropertyNamesSet.has(key)) {
-        const val = arr[i];
-        fragment.appendChild(this._createArrayEntryEl(i, val, isPreview));
+        fragment.appendChild(this._createArrayEntryEl(arr, i, isPreview));
         ownPropertyNamesSet.delete(key);
       } else if (isPreview) {
-        const entryEl = ArrayView.createEntryEl(key, getElement(`<span class="${EMPTY}">${EMPTY}</span>`), true);
+        const entryEl = ArrayView.createEntryEl(key, getElement(`<span class="grey">${EMPTY}</span>`), true);
         fragment.appendChild(entryEl);
       }
     }
     for (let key of ownPropertyNamesSet) {
-      if (isPreview && key === `length`) {
+      let elClass;
+      if (isPreview && (key === `length` || key === `__proto__`)) {
         continue;
+      } else if (key === `length`) {
+        elClass = `grey`;
       }
-      const val = arr[key];
-      fragment.appendChild(this._createArrayEntryEl(key, val, isPreview));
+      fragment.appendChild(this._createArrayEntryEl(arr, key, isPreview, elClass));
+    }
+    if (!isPreview) {
+      fragment.appendChild(this._createArrayEntryEl(arr, `__proto__`, isPreview, `grey`));
     }
     return {fragment};
   }
 
-  _createArrayEntryEl(key, val, isPreview) {
+  _createArrayEntryEl(arr, key, isPreview, keyElClass) {
+    const val = arr[key];
     const isKeyNaN = Number.isNaN(Number.parseInt(key, 10));
     const view = this._console.createTypedView(val, isPreview ? Mode.PREVIEW : Mode.PROP, this.nextNestingLevel, this, key);
-    return ArrayView.createEntryEl(key.toString(), view.el, isPreview ? !isKeyNaN : isPreview);
+    return ArrayView.createEntryEl(key.toString(), view.el, isPreview ? !isKeyNaN : isPreview, keyElClass);
   }
 }

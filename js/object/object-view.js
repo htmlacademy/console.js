@@ -111,6 +111,10 @@ export default class ObjectView extends TypeView {
     let isStringified = false;
     let headContentClassName;
 
+    if (this._propKey === `__proto__`) {
+      return this._getHeadDirContent();
+    }
+
     if (this.value instanceof HTMLElement && Object.getPrototypeOf(this.value).constructor !== HTMLElement) {
       return this._getHeadDirContent();
     } else if (this.value instanceof Error) {
@@ -142,7 +146,7 @@ export default class ObjectView extends TypeView {
       isOpeningDisabled = val.childElementCount === 0;
       if (this._stringTagName !== `Object` || (
         this._constructorName !== `Object` && !this.value.hasOwnProperty(`constructor`)
-      ) || this._propKey === `__proto__`) {
+      )) {
         isShowInfo = true;
       }
     }
@@ -151,7 +155,7 @@ export default class ObjectView extends TypeView {
       headContentClassName,
       stateParams: {
         isShowInfo,
-        isHeadContentShowed: this._propKey !== `__proto__`,
+        isHeadContentShowed: true,
         isBraced,
         isOpeningDisabled,
         isOversized,
@@ -196,52 +200,38 @@ export default class ObjectView extends TypeView {
 
   createContent(obj, isPreview) {
     const fragment = document.createDocumentFragment();
+    let isOversized = false;
+    const keys = new Set();
     const addedKeys = new Set();
-    // TODO: Добавить счётчик, чтобы больше 5 значений не добавлялось
+
     for (let key in obj) {
-      if (isPreview && !obj.hasOwnProperty(key)) { // Перечисляемые свои
-        continue;
+      if (isPreview && !obj.hasOwnProperty(key)) {
+        keys.add(key);
       }
+    }
+
+    const ownPropertyNamesAndSymbols = Object.getOwnPropertyNames(obj)
+        .concat(Object.getOwnPropertySymbols(obj)); // Неперечисляемые свои
+    ownPropertyNamesAndSymbols.forEach((key) => keys.add(key));
+
+    for (let key of keys.values()) {
       if (isPreview && addedKeys.size === this._console.params[this.viewType].maxFieldsInHead) {
-        return {
-          fragment,
-          isOversized: true
-        };
+        isOversized = true;
+        break;
       }
       try {
-        const val = obj[key];
-        fragment.appendChild(this._createObjectEntryEl(key, val, isPreview));
-        addedKeys.add(key);
+        fragment.appendChild(this._createObjectEntryEl(obj, key, isPreview));
       } catch (err) {}
     }
-    const ownPropertyNamesAndSymbols = Object.getOwnPropertyNames(obj).concat(Object.getOwnPropertySymbols(obj));
-    ownPropertyNamesAndSymbols.push(`__proto__`);
-    // вытащить __proto__ из неперечисляемых своих
-    // сделать доп обертку
-    for (let key of ownPropertyNamesAndSymbols) { // Неперечисляемые свои
-      if (addedKeys.has(key) || (isPreview && key === `__proto__`)) {
-        continue;
-      }
-      if (isPreview && addedKeys.size === this._console.params[this.viewType].maxFieldsInHead) {
-        return {
-          fragment,
-          isOversized: true
-        };
-      }
-      try {
-        const val = obj[key];
-        fragment.appendChild(this._createObjectEntryEl(key, val, isPreview));
-        addedKeys.add(key);
-      } catch (err) {}
+    if (!isPreview) {
+      fragment.appendChild(this._createObjectEntryEl(obj, `__proto__`, isPreview, `grey`));
     }
-    return {
-      fragment,
-      isOversized: false
-    };
+    return {fragment, isOversized};
   }
 
-  _createObjectEntryEl(key, val, isPreview) {
+  _createObjectEntryEl(obj, key, isPreview, keyElClass) {
+    const val = obj[key];
     const view = this._console.createTypedView(val, isPreview ? Mode.PREVIEW : Mode.PROP, this.nextNestingLevel, this, key);
-    return ObjectView.createEntryEl(key.toString(), view.el);
+    return ObjectView.createEntryEl(key.toString(), view.el, null, keyElClass);
   }
 }

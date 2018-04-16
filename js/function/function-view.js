@@ -167,7 +167,7 @@ ${this._fnType === FnType.ARROW ? ` => ` : ` `}${bodyLines.join(`\n`)}`;
         continue;
       }
       const view = this._console.createTypedView(value, Mode.PROP, this.nextNestingLevel, this, key);
-      const entryEl = FunctionView.createEntryEl(key.toString(), view.el);
+      const entryEl = FunctionView.createEntryEl(key.toString(), view.el, null, fnKeys.includes(key) ? `grey` : null);
       fragment.appendChild(entryEl);
     }
     return {fragment};
