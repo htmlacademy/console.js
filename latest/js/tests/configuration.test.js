@@ -48,58 +48,30 @@ const ViewType = {
 
 /* eslint guard-for-in: "off"*/
 
-const toggleMiddleware = (el, className, isEnable) => {
-  if (typeof isEnable === `undefined`) {
-    return el.classList.toggle(className);
-  }
-  if (isEnable) {
-    el.classList.add(className);
-    return true;
-  } else {
-    el.classList.remove(className);
-    return false;
-  }
-};
-
 class TypeView extends AbstractView {
   constructor(params, cons) {
     super();
     if (params.parentView) {
       this._parentView = params.parentView;
-      this._rootViewType = params.parentView._rootViewType;
+      this._rootView = params.parentView._rootView;
     }
-    this._viewType = null;
+    this.viewType = null;
     this._console = cons;
     this._value = params.val;
     this._mode = params.mode;
     this._type = params.type;
+    this._propKey = params.propKey;
     this._isOpened = false;
     this._currentDepth = typeof params.depth === `number` ? params.depth : 1;
     this._templateParams = {};
   }
 
-  get template() {
-    return `\
-<div class="console__item item item--${this._viewType}">\
-  <div class="item__head">\
-    <span class="item__head-info hidden"></span>\
-    ${this._templateParams.withHeadContentlength ? `<span class="item__head-content-length hidden">${this.value.length}</span>` : ``}\
-    <div class="item__head-content entry-container entry-container--head entry-container--${this._viewType} hidden"></div>\
-  </div>\
-  <div class="item__content entry-container entry-container--${this._viewType} hidden"></div>\
-</div>`;
-  }
-
   afterRender() {}
 
   bind() {
-    this._headEl = this.el.querySelector(`.item__head`);
-    this._headContentEl = this._headEl.querySelector(`.item__head-content`);
-    this._headInfoEl = this._headEl.querySelector(`.item__head-info`);
-    if (this._templateParams.withHeadContentlength) {
-      this._headContentLengthEl = this._headEl.querySelector(`.item__head-content-length`);
-    }
-
+    this._headEl = this.el.querySelector(`.head`);
+    this._headContentEl = this.el.querySelector(`.head__content`);
+    this._infoEl = this.el.querySelector(`.info`);
     this._contentEl = this.el.querySelector(`.item__content`);
 
     this.afterRender();
@@ -141,9 +113,6 @@ class TypeView extends AbstractView {
       set isShowInfo(bool) {
         self.toggleInfoShowed(bool);
       },
-      set isShowLength(bool) {
-        self.toggleContentLengthShowed(bool);
-      },
       set isHeadContentShowed(bool) {
         self.toggleHeadContentShowed(bool);
       },
@@ -173,43 +142,39 @@ class TypeView extends AbstractView {
   }
 
   toggleHeadContentBraced(isEnable) {
-    return toggleMiddleware(this._headContentEl, `entry-container--braced`, isEnable);
+    return TypeView.toggleMiddleware(this._headContentEl, `entry-container--braced`, isEnable);
   }
 
   toggleHeadContentOversized(isEnable) {
-    return toggleMiddleware(this._headContentEl, `entry-container--oversize`, isEnable);
+    return TypeView.toggleMiddleware(this._headContentEl, `entry-container--oversize`, isEnable);
   }
 
   toggleInfoShowed(isEnable) {
-    return !toggleMiddleware(this._headInfoEl, `hidden`, !isEnable);
-  }
-
-  toggleContentLengthShowed(isEnable) {
-    return !toggleMiddleware(this._headContentLengthEl, `hidden`, !isEnable);
+    return !TypeView.toggleMiddleware(this._infoEl, `hidden`, !isEnable);
   }
 
   toggleHeadContentShowed(isEnable) {
-    return !toggleMiddleware(this._headContentEl, `hidden`, !isEnable);
+    return !TypeView.toggleMiddleware(this._headContentEl, `hidden`, !isEnable);
   }
 
   toggleContentShowed(isEnable) {
-    return !toggleMiddleware(this._contentEl, `hidden`, !isEnable);
+    return !TypeView.toggleMiddleware(this._contentEl, `hidden`, !isEnable);
   }
 
   toggleError(isEnable) {
-    return toggleMiddleware(this.el, Mode.ERROR, isEnable);
+    return TypeView.toggleMiddleware(this.el, Mode.ERROR, isEnable);
   }
 
   toggleItalic(isEnable) {
-    return toggleMiddleware(this._headEl, `item__head--italic`, isEnable);
+    return TypeView.toggleMiddleware(this._headEl, `italic`, isEnable);
   }
 
   togglePointer(isEnable) {
-    return toggleMiddleware(this._headEl, `item__head--pointer`, isEnable);
+    return TypeView.toggleMiddleware(this._headEl, `item__head--pointer`, isEnable);
   }
 
   toggleArrowBottom(isEnable) {
-    return toggleMiddleware(this._headEl, `item__head--arrow-bottom`, isEnable);
+    return TypeView.toggleMiddleware(this._headEl, `item__head--arrow-bottom`, isEnable);
   }
 
   get value() {
@@ -228,8 +193,8 @@ class TypeView extends AbstractView {
     if (!this._isAutoExpandNeededProxied) {
       this._isAutoExpandNeededProxied = false;
 
-      if (this._viewType === null ||
-        this._currentDepth > this._console.params[this._rootViewType].expandDepth) {
+      if (this.viewType === null ||
+        this._currentDepth > this._console.params[this._rootView.viewType].expandDepth) {
         return this._isAutoExpandNeededProxied;
       }
 
@@ -237,12 +202,13 @@ class TypeView extends AbstractView {
       if (this._parentView && this._parentView._isAutoExpandNeeded) {
         rootFieldsMoreThanNeed = true;
       } else if (Object.keys(this.value).length >= // Object.getOwnPropertyNames
-      this._console.params[this._rootViewType].minFieldsToExpand) {
+      this._console.params[this._rootView.viewType].minFieldsToExpand) {
         rootFieldsMoreThanNeed = true;
       }
 
       if (rootFieldsMoreThanNeed &&
-      !this._console.params[this._rootViewType].exclude.includes(this._viewType)) {
+      !this._console.params[this._rootView.viewType].exclude.includes(this.viewType)/* &&
+      this._propKey !== `__proto__`*/) {
         this._isAutoExpandNeededProxied = true;
       }
     }
@@ -279,6 +245,19 @@ class TypeView extends AbstractView {
 
     return entryEl;
   }
+
+  static toggleMiddleware(el, className, isEnable) {
+    if (typeof isEnable === `undefined`) {
+      return el.classList.toggle(className);
+    }
+    if (isEnable) {
+      el.classList.add(className);
+      return true;
+    } else {
+      el.classList.remove(className);
+      return false;
+    }
+  }
 }
 
 /* eslint guard-for-in: "off"*/
@@ -286,13 +265,24 @@ class TypeView extends AbstractView {
 class ObjectView extends TypeView {
   constructor(params, cons) {
     super(params, cons);
-    this._viewType = ViewType.OBJECT;
+    this.viewType = ViewType.OBJECT;
     if (!params.parentView) {
-      this._rootViewType = this._viewType;
+      this._rootView = this;
     }
     const stringTag = Object.prototype.toString.call(this.value);
     this._stringTagName = stringTag.substring(8, stringTag.length - 1);
     this._constructorName = this.value.constructor.name;
+  }
+
+  get template() {
+    return `\
+<div class="console__item item item--${this.viewType}">\
+  <div class="head item__head">\
+    <span class="info head__info hidden"></span>\
+    <div class="head__content entry-container entry-container--head entry-container--${this.viewType} hidden"></div>\
+  </div>\
+  <div class="item__content entry-container entry-container--${this.viewType} hidden"></div>\
+</div>`;
   }
 
   afterRender() {
@@ -304,13 +294,12 @@ class ObjectView extends TypeView {
     }
 
     if (this._constructorName === `Object` && this._stringTagName !== `Object`) {
-      this._headInfoEl.textContent = this._stringTagName;
+      this._infoEl.textContent = this._stringTagName;
     } else {
-      this._headInfoEl.textContent = this._constructorName;
+      this._infoEl.textContent = this._constructorName;
     }
 
     this.state = stateParams;
-    window.consoleViews.set(this.el, this);
   }
 
   _getStateProxyObject() {
@@ -385,7 +374,8 @@ class ObjectView extends TypeView {
       return this._getHeadDirContent();
     } else if (this.value instanceof Error) {
       isBraced = false;
-      val = this.value.toString();
+      val = `<pre>${this.value.stack}</pre>`;
+      isOpeningDisabled = true;
       isStringified = true;
     } else if (this.value instanceof Number) {
       const view = this._console.createTypedView(Number.parseInt(this.value, 10), Mode.PREVIEW, this.nextNestingLevel, this);
@@ -408,7 +398,10 @@ class ObjectView extends TypeView {
       const obj = this.createContent(this.value, true);
       val = obj.fragment;
       isOversized = obj.isOversized;
-      if (this._stringTagName !== `Object` || this._constructorName !== `Object`) {
+      isOpeningDisabled = val.childElementCount === 0;
+      if (this._stringTagName !== `Object` || (
+        this._constructorName !== `Object` && !this.value.hasOwnProperty(`constructor`)
+      ) || this._propKey === `__proto__`) {
         isShowInfo = true;
       }
     }
@@ -417,7 +410,7 @@ class ObjectView extends TypeView {
       headContentClassName,
       stateParams: {
         isShowInfo,
-        isHeadContentShowed: true,
+        isHeadContentShowed: this._propKey !== `__proto__`,
         isBraced,
         isOpeningDisabled,
         isOversized,
@@ -468,7 +461,7 @@ class ObjectView extends TypeView {
       if (isPreview && !obj.hasOwnProperty(key)) { // Перечисляемые свои
         continue;
       }
-      if (isPreview && addedKeys.size === this._console.params[this._viewType].maxFieldsInHead) {
+      if (isPreview && addedKeys.size === this._console.params[this.viewType].maxFieldsInHead) {
         return {
           fragment,
           isOversized: true
@@ -481,11 +474,14 @@ class ObjectView extends TypeView {
       } catch (err) {}
     }
     const ownPropertyNamesAndSymbols = Object.getOwnPropertyNames(obj).concat(Object.getOwnPropertySymbols(obj));
+    // ownPropertyNamesAndSymbols.push(`__proto__`);
+    // вытащить __proto__ из неперечисляемых своих
+    // сделать доп обертку
     for (let key of ownPropertyNamesAndSymbols) { // Неперечисляемые свои
-      if (addedKeys.has(key)) {
+      if (addedKeys.has(key) || (isPreview && key === `__proto__`)) {
         continue;
       }
-      if (isPreview && addedKeys.size === this._console.params[this._viewType].maxFieldsInHead) {
+      if (isPreview && addedKeys.size === this._console.params[this.viewType].maxFieldsInHead) {
         return {
           fragment,
           isOversized: true
@@ -504,25 +500,40 @@ class ObjectView extends TypeView {
   }
 
   _createObjectEntryEl(key, val, isPreview) {
-    const view = this._console.createTypedView(val, isPreview ? Mode.PREVIEW : Mode.PROP, this.nextNestingLevel, this);
+    const view = this._console.createTypedView(val, isPreview ? Mode.PREVIEW : Mode.PROP, this.nextNestingLevel, this, key);
     return ObjectView.createEntryEl(key.toString(), view.el);
   }
 }
 
+const EMPTY = `empty`;
+
 class ArrayView extends TypeView {
   constructor(params, cons) {
     super(params, cons);
-    this._viewType = ViewType.ARRAY;
+    this.viewType = ViewType.ARRAY;
     if (!params.parentView) {
-      this._rootViewType = this._viewType;
+      this._rootView = this;
     }
 
     this._templateParams.withHeadContentlength = true;
   }
 
+  get template() {
+    return `\
+<div class="console__item item item--${this.viewType}">\
+  <div class="head item__head">\
+    <span class="info head__info hidden"></span>\
+    <span class="length head__length hidden">${this.value.length}</span>\
+    <div class="head__content entry-container entry-container--head entry-container--${this.viewType} hidden"></div>\
+  </div>\
+  <div class="item__content entry-container entry-container--${this.viewType} hidden"></div>\
+</div>`;
+  }
+
   afterRender() {
+    this._lengthEl = this.el.querySelector(`.length`);
     this.toggleHeadContentBraced();
-    this._headInfoEl.textContent = this.value.constructor.name;
+    this._infoEl.textContent = this.value.constructor.name;
     this.state = this._getStateParams();
 
     if ((this._mode === Mode.LOG || this._mode === Mode.ERROR) && !this._parentView) {
@@ -538,8 +549,15 @@ class ArrayView extends TypeView {
           self._headContentEl.appendChild(self.createContent(self.value, true).fragment);
         }
         self.toggleHeadContentShowed(bool);
+      },
+      set isShowLength(bool) {
+        self.toggleContentLengthShowed(bool);
       }
     };
+  }
+
+  toggleContentLengthShowed(isEnable) {
+    return !TypeView.toggleMiddleware(this._lengthEl, `hidden`, !isEnable);
   }
 
   _additionHeadClickHandler() {
@@ -575,19 +593,21 @@ class ArrayView extends TypeView {
   }
 
   createContent(arr, isPreview) {
-    const keys = Object.keys(arr);
-    const addedKeys = new Set();
+    const ownPropertyNamesSet = new Set(Object.getOwnPropertyNames(arr));
     const fragment = document.createDocumentFragment();
-    for (let key of keys) {
-      addedKeys.add(key);
-      const val = arr[key];
-      fragment.appendChild(this._createArrayEntryEl(key, val, isPreview));
-    }
-    for (let key of Object.getOwnPropertyNames(arr)) {
-      if (addedKeys.has(key)) {
-        continue;
+    for (let i = 0, l = arr.length; i < l; i++) {
+      const key = i.toString();
+      if (ownPropertyNamesSet.has(key)) {
+        const val = arr[i];
+        fragment.appendChild(this._createArrayEntryEl(i, val, isPreview));
+        ownPropertyNamesSet.delete(key);
+      } else if (isPreview) {
+        const entryEl = ArrayView.createEntryEl(key, getElement(`<span class="${EMPTY}">${EMPTY}</span>`), true);
+        fragment.appendChild(entryEl);
       }
-      if (isPreview && keys.indexOf(key) === -1) {
+    }
+    for (let key of ownPropertyNamesSet) {
+      if (isPreview && key === `length`) {
         continue;
       }
       const val = arr[key];
@@ -598,7 +618,7 @@ class ArrayView extends TypeView {
 
   _createArrayEntryEl(key, val, isPreview) {
     const isKeyNaN = Number.isNaN(Number.parseInt(key, 10));
-    const view = this._console.createTypedView(val, isPreview ? Mode.PREVIEW : Mode.PROP, this.nextNestingLevel, this);
+    const view = this._console.createTypedView(val, isPreview ? Mode.PREVIEW : Mode.PROP, this.nextNestingLevel, this, key);
     return ArrayView.createEntryEl(key.toString(), view.el, isPreview ? !isKeyNaN : isPreview);
   }
 }
@@ -621,53 +641,62 @@ const FnType = {
 class FunctionView extends TypeView {
   constructor(params, cons) {
     super(params, cons);
-    this._viewType = ViewType.FUNCTION;
+    this.viewType = ViewType.FUNCTION;
     if (!params.parentView) {
-      this._rootViewType = this._viewType;
+      this._rootView = this;
     }
     this._fnType = FunctionView.checkFnType(this.value);
   }
 
+  get template() {
+    const isShowInfo = this._fnType !== FnType.ARROW || this._mode === Mode.PREVIEW;
+    const body = this._getBody();
+    return `\
+<div class="console__item item item--${this.viewType} ${this._mode === Mode.ERROR ? `error` : ``}">\
+  <div class="head item__head italic">\
+    <pre class="head__content"><span class="info info--function ${isShowInfo ? `` : `hidden`}">${this._getInfo()}</span>${isShowInfo && body ? ` ` : ``}${this._getBody()}</pre>\
+  </div>\
+  <div class="item__content entry-container entry-container--${this.viewType} hidden"></div>\
+</div>`;
+  }
+
   afterRender() {
-    this._headEl.classList.add(`item__head--italic`);
-    this._headInfoEl.classList.add(`item__head-info--function`);
+    const params = {
+      isOpeningDisabled: this._mode !== Mode.DIR && this._mode !== Mode.PROP
+    };
+
+    this.state = params;
+  }
+
+  _getInfo() {
+    let str = ``;
     switch (this._fnType) {
       case FnType.CLASS:
-        this._headInfoEl.textContent = `class`;
+        str = `class`;
         break;
       case FnType.PLAIN:
       case FnType.ARROW:
-        this._headInfoEl.textContent = `f`;
+        str = `f`;
         break;
     }
-    let isShowInfo = false;
-    if (this._fnType !== FnType.ARROW) {
-      isShowInfo = true;
-    }
+    return str;
+  }
+
+  _getBody() {
+    let str = ``;
     switch (this._mode) {
       case Mode.PROP:
-        this._headContentEl.innerHTML = this._getHeadPropMarkup();
+        str = this._getHeadPropMarkup();
         break;
       case Mode.DIR:
-        this._headContentEl.innerHTML = this._getHeadDirMarkup();
+        str = this._getHeadDirMarkup();
         break;
       case Mode.LOG:
       case Mode.ERROR:
-        this._headContentEl.innerHTML = this._getHeadLogMarkup();
-        break;
-      case Mode.PREVIEW:
-        isShowInfo = true;
+        str = this._getHeadLogMarkup();
         break;
     }
-    const params = {
-      isOpeningDisabled: false,
-      isShowInfo,
-      isHeadContentShowed: this._mode !== Mode.PREVIEW
-    };
-    if (this._mode !== Mode.DIR && this._mode !== Mode.PROP) {
-      params.isOpeningDisabled = true;
-    }
-    this.state = params;
+    return str;
   }
 
   _getHeadPropMarkup() {
@@ -676,14 +705,12 @@ class FunctionView extends TypeView {
     const joinedLines = bodyLines.join(`\n`);
 
     let markup = `\
-<span>\
 ${this.value.name ? this.value.name : ``}\
 ${this._fnType !== FnType.CLASS ? `(${params.join(`, `)})` : ``}\
 ${this._fnType === FnType.ARROW ? ` => ` : ` `}`;
     if (this._fnType === FnType.ARROW) {
       markup += `${joinedLines.length <= MAX_PREVIEW_FN_BODY_LENGTH ? joinedLines : `{...}`}`;
     }
-    markup += `</span>`;
     return markup;
   }
 
@@ -700,12 +727,11 @@ ${this._fnType === FnType.ARROW ? `()` : ``}`;
   _getHeadLogMarkup() {
     const bodyLines = this._parseBody();
     const params = this._parseParams();
+
     return `\
-<pre>\
 ${this.value.name && this._fnType !== FnType.ARROW ? `${this.value.name} ` : ``}\
 ${this._fnType !== FnType.CLASS ? `(${params.join(`, `)})` : ``}\
-${this._fnType === FnType.ARROW ? ` => ` : ` `}${bodyLines.join(`\n`)}\
-</pre>`;
+${this._fnType === FnType.ARROW ? ` => ` : ` `}${bodyLines.join(`\n`)}`;
   }
 
   _parseParams() {
@@ -719,23 +745,31 @@ ${this._fnType === FnType.ARROW ? ` => ` : ` `}${bodyLines.join(`\n`)}\
   }
 
   _parseBody() {
-    const str = this.value.toString();
+    let str = this.value.toString().trim();
 
-    let bodyContent;
+    let bodyContent = [];
     if (this._fnType === FnType.ARROW) {
       const arrowIndex = str.indexOf(`=>`);
-      bodyContent = str.substring(arrowIndex + 2).trim();
-    } else {
-      const bodyStart = str.indexOf(`{`);
-      const bodyEnd = str.lastIndexOf(`}`);
-      bodyContent = str.substring(bodyStart, bodyEnd + 1).trim();
+      str = str.substring(arrowIndex + 2);
     }
+    const firstBraceIndex = str.indexOf(`{`);
+    str = str.substring(firstBraceIndex);
+    const lines = str.split(`\n`);
+    const firstLine = lines.shift();
+    const firstWhitespaceIndexes = lines
+        .filter((line) => line.length !== 0)
+        .map((line) => {
+          const ex = /^\s+/.exec(line);
+          if (ex && ex[0].hasOwnProperty(`length`)) {
+            return ex[0].length;
+          }
+          return 0;
+        });
 
-    if (!bodyContent) {
-      return [];
-    }
-
-    return bodyContent.split(`\n`);
+    const min = Math.min(...firstWhitespaceIndexes);
+    bodyContent = lines.map((line) => line.slice(min));
+    bodyContent.unshift(firstLine);
+    return bodyContent;
   }
 
   createContent(fn) {
@@ -754,7 +788,7 @@ ${this._fnType === FnType.ARROW ? ` => ` : ` `}${bodyLines.join(`\n`)}\
       } catch (err) {
         continue;
       }
-      const view = this._console.createTypedView(value, Mode.PROP, this.nextNestingLevel, this);
+      const view = this._console.createTypedView(value, Mode.PROP, this.nextNestingLevel, this, key);
       const entryEl = FunctionView.createEntryEl(key.toString(), view.el);
       fragment.appendChild(entryEl);
     }
@@ -779,7 +813,7 @@ ${this._fnType === FnType.ARROW ? ` => ` : ` `}${bodyLines.join(`\n`)}\
 class PrimitiveView extends TypeView {
   constructor(params, cons) {
     super(params, cons);
-    this._viewType = ViewType.PRIMITIVE;
+    this.viewType = ViewType.PRIMITIVE;
   }
 
   get template() {
@@ -869,7 +903,7 @@ class Console {
     if (!container) {
       throw new Error(`Console is not inited!`);
     }
-    window.consoleViews = new Map();
+    this._views = new Map();
     this._container = container;
     this.params = {
       object: this._parseParams(params.object, `object`),
@@ -975,8 +1009,8 @@ class Console {
     this._container.innerHTML = ``;
   }
 
-  createTypedView(val, mode, depth, parentView) {
-    const params = {val, mode, depth, parentView, type: typeof val};
+  createTypedView(val, mode, depth, parentView, propKey) {
+    const params = {val, mode, depth, parentView, type: typeof val, propKey};
     let view;
     switch (params.type) {
       case `function`:
@@ -997,6 +1031,7 @@ class Console {
         view = new PrimitiveView(params, this);
         break;
     }
+    // this._views.set(view.el, view);
     return view;
   }
 

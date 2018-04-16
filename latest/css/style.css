@@ -403,7 +403,8 @@ block__elem--mod — element's modifier
   margin: 5px;
   padding: 5px;
   overflow: auto;
-  background: #f8faf3; }
+  background: #f8faf3;
+  white-space: nowrap; }
   .console__row--error {
     background-color: #ff00001a; }
 
@@ -415,10 +416,8 @@ block__elem--mod — element's modifier
   margin-left: 10px; }
 
 .item__head {
-  display: inline-block; }
-  .item__head-content, .item__head-content-length, .item__head-info {
-    display: inline-block;
-    vertical-align: top; }
+  display: inline-block;
+  white-space: nowrap; }
   .item__head::before {
     background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAQAAABKfvVzAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAAmJLR0QAAKqNIzIAAAAJcEhZcwAADdcAAA3XAUIom3gAAAAHdElNRQfiBAQVByn6pE6OAAAA/0lEQVQ4y42RIW4CYRSEv3+7CCRIDoCpxdVUcAWuQNOw7LaKkCCKA9VAaRoQHAC4ASR4gsUQalcWSdLC/ogmTXcTlhn9vsy8Gbw7f+gVkOW4GarOLug85kQAgKxtZD7rjeesCgDkTOe086svrgoAFBh+bYIKRgUAinYSrOplHQBsycz9uVeSAQDKzsqf1Io6AIbKzSa5UhoA4CZXugZAYiXzdB8tBQggpJ0fKw6JjJr2tuv2Xw8acDD97+7HXnM4Mo7ag1CLZJmdWu9b9YdF1BysxafNOmq+LdSWtqbVm2EvGcd3CHnI3/aml8//O/w1na5fINb0FeD444ziTafrDOtDV1ZINst0AAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDE4LTA0LTA0VDIxOjA3OjQxKzAyOjAwqHPzPgAAACV0RVh0ZGF0ZTptb2RpZnkAMjAxOC0wNC0wNFQyMTowNzo0MSswMjowMNkuS4IAAAAZdEVYdFNvZnR3YXJlAHd3dy5pbmtzY2FwZS5vcmeb7jwaAAAAAElFTkSuQmCC");
     width: 9px;
@@ -433,22 +432,11 @@ block__elem--mod — element's modifier
       content: ""; }
   .item__head--arrow-bottom::before {
     transform: rotate(90deg); }
-  .item__head--italic {
-    font-style: italic; }
-
-.item__head-info--function {
-  color: #0929c3; }
 
 .item__content {
   display: flex;
   flex-direction: column;
   margin-left: 12px; }
-
-.item--array .item__head-content-length::before {
-  content: '('; }
-
-.item--array .item__head-content-length::after {
-  content: ')'; }
 
 .entry-container--head .entry-container__entry {
   display: inline-block; }
@@ -483,9 +471,28 @@ block__elem--mod — element's modifier
   content: ": ";
   white-space: pre; }
 
+.head__content, .head__length, .head__info {
+  display: inline-block;
+  vertical-align: top; }
+
+.length::before {
+  content: '('; }
+
+.length::after {
+  content: ')'; }
+
+.info--function {
+  color: #0929c3; }
+
+.italic {
+  font-style: italic; }
+
 .undefined {
   font-weight: bold;
   font-style: italic; }
+
+.empty {
+  color: #6e6e6e; }
 
 .NaN {
   font-weight: bold; }
