@@ -43,6 +43,11 @@ export default class Console {
           typeof paramsObject.minFieldsToExpand === `number` &&
           paramsObject.minFieldsToExpand > 0
         ) ? paramsObject.minFieldsToExpand : 0;
+
+        paramsObject.maxFieldsToExpand = (
+          typeof paramsObject.maxFieldsToExpand === `number` &&
+          paramsObject.maxFieldsToExpand > 0
+        ) ? paramsObject.maxFieldsToExpand : Number.POSITIVE_INFINITY;
       }
 
       paramsObject.maxFieldsInHead = (

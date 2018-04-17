@@ -111,10 +111,6 @@ export default class ObjectView extends TypeView {
     let isStringified = false;
     let headContentClassName;
 
-    if (this._propKey === `__proto__`) {
-      return this._getHeadDirContent();
-    }
-
     if (this.value instanceof HTMLElement && Object.getPrototypeOf(this.value).constructor !== HTMLElement) {
       return this._getHeadDirContent();
     } else if (this.value instanceof Error) {
@@ -146,7 +142,7 @@ export default class ObjectView extends TypeView {
       isOpeningDisabled = val.childElementCount === 0;
       if (this._stringTagName !== `Object` || (
         this._constructorName !== `Object` && !this.value.hasOwnProperty(`constructor`)
-      )) {
+      ) || this._propKey === `__proto__`) {
         isShowInfo = true;
       }
     }
@@ -155,7 +151,7 @@ export default class ObjectView extends TypeView {
       headContentClassName,
       stateParams: {
         isShowInfo,
-        isHeadContentShowed: true,
+        isHeadContentShowed: this._propKey !== `__proto__`,
         isBraced,
         isOpeningDisabled,
         isOversized,
@@ -198,33 +194,49 @@ export default class ObjectView extends TypeView {
     };
   }
 
-  createContent(obj, isPreview) {
-    const fragment = document.createDocumentFragment();
-    let isOversized = false;
-    const keys = new Set();
-    const addedKeys = new Set();
+  _getEntriesKeys(obj, inHead) {
+    if (!this._headEntriesKeys || !this._entriesKeys) {
+      const keys = new Set();
 
-    for (let key in obj) {
-      if (isPreview && !obj.hasOwnProperty(key)) {
+      for (let key in obj) {
+        if (inHead && !obj.hasOwnProperty(key)) {
+          continue;
+        }
         keys.add(key);
+      }
+
+      const ownPropertyNamesAndSymbols = Object.getOwnPropertyNames(obj)
+          .concat(Object.getOwnPropertySymbols(obj)); // Неперечисляемые свои
+      ownPropertyNamesAndSymbols.forEach((key) => keys.add(key));
+
+      if (inHead) {
+        this._headEntriesKeys = keys;
+      } else {
+        this._entriesKeys = keys;
       }
     }
 
-    const ownPropertyNamesAndSymbols = Object.getOwnPropertyNames(obj)
-        .concat(Object.getOwnPropertySymbols(obj)); // Неперечисляемые свои
-    ownPropertyNamesAndSymbols.forEach((key) => keys.add(key));
+    return inHead ? this._headEntriesKeys : this._entriesKeys;
+  }
 
+  createContent(obj, isHead) {
+    const fragment = document.createDocumentFragment();
+    const keys = this._getEntriesKeys(obj, isHead);
+
+    let isOversized = false;
+    let addedKeysCounter = 0;
     for (let key of keys.values()) {
-      if (isPreview && addedKeys.size === this._console.params[this.viewType].maxFieldsInHead) {
+      if (isHead && addedKeysCounter === this._console.params[this.viewType].maxFieldsInHead) {
         isOversized = true;
         break;
       }
       try {
-        fragment.appendChild(this._createObjectEntryEl(obj, key, isPreview));
+        fragment.appendChild(this._createObjectEntryEl(obj, key, isHead));
+        addedKeysCounter++;
       } catch (err) {}
     }
-    if (!isPreview) {
-      fragment.appendChild(this._createObjectEntryEl(obj, `__proto__`, isPreview, `grey`));
+    if (!isHead) {
+      fragment.appendChild(this._createObjectEntryEl(obj, `__proto__`, isHead, `grey`));
     }
     return {fragment, isOversized};
   }

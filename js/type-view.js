@@ -148,21 +148,26 @@ export default class TypeView extends AbstractView {
     if (!this._isAutoExpandNeededProxied) {
       this._isAutoExpandNeededProxied = false;
 
+      const typeParams = this._console.params[this._rootView.viewType];
+
       if (this.viewType === null ||
-        this._currentDepth > this._console.params[this._rootView.viewType].expandDepth) {
+        this._currentDepth > typeParams.expandDepth) {
         return this._isAutoExpandNeededProxied;
       }
 
-      let rootFieldsMoreThanNeed = false;
+      const entriesKeysLength = this._getEntriesKeys ? this._getEntriesKeys(this.value, false).size : Object.keys(this.value).length; //Заглушка TODO - добавить this._getEntriesKeys во все типы
+      // console.log(this.value, typeParams.maxFieldsToExpand, entriesKeys.length, typeParams.minFieldsToExpand);
+      let rootFieldsInRange = false;
       if (this._parentView && this._parentView._isAutoExpandNeeded) {
-        rootFieldsMoreThanNeed = true;
-      } else if (Object.keys(this.value).length >= // Object.getOwnPropertyNames
-      this._console.params[this._rootView.viewType].minFieldsToExpand) {
-        rootFieldsMoreThanNeed = true;
+        rootFieldsInRange = true;
+      } else if (typeParams.maxFieldsToExpand >=
+        entriesKeysLength && entriesKeysLength >=
+        typeParams.minFieldsToExpand) {
+        rootFieldsInRange = true;
       }
 
-      if (rootFieldsMoreThanNeed &&
-      !this._console.params[this._rootView.viewType].exclude.includes(this.viewType) &&
+      if (rootFieldsInRange &&
+      !typeParams.exclude.includes(this.viewType) &&
       this._propKey !== `__proto__`) {
         this._isAutoExpandNeededProxied = true;
       }
