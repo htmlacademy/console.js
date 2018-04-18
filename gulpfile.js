@@ -72,6 +72,15 @@ gulp.task(`build-scripts`, () => {
       .pipe(gulp.dest(`build/js`));
 });
 
+gulp.task(`build-js-presets`, () => {
+  return gulp.src([`js/presets/**/*.js`])
+      .pipe(debug({title: `debug`}))
+      .pipe(plumber())
+      .pipe(rollup({}, `iife`))
+      .pipe(uglify())
+      .pipe(gulp.dest(`build/js/presets`));
+});
+
 gulp.task(`build-tests`, () => {
   return gulp.src([`js/tests/**/*.js`])
       .pipe(debug({title: `debug`}))
@@ -111,7 +120,7 @@ gulp.task(`copy-html`, () => {
       .pipe(server.stream());
 });
 
-gulp.task(`copy`, gulp.series(`copy-html`, `build-scripts`, `build-tests`, `style`, () => {
+gulp.task(`copy`, gulp.series(`copy-html`, `build-scripts`, `build-js-presets`, `build-tests`, `style`, () => {
   return gulp.src([
     `fonts/**/*.{woff,woff2}`,
     `img/**.*`
@@ -136,7 +145,7 @@ gulp.task(`clean`, () => {
   return del(`build`);
 });
 
-gulp.task(`js-watch`, gulp.series(`build-scripts`, `build-tests`, (done) => {
+gulp.task(`js-watch`, gulp.series(`build-scripts`, `build-js-presets`, `build-tests`, (done) => {
   server.reload();
   done();
 }));
@@ -168,6 +177,6 @@ gulp.task(`test-watch`, gulp.series(`assemble`, `test:noerror`, () => {
       gulp.series(`copy-html`);
     }
   });
-  gulp.watch(`js/**/*.js`, gulp.series(`build-scripts`, `build-tests`, `test:noerror`));
+  gulp.watch(`js/**/*.js`, gulp.series(`build-scripts`, `build-js-presets`, `build-tests`, `test:noerror`));
 }));
 gulp.task(`build`, gulp.series(`assemble`, `imagemin`));

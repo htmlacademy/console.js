@@ -28,7 +28,8 @@ window.console.dir = collectDirs;
 const init = function () {
   const div = window.document.createElement(`div`);
   div.classList.add(`console`);
-  const jsConsole = new Console(div);
+  const config = window.jsConsoleConfig;
+  const jsConsole = new Console(div, config);
   window.document.body.appendChild(div);
 
   jsConsole.extend(window.console);

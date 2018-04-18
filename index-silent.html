@@ -5,35 +5,16 @@
     <title>console.js</title>
   </head>
   <body>
+    <script src="js/presets/htmlacademy.js"></script>
     <script src="js/index-silent.js"></script>
 
     <script>
-      console.log('error ---------------------------------------------------------------------------------------------------------------');
+      var a = {};
+      a.b = {a: a};
+      var s1 = {a:1, b:'', d: [1, 2, "", [1, 2, ""]], n: function (test = 123, bar) {return test;}, e: {b:1}};
 
-      console.error(undefined);
-      console.error(NaN);
-      console.error(null);
-      console.error(true);
-      console.error(100);
-      console.error(Infinity);
-      console.error(-Infinity);
-// const err = new TypeError(12);
-//
-//   throw err;
-
-// console.error(err)
-      try {
-        const agentName;
-        agentName = '008';
-        console.log('Имя агента: ' + agentName);
-      } catch (err) {
-        console.dir(err)
-      }
-      try {
-        const viewModel = new ViewModel();
-      } catch (err) {
-        console.error(err)
-      }
+      console.log(a);
+      console.log(s1);
 
     </script>
   </body>
