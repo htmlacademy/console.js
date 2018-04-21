@@ -27,7 +27,7 @@ export default class ObjectView extends TypeView {
   }
 
   afterRender() {
-    const {elOrStr, stateParams, headContentClassName} = this._getHeadContent();
+    const {elOrStr, stateParams, isShowNotOwn, headContentClassName} = this._getHeadContent();
     this._headContent = elOrStr;
 
     if (headContentClassName) {
@@ -39,7 +39,7 @@ export default class ObjectView extends TypeView {
     } else {
       this._infoEl.textContent = this._constructorName;
     }
-
+    this.isShowNotOwn = isShowNotOwn;
     this.state = stateParams;
   }
 
@@ -141,7 +141,7 @@ export default class ObjectView extends TypeView {
       isOversized = obj.isOversized;
       isOpeningDisabled = val.childElementCount === 0;
       if (this._stringTagName !== `Object` || (
-        this._constructorName !== `Object` && !this.value.hasOwnProperty(`constructor`)
+        this._constructorName !== `Object`
       ) || this._propKey === `__proto__`) {
         isShowInfo = true;
       }
@@ -165,6 +165,7 @@ export default class ObjectView extends TypeView {
     let isShowInfo = false;
     let isHeadContentShowed = true;
     let isBraced = false;
+    let isShowNotOwn = false;
     if (this.value instanceof HTMLElement) {
       let str = this.value.tagName.toLowerCase();
       str += this.value.id;
@@ -172,6 +173,7 @@ export default class ObjectView extends TypeView {
         str += `.` + Array.prototype.join.call(this.value.classList, `.`);
       }
       val = str;
+      isShowNotOwn = true;
     } else if (this.value instanceof Date) {
       val = this.value.toString();
     } else if (this.value instanceof RegExp) {
@@ -189,54 +191,50 @@ export default class ObjectView extends TypeView {
         isShowInfo,
         isHeadContentShowed,
         isBraced,
-        isOpeningDisabled: false
-      }
+        isOpeningDisabled: false,
+      },
+      isShowNotOwn
     };
   }
 
-  _getEntriesKeys(obj, inHead) {
-    if (!this._headEntriesKeys || !this._entriesKeys) {
-      const keys = new Set();
+  /**
+   * @param {boolean} inHead — is head entries
+   * @return {Set}
+   */
+  // _getEntriesKeys(inHead) {
+  //   const obj = this.value;
+  //
+  //   const ownPropertyNamesAndSymbols = Object.getOwnPropertyNames(obj)
+  //       .concat(Object.getOwnPropertySymbols(obj)); // Неперечисляемые свои
+  //   const keys = new Set(ownPropertyNamesAndSymbols);
+  //
+  //   for (let key in obj) {
+  //     if (inHead && !obj.hasOwnProperty(key)) {
+  //       continue;
+  //     }
+  //     keys.add(key);
+  //   }
+  //
+  //   return keys;
+  // }
 
-      for (let key in obj) {
-        if (inHead && !obj.hasOwnProperty(key)) {
-          continue;
-        }
-        keys.add(key);
-      }
-
-      const ownPropertyNamesAndSymbols = Object.getOwnPropertyNames(obj)
-          .concat(Object.getOwnPropertySymbols(obj)); // Неперечисляемые свои
-      ownPropertyNamesAndSymbols.forEach((key) => keys.add(key));
-
-      if (inHead) {
-        this._headEntriesKeys = keys;
-      } else {
-        this._entriesKeys = keys;
-      }
-    }
-
-    return inHead ? this._headEntriesKeys : this._entriesKeys;
-  }
-
-  createContent(obj, isHead) {
+  createContent(obj, inHead) {
     const fragment = document.createDocumentFragment();
-    const keys = this._getEntriesKeys(obj, isHead);
-
+    const entriesKeys = inHead ? this.headContentEntriesKeys : this.contentEntriesKeys;
     let isOversized = false;
     let addedKeysCounter = 0;
-    for (let key of keys.values()) {
-      if (isHead && addedKeysCounter === this._console.params[this.viewType].maxFieldsInHead) {
+    for (let key of entriesKeys) {
+      if (inHead && addedKeysCounter === this._console.params[this.viewType].maxFieldsInHead) {
         isOversized = true;
         break;
       }
       try {
-        fragment.appendChild(this._createObjectEntryEl(obj, key, isHead));
+        fragment.appendChild(this._createObjectEntryEl(obj, key, inHead));
         addedKeysCounter++;
       } catch (err) {}
     }
-    if (!isHead) {
-      fragment.appendChild(this._createObjectEntryEl(obj, `__proto__`, isHead, `grey`));
+    if (!inHead) {
+      fragment.appendChild(this._createObjectEntryEl(obj, `__proto__`, inHead, `grey`));
     }
     return {fragment, isOversized};
   }

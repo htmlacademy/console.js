@@ -9,7 +9,7 @@ const FnType = {
   CLASS: `class`
 };
 
-// arguments, caller, length, name, prototype, __proto__, [[FunctionLocation]], [[Scopes]]
+const BUILTIN_FIELDS = [`arguments`, `caller`, `length`, `name`, `prototype`];
 
 // if .caller not accessed — не выводим
 // if prototype undefined — не выводим
@@ -150,11 +150,11 @@ ${this._fnType === FnType.ARROW ? ` => ` : ` `}${bodyLines.join(`\n`)}`;
     return bodyContent;
   }
 
+
   createContent(fn) {
     const fragment = document.createDocumentFragment();
-    const fnKeys = [`name`, `prototype`, `length`, `__proto__`];
-    const keys = Object.keys(fn).concat(fnKeys);
-    for (let key of keys) {
+    const entriesKeys = this.contentEntriesKeys;
+    for (let key of entriesKeys) {
       let value;
       try {
         const tempValue = fn[key];
@@ -167,7 +167,7 @@ ${this._fnType === FnType.ARROW ? ` => ` : ` `}${bodyLines.join(`\n`)}`;
         continue;
       }
       const view = this._console.createTypedView(value, Mode.PROP, this.nextNestingLevel, this, key);
-      const entryEl = FunctionView.createEntryEl(key.toString(), view.el, null, fnKeys.includes(key) ? `grey` : null);
+      const entryEl = FunctionView.createEntryEl(key.toString(), view.el, null, BUILTIN_FIELDS.includes(key) ? `grey` : null);
       fragment.appendChild(entryEl);
     }
     return {fragment};

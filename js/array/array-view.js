@@ -95,30 +95,27 @@ export default class ArrayView extends TypeView {
     };
   }
 
-  createContent(arr, isPreview) {
-    const ownPropertyNamesSet = new Set(Object.getOwnPropertyNames(arr));
+  createContent(arr, inHead) {
+    const entriesKeys = inHead ? this.headContentEntriesKeys : this.contentEntriesKeys;
     const fragment = document.createDocumentFragment();
+    entriesKeys.delete(`length`);
+
     for (let i = 0, l = arr.length; i < l; i++) {
       const key = i.toString();
-      if (ownPropertyNamesSet.has(key)) {
-        fragment.appendChild(this._createArrayEntryEl(arr, i, isPreview));
-        ownPropertyNamesSet.delete(key);
-      } else if (isPreview) {
-        const entryEl = ArrayView.createEntryEl(key, getElement(`<span class="grey">${EMPTY}</span>`), true);
+      if (entriesKeys.has(key)) {
+        fragment.appendChild(this._createArrayEntryEl(arr, key, inHead));
+        entriesKeys.delete(key);
+      } else if (inHead) {
+        const entryEl = ArrayView.createEntryEl(key, getElement(`<span class="grey">${EMPTY}</span>`), inHead);
         fragment.appendChild(entryEl);
       }
     }
-    for (let key of ownPropertyNamesSet) {
-      let elClass;
-      if (isPreview && (key === `length` || key === `__proto__`)) {
-        continue;
-      } else if (key === `length`) {
-        elClass = `grey`;
-      }
-      fragment.appendChild(this._createArrayEntryEl(arr, key, isPreview, elClass));
+    for (let key of entriesKeys) {
+      fragment.appendChild(this._createArrayEntryEl(arr, key, inHead));
     }
-    if (!isPreview) {
-      fragment.appendChild(this._createArrayEntryEl(arr, `__proto__`, isPreview, `grey`));
+    if (!inHead) {
+      fragment.appendChild(this._createArrayEntryEl(arr, `length`, inHead, `grey`));
+      fragment.appendChild(this._createArrayEntryEl(arr, `__proto__`, inHead, `grey`));
     }
     return {fragment};
   }

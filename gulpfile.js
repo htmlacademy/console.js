@@ -20,7 +20,7 @@ const sourcemaps = require(`gulp-sourcemaps`);
 const concat = require(`gulp-concat`);
 // const mocha = require(`gulp-mocha`);
 const debug = require(`gulp-debug`);
-const Server = require(`karma`).Server;
+const KarmaServer = require(`karma`).KarmaServer;
 
 gulp.task(`style`, () => {
   return gulp.src(`sass/**/*.{css,scss,sass}`)
@@ -61,9 +61,7 @@ gulp.task(`build-scripts`, () => {
             presets: [
               [`env`, {modules: false}]
             ],
-            plugins: [
-              `external-helpers`,
-            ]
+            plugins: [`external-helpers`]
           })
         ]
       }, `iife`))
@@ -76,7 +74,17 @@ gulp.task(`build-js-presets`, () => {
   return gulp.src([`js/presets/**/*.js`])
       .pipe(debug({title: `debug`}))
       .pipe(plumber())
-      .pipe(rollup({}, `iife`))
+      .pipe(rollup({
+        plugins: [
+          babel({
+            babelrc: false,
+            presets: [
+              [`env`, {modules: false}]
+            ],
+            plugins: [`external-helpers`]
+          })
+        ]
+      }, `iife`))
       .pipe(uglify())
       .pipe(gulp.dest(`build/js/presets`));
 });
@@ -100,7 +108,7 @@ gulp.task(`test`, function (done) {
   //       compilers: [`js:babel-register`],
   //       reporter: `spec`
   //     }));
-  new Server({
+  new KarmaServer({
     configFile: __dirname + `/karma.conf.js`,
     singleRun: true
   }, done).start();
@@ -108,7 +116,7 @@ gulp.task(`test`, function (done) {
 
 gulp.task(`test:noerror`, function (done) {
   const handleErr = () => done();
-  new Server({
+  new KarmaServer({
     configFile: __dirname + `/karma.conf.js`,
     singleRun: true
   }, handleErr).start();

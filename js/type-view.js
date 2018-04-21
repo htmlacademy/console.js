@@ -144,6 +144,45 @@ export default class TypeView extends AbstractView {
     return this._currentDepth + 1;
   }
 
+  /**
+   * @param {boolean} inHead — is head entries
+   * @return {Set}
+   */
+  _getEntriesKeys(inHead) {
+    const obj = this.value;
+
+    const ownPropertyNamesAndSymbols = Object.getOwnPropertyNames(obj)
+        .concat(Object.getOwnPropertySymbols(obj)); // Неперечисляемые свои
+    const keys = new Set(ownPropertyNamesAndSymbols);
+
+    if (!this.isShowNotOwn) {
+      return keys;
+    }
+
+    for (let key in obj) {
+      if (inHead && !obj.hasOwnProperty(key)) {
+        continue;
+      }
+      keys.add(key);
+    }
+
+    return keys;
+  }
+
+  get headContentEntriesKeys() {
+    if (!this._headEntriesKeys) {
+      this._headEntriesKeys = this._getEntriesKeys(true);
+    }
+    return this._headEntriesKeys;
+  }
+
+  get contentEntriesKeys() {
+    if (!this._entriesKeys) {
+      this._entriesKeys = this._getEntriesKeys(false);
+    }
+    return this._entriesKeys;
+  }
+
   get _isAutoExpandNeeded() {
     if (!this._isAutoExpandNeededProxied) {
       this._isAutoExpandNeededProxied = false;
@@ -155,7 +194,7 @@ export default class TypeView extends AbstractView {
         return this._isAutoExpandNeededProxied;
       }
 
-      const entriesKeysLength = this._getEntriesKeys ? this._getEntriesKeys(this.value, false).size : Object.keys(this.value).length; //Заглушка TODO - добавить this._getEntriesKeys во все типы
+      const entriesKeysLength = this._getEntriesKeys(false).size;
       // console.log(this.value, typeParams.maxFieldsToExpand, entriesKeys.length, typeParams.minFieldsToExpand);
       let rootFieldsInRange = false;
       if (this._parentView && this._parentView._isAutoExpandNeeded) {

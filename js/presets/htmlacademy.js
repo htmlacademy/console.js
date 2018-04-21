@@ -1,4 +1,4 @@
-window.consoleJsConfig = {
+window.jsConsoleConfig = {
   object: {
     expandDepth: 2,
     exclude: [`array`],
