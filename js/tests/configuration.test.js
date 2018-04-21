@@ -189,6 +189,7 @@ describe(`Check depth function DIR`, () => {
     });
     cons.dir(fn);
     const {objLength, arrLength, fnLength} = getLengths();
+    console.log(objLength, arrLength, fnLength);
     assert(objLength === 4 && arrLength === 3 && fnLength === 3);
   });
   it(`root function should not be opened because of minFieldsToExpand === 4 and array has 3 fields`, () => {

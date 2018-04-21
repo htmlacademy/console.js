@@ -197,27 +197,6 @@ export default class ObjectView extends TypeView {
     };
   }
 
-  /**
-   * @param {boolean} inHead — is head entries
-   * @return {Set}
-   */
-  // _getEntriesKeys(inHead) {
-  //   const obj = this.value;
-  //
-  //   const ownPropertyNamesAndSymbols = Object.getOwnPropertyNames(obj)
-  //       .concat(Object.getOwnPropertySymbols(obj)); // Неперечисляемые свои
-  //   const keys = new Set(ownPropertyNamesAndSymbols);
-  //
-  //   for (let key in obj) {
-  //     if (inHead && !obj.hasOwnProperty(key)) {
-  //       continue;
-  //     }
-  //     keys.add(key);
-  //   }
-  //
-  //   return keys;
-  // }
-
   createContent(obj, inHead) {
     const fragment = document.createDocumentFragment();
     const entriesKeys = inHead ? this.headContentEntriesKeys : this.contentEntriesKeys;

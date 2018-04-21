@@ -9,7 +9,7 @@ const FnType = {
   CLASS: `class`
 };
 
-const BUILTIN_FIELDS = [`arguments`, `caller`, `length`, `name`, `prototype`];
+const BUILTIN_FIELDS = [`arguments`, `caller`, `length`, `name`, `prototype`, `__proto__`];
 
 // if .caller not accessed — не выводим
 // if prototype undefined — не выводим
@@ -154,6 +154,7 @@ ${this._fnType === FnType.ARROW ? ` => ` : ` `}${bodyLines.join(`\n`)}`;
   createContent(fn) {
     const fragment = document.createDocumentFragment();
     const entriesKeys = this.contentEntriesKeys;
+    entriesKeys.add(`__proto__`);
     for (let key of entriesKeys) {
       let value;
       try {

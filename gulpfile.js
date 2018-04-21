@@ -20,7 +20,7 @@ const sourcemaps = require(`gulp-sourcemaps`);
 const concat = require(`gulp-concat`);
 // const mocha = require(`gulp-mocha`);
 const debug = require(`gulp-debug`);
-const KarmaServer = require(`karma`).KarmaServer;
+const KarmaServer = require(`karma`).Server;
 
 gulp.task(`style`, () => {
   return gulp.src(`sass/**/*.{css,scss,sass}`)
