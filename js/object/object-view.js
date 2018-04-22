@@ -12,7 +12,7 @@ export default class ObjectView extends TypeView {
     }
     const stringTag = Object.prototype.toString.call(this.value);
     this._stringTagName = stringTag.substring(8, stringTag.length - 1);
-    this._constructorName = this.value.constructor.name;
+    this._constructorName = this.value.constructor ? this.value.constructor.name : null;
   }
 
   get template() {
@@ -201,7 +201,6 @@ export default class ObjectView extends TypeView {
     let addedKeysCounter = 0;
 
     const maxFieldsInHead = this._console.params[this.viewType].maxFieldsInHead;
-
     for (let key of entriesKeys) {
       if (inHead && addedKeysCounter === maxFieldsInHead) {
         isOversized = true;
@@ -212,7 +211,7 @@ export default class ObjectView extends TypeView {
         addedKeysCounter++;
       } catch (err) {}
     }
-    if (!inHead) {
+    if (!inHead && !entriesKeys.has(`__proto__`) && typeof this.value[`__proto__`] !== `undefined`) {
       fragment.appendChild(this._createObjectEntryEl(obj, `__proto__`, inHead, `grey`));
     }
     return {fragment, isOversized};

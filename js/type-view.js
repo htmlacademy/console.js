@@ -201,7 +201,8 @@ export default class TypeView extends AbstractView {
 
       if (this._parentView) {
         if (!typeParams.exclude.includes(this.viewType) &&
-        !typeParams.excludeProperties.includes(this._propKey)) {
+        !typeParams.excludeProperties.includes(this._propKey) &&
+        this._parentView._isAutoExpandNeeded) {
           this._isAutoExpandNeededProxied = true;
         }
       } else {

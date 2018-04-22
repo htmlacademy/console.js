@@ -111,11 +111,11 @@ export default class ArrayView extends TypeView {
       }
       const key = i.toString();
       if (entriesKeys.has(key)) {
-        fragment.appendChild(this._createArrayEntryEl(arr, key, inHead));
+        fragment.appendChild(this._createArrayEntryEl(arr, i, inHead));
         entriesKeys.delete(key);
         addedKeysCounter++;
       } else if (inHead) {
-        const entryEl = ArrayView.createEntryEl(key, getElement(`<span class="grey">${EMPTY}</span>`), inHead);
+        const entryEl = ArrayView.createEntryEl(i, getElement(`<span class="grey">${EMPTY}</span>`), inHead);
         fragment.appendChild(entryEl);
         addedKeysCounter++;
       }
@@ -137,8 +137,7 @@ export default class ArrayView extends TypeView {
 
   _createArrayEntryEl(arr, key, isPreview, keyElClass) {
     const val = arr[key];
-    const isKeyNaN = Number.isNaN(Number.parseInt(key, 10));
     const view = this._console.createTypedView(val, isPreview ? Mode.PREVIEW : Mode.PROP, this.nextNestingLevel, this, key);
-    return ArrayView.createEntryEl(key.toString(), view.el, isPreview ? !isKeyNaN : isPreview, keyElClass);
+    return ArrayView.createEntryEl(key.toString(), view.el, isPreview ? Number.isInteger(key) : isPreview, keyElClass);
   }
 }

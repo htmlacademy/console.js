@@ -30,6 +30,7 @@ export default class Console {
       array: this._parseParams(Object.assign({}, commonParams, params.array)),
       function: this._parseParams(Object.assign({}, commonParams, params.function))
     };
+    // console.log(this.params.array)
   }
 
   _parseParams(paramsObject = {}) {

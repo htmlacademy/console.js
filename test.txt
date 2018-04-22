@@ -1,0 +1,16 @@
+
+> console.js@0.0.3 test /Users/nikolayemrikh/Documents/console
+> gulp test && npm run eslint
+
+[22:50:32] Using gulpfile ~/Documents/console/gulpfile.js
+[22:50:32] Starting 'test'...
+[32m22 04 2018 22:50:32.739:INFO [karma]: [39mKarma v2.0.0 server started at http://0.0.0.0:9876/
+[32m22 04 2018 22:50:32.741:INFO [launcher]: [39mLaunching browser ChromeHeadless with unlimited concurrency
+[32m22 04 2018 22:50:32.746:INFO [launcher]: [39mStarting browser ChromeHeadless
+[32m22 04 2018 22:50:33.112:INFO [HeadlessChrome 65.0.3325 (Mac OS X 10.13.3)]: [39mConnected on socket _ZQv9tWFtd31kcseAAAA with id 40295524
+HeadlessChrome 65.0.3325 (Mac OS X 10.13.3): Executed 0 of 1 SUCCESS (0 secs / 0 secs)
+[1A[2KHeadlessChrome 65.0.3325 (Mac OS X 10.13.3) Check depth array root array should be opened with excluding nested functions FAILED
+	AssertionError: [ negation message unavailable ]
+	    at Context.it (base/build/js/tests/configuration.test.js?7d46374f1b08802efe09819d680ce8a8354fae9d:1275:5)
+HeadlessChrome 65.0.3325 (Mac OS X 10.13.3): Executed 1 of 1 (1 FAILED) (0 secs / 0.276 secs)
+[1A[2KHeadlessChrome 65.0.3325 (Mac OS X 10.13.3): Executed 1 of 1 (1 FAILED) ERROR (0.003 secs / 0.276 secs)
