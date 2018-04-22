@@ -10,20 +10,23 @@ export default class TypeView extends AbstractView {
       this._parentView = params.parentView;
       this._rootView = params.parentView._rootView;
     }
-    this.viewType = null;
     this._console = cons;
     this._value = params.val;
     this._mode = params.mode;
     this._type = params.type;
     this._propKey = params.propKey;
-    this._isOpened = false;
     this._currentDepth = typeof params.depth === `number` ? params.depth : 1;
-    this._templateParams = {};
   }
 
   afterRender() {}
 
   bind() {
+    if (!this.viewType) {
+      throw new Error(`this.viewType must be specified`);
+    }
+    if (!this._rootView) {
+      throw new Error(`this._rootView must be specified`);
+    }
     this._headEl = this.el.querySelector(`.head`);
     this._headContentEl = this.el.querySelector(`.head__content`);
     this._infoEl = this.el.querySelector(`.info`);
@@ -92,7 +95,10 @@ export default class TypeView extends AbstractView {
       },
       get isContentShowed() {
         return self._isContentShowed;
-      }
+      },
+      set isOversized(bool) {
+        self.toggleHeadContentOversized(bool);
+      },
     };
   }
 
@@ -189,26 +195,21 @@ export default class TypeView extends AbstractView {
 
       const typeParams = this._console.params[this._rootView.viewType];
 
-      if (this.viewType === null ||
-        this._currentDepth > typeParams.expandDepth) {
+      if (this._currentDepth > typeParams.expandDepth) {
         return this._isAutoExpandNeededProxied;
       }
 
-      const entriesKeysLength = this._getEntriesKeys(false).size;
-      // console.log(this.value, typeParams.maxFieldsToExpand, entriesKeys.length, typeParams.minFieldsToExpand);
-      let rootFieldsInRange = false;
-      if (this._parentView && this._parentView._isAutoExpandNeeded) {
-        rootFieldsInRange = true;
-      } else if (typeParams.maxFieldsToExpand >=
-        entriesKeysLength && entriesKeysLength >=
-        typeParams.minFieldsToExpand) {
-        rootFieldsInRange = true;
-      }
-
-      if (rootFieldsInRange &&
-      !typeParams.exclude.includes(this.viewType) &&
-      this._propKey !== `__proto__`) {
-        this._isAutoExpandNeededProxied = true;
+      if (this._parentView) {
+        if (!typeParams.exclude.includes(this.viewType) &&
+        !typeParams.excludeProperties.includes(this._propKey)) {
+          this._isAutoExpandNeededProxied = true;
+        }
+      } else {
+        const entriesKeysLength = this._getEntriesKeys(false).size;
+        if (typeParams.maxFieldsToExpand >= entriesKeysLength &&
+          entriesKeysLength >= typeParams.minFieldsToExpand) {
+          this._isAutoExpandNeededProxied = true;
+        }
       }
     }
     return this._isAutoExpandNeededProxied;

@@ -156,6 +156,19 @@ block__elem--mod — element's modifier
       &::after {
         content: ']';
       }
+
+      &#{$parent}--oversize {
+        #{$parent}__entry:last-child {
+          margin-right: 5px;
+          &::after {
+            content: ",";
+            white-space: pre;
+          }
+        }
+        &::after {
+          content: '...]';
+        }
+      }
     }
   }
 

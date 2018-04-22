@@ -11,8 +11,6 @@ export default class ArrayView extends TypeView {
     if (!params.parentView) {
       this._rootView = this;
     }
-
-    this._templateParams.withHeadContentlength = true;
   }
 
   get template() {
@@ -43,7 +41,9 @@ export default class ArrayView extends TypeView {
     return {
       set isHeadContentShowed(bool) {
         if (bool && self._headContentEl.childElementCount === 0) {
-          self._headContentEl.appendChild(self.createContent(self.value, true).fragment);
+          const {fragment, isOversized} = self.createContent(self.value, true);
+          self.state.isOversized = isOversized;
+          self._headContentEl.appendChild(fragment);
         }
         self.toggleHeadContentShowed(bool);
       },
@@ -99,25 +99,40 @@ export default class ArrayView extends TypeView {
     const entriesKeys = inHead ? this.headContentEntriesKeys : this.contentEntriesKeys;
     const fragment = document.createDocumentFragment();
     entriesKeys.delete(`length`);
+    let isOversized = false;
+    let addedKeysCounter = 0;
+
+    const maxFieldsInHead = this._console.params[this.viewType].maxFieldsInHead;
 
     for (let i = 0, l = arr.length; i < l; i++) {
+      if (inHead && addedKeysCounter === maxFieldsInHead) {
+        isOversized = true;
+        break;
+      }
       const key = i.toString();
       if (entriesKeys.has(key)) {
         fragment.appendChild(this._createArrayEntryEl(arr, key, inHead));
         entriesKeys.delete(key);
+        addedKeysCounter++;
       } else if (inHead) {
         const entryEl = ArrayView.createEntryEl(key, getElement(`<span class="grey">${EMPTY}</span>`), inHead);
         fragment.appendChild(entryEl);
+        addedKeysCounter++;
       }
     }
     for (let key of entriesKeys) {
+      if (inHead && addedKeysCounter === maxFieldsInHead) {
+        isOversized = true;
+        break;
+      }
       fragment.appendChild(this._createArrayEntryEl(arr, key, inHead));
+      addedKeysCounter++;
     }
     if (!inHead) {
       fragment.appendChild(this._createArrayEntryEl(arr, `length`, inHead, `grey`));
       fragment.appendChild(this._createArrayEntryEl(arr, `__proto__`, inHead, `grey`));
     }
-    return {fragment};
+    return {fragment, isOversized};
   }
 
   _createArrayEntryEl(arr, key, isPreview, keyElClass) {

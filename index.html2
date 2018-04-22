@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>console.js</title>
+    <link href="css/style.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="console"></div>
+    <script src="js/index.js"></script>
+
+    <script>
+      const jsConsole = new Console(document.querySelector(`.console`), {
+        function: {
+          expandDepth: 3,
+          minFieldsToExpand: 1
+        }
+      });
+      const obj = {};
+      const arr = [obj];
+      arr.push(arr);
+      // arr.fn = fn;
+      const fn = (bar = 123) => {
+        return bar;
+      };
+      fn.arr = arr;
+      fn.obj = obj;
+      obj.obj = obj;
+      obj.arr = arr;
+      obj.fn = fn;
+      jsConsole.log(obj);
+      jsConsole.dir(fn);
+      jsConsole.log(arr);
+    </script>
+  </body>
+</html>

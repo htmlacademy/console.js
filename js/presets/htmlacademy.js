@@ -1,7 +1,8 @@
 window.jsConsoleConfig = {
   object: {
-    expandDepth: 2,
-    exclude: [`array`],
-    maxFieldsToExpand: 2
+    maxFieldsInHead: 5
+  },
+  common: {
+    excludeProperties: [`__proto__`]
   }
 };

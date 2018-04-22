@@ -154,16 +154,20 @@ ${this._fnType === FnType.ARROW ? ` => ` : ` `}${bodyLines.join(`\n`)}`;
   createContent(fn) {
     const fragment = document.createDocumentFragment();
     const entriesKeys = this.contentEntriesKeys;
-    entriesKeys.add(`__proto__`);
+    for (let key of BUILTIN_FIELDS) {
+      entriesKeys.delete(key);
+    }
+    for (let key of BUILTIN_FIELDS) {
+      entriesKeys.add(key);
+    }
     for (let key of entriesKeys) {
       let value;
       try {
         const tempValue = fn[key];
-        if (typeof tempValue !== `undefined`) {
-          value = tempValue;
-        } else {
+        if (typeof tempValue === `undefined`) {
           continue;
         }
+        value = tempValue;
       } catch (err) {
         continue;
       }

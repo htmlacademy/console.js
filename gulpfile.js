@@ -123,6 +123,7 @@ gulp.task(`test:noerror`, function (done) {
 });
 
 gulp.task(`copy-html`, () => {
+  console.log(1232);
   return gulp.src(`*.{html,ico}`)
       .pipe(gulp.dest(`build`))
       .pipe(server.stream());
@@ -170,11 +171,7 @@ gulp.task(`serve`, gulp.series(`assemble`, () => {
   });
 
   gulp.watch(`sass/**/*.{scss,sass}`, gulp.series(`style`));
-  gulp.watch(`*.html`).on(`change`, (e) => {
-    if (e.type !== `deleted`) {
-      gulp.series(`copy-html`);
-    }
-  });
+  gulp.watch(`*.html`).on(`change`, gulp.series(`copy-html`));
   gulp.watch(`js/**/*.js`, gulp.series(`js-watch`));
 }));
 

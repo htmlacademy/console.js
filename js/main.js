@@ -5,8 +5,6 @@ import PrimitiveView from './primitive/primitive-view';
 import {getElement} from './utils';
 import {Mode, ViewType} from './enums';
 
-const MAX_HEAD_ELEMENTS_LENGTH = 5;
-
 /**
  * Console
  * @class
@@ -26,39 +24,37 @@ export default class Console {
     }
     this._views = new Map();
     this._container = container;
+    const commonParams = this._parseParams(params.common);
     this.params = {
-      object: this._parseParams(params.object, `object`),
-      array: this._parseParams(params.array, `array`),
-      function: this._parseParams(params.function, `function`)
+      object: this._parseParams(Object.assign({}, commonParams, params.object)),
+      array: this._parseParams(Object.assign({}, commonParams, params.array)),
+      function: this._parseParams(Object.assign({}, commonParams, params.function))
     };
   }
 
-  _parseParams(paramsObject, paramName) {
-    if (paramsObject) {
-      // Set this._expandDepth and this._minFieldsToExpand only if expandDepth provided and > 0
-      if (typeof paramsObject.expandDepth === `number` &&
-      paramsObject.expandDepth > 0) {
+  _parseParams(paramsObject = {}) {
+    // Set this._expandDepth and this._minFieldsToExpand only if expandDepth provided and > 0
+    if (typeof paramsObject.expandDepth === `number` &&
+    paramsObject.expandDepth > 0) {
 
-        paramsObject.minFieldsToExpand = (
-          typeof paramsObject.minFieldsToExpand === `number` &&
-          paramsObject.minFieldsToExpand > 0
-        ) ? paramsObject.minFieldsToExpand : 0;
+      paramsObject.minFieldsToExpand = (
+        typeof paramsObject.minFieldsToExpand === `number` &&
+        paramsObject.minFieldsToExpand > 0
+      ) ? paramsObject.minFieldsToExpand : 0;
 
-        paramsObject.maxFieldsToExpand = (
-          typeof paramsObject.maxFieldsToExpand === `number` &&
-          paramsObject.maxFieldsToExpand > 0
-        ) ? paramsObject.maxFieldsToExpand : Number.POSITIVE_INFINITY;
-      }
+      paramsObject.maxFieldsToExpand = (
+        typeof paramsObject.maxFieldsToExpand === `number` &&
+        paramsObject.maxFieldsToExpand > 0
+      ) ? paramsObject.maxFieldsToExpand : Number.POSITIVE_INFINITY;
+    }
 
-      paramsObject.maxFieldsInHead = (
-        typeof paramsObject.maxFieldsInHead === `number` &&
-        paramsObject.maxFieldsInHead > 0
-      ) ? paramsObject.maxFieldsInHead : MAX_HEAD_ELEMENTS_LENGTH;
-    } else {
-      paramsObject = {};
-      if (paramName === `object`) {
-        paramsObject.maxFieldsInHead = MAX_HEAD_ELEMENTS_LENGTH;
-      }
+    paramsObject.maxFieldsInHead = (
+      typeof paramsObject.maxFieldsInHead === `number` &&
+      paramsObject.maxFieldsInHead > 0
+    ) ? paramsObject.maxFieldsInHead : Number.POSITIVE_INFINITY;
+
+    if (!Array.isArray(paramsObject.excludeProperties)) {
+      paramsObject.excludeProperties = [];
     }
     if (!Array.isArray(paramsObject.exclude)) {
       paramsObject.exclude = [];

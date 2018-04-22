@@ -62,9 +62,6 @@ export default class ObjectView extends TypeView {
       set isBraced(bool) {
         self.toggleHeadContentBraced(bool);
       },
-      set isOversized(bool) {
-        self.toggleHeadContentOversized(bool);
-      },
       set isStringified(bool) {
         if (!bool && (self._mode === Mode.LOG || self._mode === Mode.ERROR) && !self._parentView) {
           self.toggleItalic(bool);
@@ -202,8 +199,11 @@ export default class ObjectView extends TypeView {
     const entriesKeys = inHead ? this.headContentEntriesKeys : this.contentEntriesKeys;
     let isOversized = false;
     let addedKeysCounter = 0;
+
+    const maxFieldsInHead = this._console.params[this.viewType].maxFieldsInHead;
+
     for (let key of entriesKeys) {
-      if (inHead && addedKeysCounter === this._console.params[this.viewType].maxFieldsInHead) {
+      if (inHead && addedKeysCounter === maxFieldsInHead) {
         isOversized = true;
         break;
       }
