@@ -1,6 +1,6 @@
 import Console from "../main";
 import {ViewType} from "../enums";
-import {assert} from "chai";
+
 const obj = {};
 const arr = [obj];
 arr.push(arr);

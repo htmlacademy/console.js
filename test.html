@@ -1,0 +1,190 @@
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Mocha Tests</title>
+    <link href="https://unpkg.com/mocha@4.0.1/mocha.css" rel="stylesheet" />
+</head>
+<body>
+<div id="mocha"></div>
+<div class="console"></div>
+<script src="js/index.js"></script>
+<script src="https://unpkg.com/chai@4.1.2/chai.js"></script>
+<script src="https://unpkg.com/mocha@4.0.1/mocha.js"></script>
+
+<script>mocha.setup('bdd')</script>
+<script>
+
+const ViewType = {
+  FUNCTION: `function`,
+  OBJECT: `object`,
+  ARRAY: `array`,
+  PRIMITIVE: `primitive`
+};
+
+const obj = {};
+const arr = [obj];
+arr.push(arr);
+// arr.fn = fn;
+const fn = (bar = 123) => {
+  return bar;
+};
+fn.arr = arr;
+fn.obj = obj;
+obj.obj = obj;
+obj.arr = arr;
+obj.fn = fn;
+
+const getLengths = () => {
+  const objects = Array.from(
+      document.querySelectorAll(`.item--object:not(.hidden) > .item__content.entry-container--object:not(.hidden)`)
+  );
+  const arrays = Array.from(
+      document.querySelectorAll(`.item--array:not(.hidden) > .item__content.entry-container--array:not(.hidden)`)
+  );
+  const functions = Array.from(
+      document.querySelectorAll(`.item--function:not(.hidden) > .item__content.entry-container--function:not(.hidden)`)
+  );
+  return {
+    objLength: objects.length,
+    arrLength: arrays.length,
+    fnLength: functions.length
+  };
+};
+describe(`Check depth object`, () => {
+  let cons = null;
+  beforeEach(() => {
+    const div = document.createElement(`div`);
+    div.classList.add(`console`);
+    document.body.appendChild(div);
+  });
+  afterEach(() => {
+    cons.clean();
+    cons = null;
+  });
+  it(`root object should be opened on 2 levels`, () => {
+    cons = new Console(document.querySelector(`.console`), {
+      object: {
+        expandDepth: 2,
+        minFieldsToExpand: 1
+      }
+    });
+    cons.log(obj);
+    const {objLength, arrLength, fnLength} = getLengths();
+    chai.assert(objLength === 3 && arrLength === 1 && fnLength === 1);
+  });
+  it(`root object should not be opened because of minFieldsToExpand === 4 and obj has 3 fields`, () => {
+    cons = new Console(document.querySelector(`.console`), {
+      object: {
+        expandDepth: 2,
+        minFieldsToExpand: 4
+      }
+    });
+    cons.log(obj);
+    const {objLength, arrLength, fnLength} = getLengths();
+    chai.assert(objLength === 0 && arrLength === 0 && fnLength === 0);
+  });
+  it(`root object should be opened with excluding nested arrays`, () => {
+    cons = new Console(document.querySelector(`.console`), {
+      object: {
+        expandDepth: 4,
+        exclude: [ViewType.ARRAY]
+      }
+    });
+    cons.log(obj);
+    // console.log(document.querySelector(`.console`).innerHTML);
+    const {objLength, arrLength, fnLength} = getLengths();
+    chai.assert(objLength === 13 && arrLength === 0 && fnLength === 65);
+  });
+  it(`root object should be opened with excluding nested functions`, () => {
+    cons = new Console(document.querySelector(`.console`), {
+      object: {
+        expandDepth: 5,
+        exclude: [ViewType.FUNCTION]
+      }
+    });
+    cons.log(obj);
+    const {objLength, arrLength, fnLength} = getLengths();
+    chai.assert(objLength === 30 && arrLength === 22 && fnLength === 0);
+  });
+  it(`root object should be opened with excluding nested arrays and functions`, () => {
+    cons = new Console(document.querySelector(`.console`), {
+      object: {
+        expandDepth: 7,
+        exclude: [ViewType.ARRAY, ViewType.FUNCTION]
+      }
+    });
+    cons.log(obj);
+    const {objLength, arrLength, fnLength} = getLengths();
+    chai.assert(objLength === 13 && arrLength === 0 && fnLength === 0);
+  });
+});
+describe(`Check depth array`, () => {
+  let cons = null;
+  afterEach(() => {
+    cons.clean();
+    cons = null;
+  });
+  it(`root array should be opened on 2 levels`, () => {
+    cons = new Console(document.querySelector(`.console`), {
+      array: {
+        expandDepth: 2,
+        minFieldsToExpand: 1
+      }
+    });
+    cons.log(arr);
+    const {objLength, arrLength, fnLength} = getLengths();
+    chai.assert(objLength === 1 && arrLength === 3 && fnLength === 0);
+  });
+  it(`root array should not be opened because of minFieldsToExpand === 4 and array has 2 fields`, () => {
+    cons = new Console(document.querySelector(`.console`), {
+      array: {
+        expandDepth: 2,
+        minFieldsToExpand: 4
+      }
+    });
+    cons.log(arr);
+    const {objLength, arrLength, fnLength} = getLengths();
+    chai.assert(objLength === 0 && arrLength === 0 && fnLength === 0);
+  });
+  it(`root array should be opened with excluding nested objects`, () => {
+    cons = new Console(document.querySelector(`.console`), {
+      array: {
+        expandDepth: 4,
+        exclude: [ViewType.OBJECT]
+      }
+    });
+    cons.log(arr);
+    const {objLength, arrLength, fnLength} = getLengths();
+    chai.assert(objLength === 0 && arrLength === 8 && fnLength === 94);
+  });
+  it(`root array should be opened with excluding nested functions`, () => {
+    cons = new Console(document.querySelector(`.console`), {
+      array: {
+        expandDepth: 3,
+        exclude: [ViewType.FUNCTION]
+      }
+    });
+    cons.log(arr);
+    const {objLength, arrLength, fnLength} = getLengths();
+    chai.assert(objLength === 6 && arrLength === 6 && fnLength === 0);
+  });
+  it(`root array should be opened with excluding nested objects and functions`, () => {
+    cons = new Console(document.querySelector(`.console`), {
+      array: {
+        expandDepth: 2,
+        exclude: [ViewType.OBJECT, ViewType.FUNCTION]
+      }
+    });
+    cons.log(arr);
+    const {objLength, arrLength, fnLength} = getLengths();
+    chai.assert(objLength === 0 && arrLength === 3 && fnLength === 0);
+  });
+});
+</script>
+<script>
+    mocha.checkLeaks();
+    mocha.run();
+</script>
+</body>
+</html>
