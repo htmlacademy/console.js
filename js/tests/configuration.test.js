@@ -31,13 +31,12 @@ const getLengths = () => {
   };
 };
 
+const div = document.createElement(`div`);
+div.classList.add(`console`);
+document.body.appendChild(div);
+
 describe(`Check depth object`, () => {
   let cons = null;
-  beforeEach(() => {
-    const div = document.createElement(`div`);
-    div.classList.add(`console`);
-    document.body.appendChild(div);
-  });
   afterEach(() => {
     cons.clean();
     cons = null;
@@ -67,46 +66,41 @@ describe(`Check depth object`, () => {
   it(`root object should be opened with excluding nested arrays`, () => {
     cons = new Console(document.querySelector(`.console`), {
       object: {
-        expandDepth: 4,
+        expandDepth: 2,
         exclude: [ViewType.ARRAY]
       }
     });
     cons.log(obj);
     // console.log(document.querySelector(`.console`).innerHTML);
     const {objLength, arrLength, fnLength} = getLengths();
-    assert(objLength === 13 && arrLength === 0 && fnLength === 65);
+    assert(objLength === 3 && arrLength === 0 && fnLength === 1);
   });
   it(`root object should be opened with excluding nested functions`, () => {
     cons = new Console(document.querySelector(`.console`), {
       object: {
-        expandDepth: 5,
+        expandDepth: 2,
         exclude: [ViewType.FUNCTION]
       }
     });
     cons.log(obj);
     const {objLength, arrLength, fnLength} = getLengths();
-    assert(objLength === 30 && arrLength === 22 && fnLength === 0);
+    assert(objLength === 3 && arrLength === 1 && fnLength === 0);
   });
-  it(`root object should be opened with excluding nested arrays and functions`, () => {
-    cons = new Console(document.querySelector(`.console`), {
-      object: {
-        expandDepth: 7,
-        exclude: [ViewType.ARRAY, ViewType.FUNCTION]
-      }
-    });
-    cons.log(obj);
-    const {objLength, arrLength, fnLength} = getLengths();
-    assert(objLength === 13 && arrLength === 0 && fnLength === 0);
-  });
+  // it(`root object should be opened with excluding nested arrays and functions`, () => {
+  //   cons = new Console(document.querySelector(`.console`), {
+  //     object: {
+  //       expandDepth: 3,
+  //       exclude: [ViewType.ARRAY, ViewType.FUNCTION]
+  //     }
+  //   });
+  //   cons.log(obj);
+  //   const {objLength, arrLength, fnLength} = getLengths();
+  //   assert(objLength === 5 && arrLength === 0 && fnLength === 0);
+  // });
 });
 
 describe(`Check depth array`, () => {
   let cons = null;
-  beforeEach(() => {
-    const div = document.createElement(`div`);
-    div.classList.add(`console`);
-    document.body.appendChild(div);
-  });
   afterEach(() => {
     cons.clean();
     cons = null;
@@ -120,7 +114,8 @@ describe(`Check depth array`, () => {
     });
     cons.log(arr);
     const {objLength, arrLength, fnLength} = getLengths();
-    assert(objLength === 1 && arrLength === 3 && fnLength === 0);
+    const bool = objLength === 1 && arrLength === 3 && fnLength === 0;
+    assert(bool);
   });
   it(`root array should not be opened because of minFieldsToExpand === 4 and array has 2 fields`, () => {
     cons = new Console(document.querySelector(`.console`), {

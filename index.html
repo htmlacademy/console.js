@@ -11,9 +11,9 @@
 
     <script>
       const jsConsole = new Console(document.querySelector(`.console`), {
-        array: {
-          expandDepth: 3,
-          exclude: [`function`]
+        object: {
+          expandDepth: 2,
+          exclude: [`array`]
         }
       });
       const obj = {};

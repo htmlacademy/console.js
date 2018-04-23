@@ -5,12 +5,17 @@ module.exports = function (config) {
     files: [
       `build/js/tests/**/*.test.js`,
     ],
-    browsers: [`ChromeHeadless`],
-    customLaunchers: {
-      ChromeHeadlessNoSandbox: {
-        base: `ChromeHeadless`,
-        flags: [`--no-sandbox`]
+    client: {
+      mocha: {
+        timeout: 15000 // 6 seconds - upped from 2 seconds
       }
-    }
+    },
+    browsers: [`Chrome`],
+    // customLaunchers: {
+    //   ChromeHeadlessNoSandbox: {
+    //     base: `ChromeHeadless`,
+    //     flags: [`--no-sandbox`]
+    //   }
+    // }
   });
 };

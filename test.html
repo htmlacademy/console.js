@@ -53,11 +53,6 @@ const getLengths = () => {
 };
 describe(`Check depth object`, () => {
   let cons = null;
-  beforeEach(() => {
-    const div = document.createElement(`div`);
-    div.classList.add(`console`);
-    document.body.appendChild(div);
-  });
   afterEach(() => {
     cons.clean();
     cons = null;
