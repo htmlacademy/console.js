@@ -80,7 +80,7 @@ export default class FunctionView extends TypeView {
   _getHeadPropMarkup() {
     const bodyLines = this._parseBody();
     const params = this._parseParams();
-    const joinedLines = bodyLines.join(`\n`);
+    const joinedLines = bodyLines.map((str) => str.trim()).join(` `);
 
     let markup = `\
 ${this.value.name ? this.value.name : ``}\

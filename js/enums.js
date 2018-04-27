@@ -28,3 +28,7 @@ export const Class = {
   CONSOLE_ITEM_HEAD_ELEMENTS_LENGTH: `item__head-elements-length`,
   CONSOLE_ITEM_HEAD_ELEMENTS_LENGTH_SHOW: `item__head-elements-length_show`
 };
+
+export const Env = {
+  TEST: `test`
+};

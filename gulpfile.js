@@ -116,15 +116,12 @@ gulp.task(`test`, function (done) {
 });
 
 gulp.task(`test:noerror`, function (done) {
-  const handleErr = () => done();
   new KarmaServer({
-    configFile: __dirname + `/karma.conf.js`,
-    singleRun: true
-  }, handleErr).start();
+    configFile: __dirname + `/karma.conf.js`
+  }, done).start();
 });
 
 gulp.task(`copy-html`, () => {
-  console.log(1232);
   return gulp.src(`*.{html,ico}`)
       .pipe(gulp.dest(`build`))
       .pipe(server.stream());
@@ -183,6 +180,7 @@ gulp.task(`test-watch`, gulp.series(`assemble`, `test:noerror`, () => {
       gulp.series(`copy-html`);
     }
   });
-  gulp.watch(`js/**/*.js`, gulp.series(`build-scripts`, `build-js-presets`, `build-tests`, `test:noerror`));
+  gulp.series(`test`);
+  gulp.watch(`js/**/*.js`, gulp.series(`build-tests`));
 }));
 gulp.task(`build`, gulp.series(`assemble`, `imagemin`));

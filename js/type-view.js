@@ -1,7 +1,7 @@
 /* eslint guard-for-in: "off"*/
 import AbstractView from './abstract-view';
 import {getElement} from './utils';
-import {Mode} from './enums';
+import {Mode, Env} from './enums';
 
 export default class TypeView extends AbstractView {
   constructor(params, cons) {
@@ -161,15 +161,17 @@ export default class TypeView extends AbstractView {
         .concat(Object.getOwnPropertySymbols(obj)); // Неперечисляемые свои
     const keys = new Set(ownPropertyNamesAndSymbols);
 
-    if (!this.isShowNotOwn) {
-      return keys;
+    if (this.isShowNotOwn) {
+      for (let key in obj) {
+        if (inHead && !obj.hasOwnProperty(key)) {
+          continue;
+        }
+        keys.add(key);
+      }
     }
 
-    for (let key in obj) {
-      if (inHead && !obj.hasOwnProperty(key)) {
-        continue;
-      }
-      keys.add(key);
+    if (this._console.params.env === Env.TEST) {
+      keys.delete(`should`);
     }
 
     return keys;

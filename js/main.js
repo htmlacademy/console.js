@@ -28,9 +28,9 @@ export default class Console {
     this.params = {
       object: this._parseParams(Object.assign({}, commonParams, params.object)),
       array: this._parseParams(Object.assign({}, commonParams, params.array)),
-      function: this._parseParams(Object.assign({}, commonParams, params.function))
+      function: this._parseParams(Object.assign({}, commonParams, params.function)),
+      env: params.env
     };
-    // console.log(this.params.array)
   }
 
   _parseParams(paramsObject = {}) {
