@@ -10,18 +10,18 @@ module.exports = function (config) {
       format: `%b %T: %m`,
       terminal: true
     },
-    singleRun: true,
+    singleRun: false,
     client: {
       mocha: {
         timeout: 15000 // 6 seconds - upped from 2 seconds
       }
     },
-    browsers: [`ChromeHeadless`],
-    customLaunchers: {
-      ChromeHeadlessNoSandbox: {
-        base: `ChromeHeadless`,
-        flags: [`--no-sandbox`]
-      }
-    }
+    browsers: [`Chrome`],
+    // customLaunchers: {
+    //   ChromeHeadlessNoSandbox: {
+    //     base: `ChromeHeadless`,
+    //     flags: [`--no-sandbox`]
+    //   }
+    // }
   });
 };

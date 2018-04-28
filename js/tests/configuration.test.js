@@ -141,6 +141,7 @@ describe(`Check depth array`, () => {
     });
     cons.log(arr);
     const {objLength, arrLength, fnLength} = getLengths();
+    console.log(objLength, arrLength, fnLength);
     assert(objLength === 0 && arrLength === 8 && fnLength === 94);
   });
   it(`root array should be opened with excluding nested functions`, () => {
@@ -181,6 +182,7 @@ describe(`Check depth function DIR`, () => {
     });
     cons.dir(fn);
     const {objLength, arrLength, fnLength} = getLengths();
+    console.log(objLength, arrLength, fnLength);
     assert(objLength === 14 && arrLength === 11 && fnLength === 71);
   });
   it(`root function should not be opened because of minFieldsToExpand === 5 and function has 3 fields`, () => {
@@ -203,6 +205,7 @@ describe(`Check depth function DIR`, () => {
     });
     cons.dir(fn);
     const {objLength, arrLength, fnLength} = getLengths();
+    console.log(objLength, arrLength, fnLength);
     assert(objLength === 0 && arrLength === 5 && fnLength === 45);
   });
   it(`root function should be opened with excluding nested arrays`, () => {
