@@ -136,7 +136,7 @@ export default class ObjectView extends TypeView {
       const obj = this.createContent(this.value, true);
       val = obj.fragment;
       isOversized = obj.isOversized;
-      isOpeningDisabled = val.childElementCount === 0;
+      isOpeningDisabled = this.contentEntriesKeys.size === 0;
       if (this._stringTagName !== `Object` || (
         this._constructorName !== `Object`
       ) || this._propKey === `__proto__`) {
@@ -218,8 +218,12 @@ export default class ObjectView extends TypeView {
   }
 
   _createObjectEntryEl(obj, key, isPreview, keyElClass) {
-    const val = obj[key];
-    const view = this._console.createTypedView(val, isPreview ? Mode.PREVIEW : Mode.PROP, this.nextNestingLevel, this, key);
-    return ObjectView.createEntryEl(key.toString(), view.el, null, keyElClass);
+    const descriptors = Object.getOwnPropertyDescriptors(obj);
+    let view;
+    if (!(key in descriptors) || !descriptors[key].get || key === `__proto__`) {
+      const val = obj[key];
+      view = this._console.createTypedView(val, isPreview ? Mode.PREVIEW : Mode.PROP, this.nextNestingLevel, this, key);
+    }
+    return ObjectView.createEntryEl(key.toString(), view, null, keyElClass);
   }
 }

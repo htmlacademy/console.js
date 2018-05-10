@@ -1,3 +1,4 @@
+/* eslint no-empty: "off"*/
 import TypeView from '../type-view';
 import {Mode, ViewType} from '../enums';
 
@@ -161,21 +162,20 @@ ${this._fnType === FnType.ARROW ? ` => ` : ` `}${bodyLines.join(`\n`)}`;
       entriesKeys.add(key);
     }
     for (let key of entriesKeys) {
-      let value;
       try {
-        const tempValue = fn[key];
-        if (typeof tempValue === `undefined`) {
-          continue;
-        }
-        value = tempValue;
-      } catch (err) {
-        continue;
-      }
-      const view = this._console.createTypedView(value, Mode.PROP, this.nextNestingLevel, this, key);
-      const entryEl = FunctionView.createEntryEl(key.toString(), view.el, null, BUILTIN_FIELDS.includes(key) ? `grey` : null);
-      fragment.appendChild(entryEl);
+        fragment.appendChild(this._createFunctionEntryEl(fn, key, BUILTIN_FIELDS.includes(key) ? `grey` : null));
+      } catch (err) {}
     }
     return {fragment};
+  }
+  _createFunctionEntryEl(fn, key, keyElClass) {
+    const descriptors = Object.getOwnPropertyDescriptors(fn);
+    let view;
+    if (!(key in descriptors) || !descriptors[key].get || key === `__proto__`) {
+      const val = fn[key];
+      view = this._console.createTypedView(val, Mode.PROP, this.nextNestingLevel, this, key);
+    }
+    return FunctionView.createEntryEl(key.toString(), view, null, keyElClass);
   }
 
   static checkFnType(fn) {

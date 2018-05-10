@@ -10,7 +10,7 @@ module.exports = function (config) {
       format: `%b %T: %m`,
       terminal: true
     },
-    // singleRun: false,
+    singleRun: true,
     client: {
       mocha: {
         timeout: 15000 // 6 seconds - upped from 2 seconds

@@ -136,8 +136,12 @@ export default class ArrayView extends TypeView {
   }
 
   _createArrayEntryEl(arr, key, isPreview, keyElClass) {
-    const val = arr[key];
-    const view = this._console.createTypedView(val, isPreview ? Mode.PREVIEW : Mode.PROP, this.nextNestingLevel, this, key);
-    return ArrayView.createEntryEl(key.toString(), view.el, isPreview ? Number.isInteger(key) : isPreview, keyElClass);
+    const descriptors = Object.getOwnPropertyDescriptors(arr);
+    let view;
+    if (!(key in descriptors) || !descriptors[key].get || key === `__proto__`) {
+      const val = arr[key];
+      view = this._console.createTypedView(val, isPreview ? Mode.PREVIEW : Mode.PROP, this.nextNestingLevel, this, key);
+    }
+    return ArrayView.createEntryEl(key.toString(), view, isPreview ? Number.isInteger(key) : isPreview, keyElClass);
   }
 }

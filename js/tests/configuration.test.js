@@ -141,7 +141,7 @@ describe(`Check depth array`, () => {
     });
     cons.log(arr);
     const {objLength, arrLength, fnLength} = getLengths();
-    console.log(`objLength: ${objLength}, arrLength: ${arrLength}, fnLength: ${fnLength}`);
+    // console.log(`objLength: ${objLength}, arrLength: ${arrLength}, fnLength: ${fnLength}`);
     assert(objLength === 0 && arrLength === 8 && fnLength === 94);
   });
   it(`root array should be opened with excluding nested functions`, () => {
@@ -205,7 +205,7 @@ describe(`Check depth function DIR`, () => {
     });
     cons.dir(fn);
     const {objLength, arrLength, fnLength} = getLengths();
-    console.log(`objLength: ${objLength}, arrLength: ${arrLength}, fnLength: ${fnLength}`);
+    // console.log(`objLength: ${objLength}, arrLength: ${arrLength}, fnLength: ${fnLength}`);
     assert(objLength === 0 && arrLength === 5 && fnLength === 45);
   });
   it(`root function should be opened with excluding nested arrays`, () => {

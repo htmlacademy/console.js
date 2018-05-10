@@ -170,6 +170,15 @@ export default class TypeView extends AbstractView {
       }
     }
 
+    if (inHead) {
+      const descriptors = Object.getOwnPropertyDescriptors(obj);
+      for (let descriptor in descriptors) {
+        if (typeof Object.getOwnPropertyDescriptors(descriptors[descriptor]).get !== `undefined`) {
+          keys.delete(descriptor);
+        }
+      }
+    }
+
     if (this._console.params.env === Env.TEST) {
       keys.delete(`should`);
     }
@@ -238,13 +247,18 @@ export default class TypeView extends AbstractView {
     }
   }
 
-  static createEntryEl(index, valueEl, withoutKey, keyElClass) {
+  static createEntryEl(index, view, withoutKey, keyElClass) {
     const entryEl = getElement(`\
 <span class="entry-container__entry">\
   ${withoutKey ? `` : `<span class="entry-container__key ${keyElClass ? keyElClass : ``}">${index}</span>`}<span class="entry-container__value-container"></span>\
 </span>`);
     const valueContEl = entryEl.querySelector(`.entry-container__value-container`);
-    valueContEl.appendChild(valueEl);
+
+    if (view instanceof TypeView) {
+      valueContEl.appendChild(view.el);
+    } else {
+      valueContEl.textContent = `(...)`;
+    }
 
     return entryEl;
   }
