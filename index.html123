@@ -10,11 +10,28 @@
     <script src="js/index.js"></script>
 
     <script>
+      const getLengths = () => {
+        const objects = Array.from(
+            document.querySelectorAll(`.item--object:not(.hidden) > .item__content.entry-container--object:not(.hidden)`)
+        );
+        const arrays = Array.from(
+            document.querySelectorAll(`.item--array:not(.hidden) > .item__content.entry-container--array:not(.hidden)`)
+        );
+        const functions = Array.from(
+            document.querySelectorAll(`.item--function:not(.hidden) > .item__content.entry-container--function:not(.hidden)`)
+        );
+        return {
+          objLength: objects.length,
+          arrLength: arrays.length,
+          fnLength: functions.length
+        };
+      };
       const jsConsole = new Console(document.querySelector(`.console`), {
-        function: {
+        array: {
           expandDepth: 4,
-          minFieldsToExpand: 1
-        }
+          exclude: [`object`]
+        },
+        env: `test`
         // function: {
         //   expandDepth: 2,
         //   exclude: [ViewType.OBJECT, ViewType.ARRAY]
