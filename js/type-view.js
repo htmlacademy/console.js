@@ -247,20 +247,61 @@ export default class TypeView extends AbstractView {
     }
   }
 
-  static createEntryEl(index, view, withoutKey, keyElClass) {
+  _createEntryEl({key, el, withoutKey, keyElClass, getViewEl}) {
     const entryEl = getElement(`\
 <span class="entry-container__entry">\
-  ${withoutKey ? `` : `<span class="entry-container__key ${keyElClass ? keyElClass : ``}">${index}</span>`}<span class="entry-container__value-container"></span>\
+${withoutKey ? `` : `<span class="entry-container__key ${keyElClass ? keyElClass : ``}">${key.toString()}</span>`}<span class="entry-container__value-container"></span>\
 </span>`);
     const valueContEl = entryEl.querySelector(`.entry-container__value-container`);
 
-    if (view instanceof TypeView) {
-      valueContEl.appendChild(view.el);
+    if (el) {
+      valueContEl.appendChild(el);
     } else {
       valueContEl.textContent = `(...)`;
+      valueContEl.classList.add(`entry-container__value-container--underscore`);
+      const insertEl = () => {
+        valueContEl.textContent = ``;
+        valueContEl.classList.remove(`entry-container__value-container--underscore`);
+        let viewEl;
+        try {
+          viewEl = getViewEl();
+        } catch (err) {
+          valueContEl.textContent = `[Exception: ${err.stack}]`;
+        }
+        valueContEl.appendChild(viewEl);
+        valueContEl.removeEventListener(`click`, insertEl);
+      };
+      valueContEl.addEventListener(`click`, insertEl);
     }
 
     return entryEl;
+  }
+  /**
+   * Create entry element
+   * @protected
+   * @param {{}} params
+   * @param {{}} params.obj — object/array/fn
+   * @param {string} params.key — key, index of array or field name
+   * @param {Mode} params.mode — log mode
+   * @param {boolean} [params.withoutKey] — create entry without key element
+   * @param {string} [params.keyElClass] — CSS class for key element
+   * @return {HTMLSpanElement}
+   */
+  _createTypedEntryEl({obj, key, mode, withoutKey, keyElClass, notCheckDescriptors}) {
+    const getViewEl = () => {
+      const val = obj[key];
+      return this._console.createTypedView(val, mode, this.nextNestingLevel, this, key).el;
+    };
+    let el;
+    if (notCheckDescriptors) {
+      el = getViewEl();
+    } else {
+      const descriptors = Object.getOwnPropertyDescriptors(obj);
+      if (!(key in descriptors) || !descriptors[key].get || key === `__proto__`) {
+        el = getViewEl();
+      }
+    }
+    return this._createEntryEl({key, el, withoutKey, keyElClass, getViewEl});
   }
 
   static toggleMiddleware(el, className, isEnable) {

@@ -103,6 +103,7 @@ export default class ArrayView extends TypeView {
     let addedKeysCounter = 0;
 
     const maxFieldsInHead = this._console.params[this.viewType].maxFieldsInHead;
+    const mode = inHead ? Mode.PREVIEW : Mode.PROP;
 
     for (let i = 0, l = arr.length; i < l; i++) {
       if (inHead && addedKeysCounter === maxFieldsInHead) {
@@ -111,11 +112,11 @@ export default class ArrayView extends TypeView {
       }
       const key = i.toString();
       if (entriesKeys.has(key)) {
-        fragment.appendChild(this._createArrayEntryEl(arr, i, inHead));
+        fragment.appendChild(this._createTypedEntryEl({obj: arr, key: i, mode, withoutKey: inHead, notCheckDescriptors: true}));
         entriesKeys.delete(key);
         addedKeysCounter++;
       } else if (inHead) {
-        const entryEl = ArrayView.createEntryEl(i, getElement(`<span class="grey">${EMPTY}</span>`), inHead);
+        const entryEl = this._createEntryEl({key: i, el: getElement(`<span>${EMPTY}</span>`), withoutKey: true, keyElClass: `grey`});
         fragment.appendChild(entryEl);
         addedKeysCounter++;
       }
@@ -125,23 +126,13 @@ export default class ArrayView extends TypeView {
         isOversized = true;
         break;
       }
-      fragment.appendChild(this._createArrayEntryEl(arr, key, inHead));
+      fragment.appendChild(this._createTypedEntryEl({obj: arr, key, mode, withoutKey: inHead}));
       addedKeysCounter++;
     }
     if (!inHead) {
-      fragment.appendChild(this._createArrayEntryEl(arr, `length`, inHead, `grey`));
-      fragment.appendChild(this._createArrayEntryEl(arr, `__proto__`, inHead, `grey`));
+      fragment.appendChild(this._createTypedEntryEl({obj: arr, key: `length`, mode, keyElClass: `grey`, notCheckDescriptors: true}));
+      fragment.appendChild(this._createTypedEntryEl({obj: arr, key: `__proto__`, mode, keyElClass: `grey`, notCheckDescriptors: true}));
     }
     return {fragment, isOversized};
-  }
-
-  _createArrayEntryEl(arr, key, isPreview, keyElClass) {
-    const descriptors = Object.getOwnPropertyDescriptors(arr);
-    let view;
-    if (!(key in descriptors) || !descriptors[key].get || key === `__proto__`) {
-      const val = arr[key];
-      view = this._console.createTypedView(val, isPreview ? Mode.PREVIEW : Mode.PROP, this.nextNestingLevel, this, key);
-    }
-    return ArrayView.createEntryEl(key.toString(), view, isPreview ? Number.isInteger(key) : isPreview, keyElClass);
   }
 }

@@ -14,13 +14,16 @@ export default class Console {
    * Initialize console into container
    * @param {HTMLElement} container — console container
    * @param {{}} params — parameters
-   * @property {number} params.minFieldsToExpand — min number of fields in obj to expand
-   * @property {number} params.maxFieldsInHead — max number of preview fields inside head
-   * @property {number} params.expandDepth — level of depth to expand
+   * @param {number} params.minFieldsToExpand — min number of fields in obj to expand
+   * @param {number} params.maxFieldsInHead — max number of preview fields inside head
+   * @param {number} params.expandDepth — level of depth to expand
+   * @param {Env} params.env — environment
    **/
   constructor(container, params = {}) {
     if (!container) {
       throw new Error(`Console is not inited!`);
+    } else if (!(container instanceof HTMLElement)) {
+      throw new TypeError(`HTML element must be passed as container`);
     }
     this._views = new Map();
     this._container = container;

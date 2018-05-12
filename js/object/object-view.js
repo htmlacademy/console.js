@@ -201,29 +201,20 @@ export default class ObjectView extends TypeView {
     let addedKeysCounter = 0;
 
     const maxFieldsInHead = this._console.params[this.viewType].maxFieldsInHead;
+    const mode = inHead ? Mode.PREVIEW : Mode.PROP;
     for (let key of entriesKeys) {
       if (inHead && addedKeysCounter === maxFieldsInHead) {
         isOversized = true;
         break;
       }
       try {
-        fragment.appendChild(this._createObjectEntryEl(obj, key, inHead));
+        fragment.appendChild(this._createTypedEntryEl({obj, key, mode}));
         addedKeysCounter++;
       } catch (err) {}
     }
     if (!inHead && !entriesKeys.has(`__proto__`) && typeof this.value[`__proto__`] !== `undefined`) {
-      fragment.appendChild(this._createObjectEntryEl(obj, `__proto__`, inHead, `grey`));
+      fragment.appendChild(this._createTypedEntryEl({obj, key: `__proto__`, mode, keyElClass: `grey`, notCheckDescriptors: true}));
     }
     return {fragment, isOversized};
-  }
-
-  _createObjectEntryEl(obj, key, isPreview, keyElClass) {
-    const descriptors = Object.getOwnPropertyDescriptors(obj);
-    let view;
-    if (!(key in descriptors) || !descriptors[key].get || key === `__proto__`) {
-      const val = obj[key];
-      view = this._console.createTypedView(val, isPreview ? Mode.PREVIEW : Mode.PROP, this.nextNestingLevel, this, key);
-    }
-    return ObjectView.createEntryEl(key.toString(), view, null, keyElClass);
   }
 }

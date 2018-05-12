@@ -172,6 +172,12 @@ block__elem--mod — element's modifier
     }
   }
 
+  &__value-container {
+    &--underscore:hover {
+      text-decoration: underline;
+    }
+  }
+
   &__key::after {
     content: ": ";
     white-space: pre;

@@ -156,26 +156,14 @@ ${this._fnType === FnType.ARROW ? ` => ` : ` `}${bodyLines.join(`\n`)}`;
     const fragment = document.createDocumentFragment();
     const entriesKeys = this.contentEntriesKeys;
     for (let key of BUILTIN_FIELDS) {
-      entriesKeys.delete(key);
-    }
-    for (let key of BUILTIN_FIELDS) {
       entriesKeys.add(key);
     }
     for (let key of entriesKeys) {
       try {
-        fragment.appendChild(this._createFunctionEntryEl(fn, key, BUILTIN_FIELDS.includes(key) ? `grey` : null));
+        fragment.appendChild(this._createTypedEntryEl({obj: fn, key, mode: Mode.PROP, keyElClass: BUILTIN_FIELDS.includes(key) ? `grey` : null}));
       } catch (err) {}
     }
     return {fragment};
-  }
-  _createFunctionEntryEl(fn, key, keyElClass) {
-    const descriptors = Object.getOwnPropertyDescriptors(fn);
-    let view;
-    if (!(key in descriptors) || !descriptors[key].get || key === `__proto__`) {
-      const val = fn[key];
-      view = this._console.createTypedView(val, Mode.PROP, this.nextNestingLevel, this, key);
-    }
-    return FunctionView.createEntryEl(key.toString(), view, null, keyElClass);
   }
 
   static checkFnType(fn) {

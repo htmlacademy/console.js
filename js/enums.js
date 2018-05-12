@@ -1,3 +1,7 @@
+/**
+ * Console modes
+ * @enum {string}
+ */
 export const Mode = {
   LOG: `log`,
   DIR: `dir`,
@@ -6,6 +10,10 @@ export const Mode = {
   ERROR: `error`
 };
 
+/**
+ * Viewtypes
+ * @enum {string}
+ */
 export const ViewType = {
   FUNCTION: `function`,
   OBJECT: `object`,
@@ -13,6 +21,10 @@ export const ViewType = {
   PRIMITIVE: `primitive`
 };
 
+/**
+ * CSS classes
+ * @enum {string}
+ */
 export const Class = {
   CONSOLE_ITEM_HEAD: `item__head`,
   CONSOLE_ITEM_POINTER: `item_pointer`,
@@ -29,6 +41,10 @@ export const Class = {
   CONSOLE_ITEM_HEAD_ELEMENTS_LENGTH_SHOW: `item__head-elements-length_show`
 };
 
+/**
+ * Console environment
+ * @enum {string}
+ */
 export const Env = {
   TEST: `test`
 };
