@@ -29,7 +29,10 @@ window.console.dir = collectDirs;
 const init = function () {
   const div = window.document.createElement(`div`);
   div.classList.add(`console`);
-  const config = merge(...window.jsConsolePresets);
+  let config;
+  if (Array.isArray(window.jsConsolePresets)) {
+    config = merge(...window.jsConsolePresets);
+  }
   const jsConsole = new Console(div, config);
   window.document.body.appendChild(div);
 
