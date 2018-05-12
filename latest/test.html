@@ -29,7 +29,7 @@
       const jsConsole = new Console(document.querySelector(`.console`), {
         function: {
           expandDepth: 4,
-          minFieldsToExpand: 1
+          exclude: [`object`]
         }
       });
       const obj = {};
