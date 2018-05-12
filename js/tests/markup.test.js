@@ -118,21 +118,21 @@ describe(`Check primitives: `, () => {
         el.textContent === str1
     );
   });
-  it(`string in prop mode should contain string--nowrap`, () => {
+  it(`string in prop mode should contain nowrap class`, () => {
     const el = cons.createTypedView(str1, Mode.PROP).el;
     assert(
         el.classList.contains(`item--primitive`) &&
         el.classList.contains(`string`) &&
-        el.classList.contains(`string--nowrap`) &&
+        el.classList.contains(`nowrap`) &&
         el.textContent === str1
     );
   });
-  it(`string in preview mode should contain string--nowrap`, () => {
+  it(`string in preview mode should contain nowrap class`, () => {
     const el = cons.createTypedView(str1, Mode.PREVIEW).el;
     assert(
         el.classList.contains(`item--primitive`) &&
         el.classList.contains(`string`) &&
-        el.classList.contains(`string--nowrap`) &&
+        el.classList.contains(`nowrap`) &&
         el.textContent === str1
     );
   });

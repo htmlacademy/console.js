@@ -244,10 +244,10 @@ block__elem--mod — element's modifier
   &::after {
     content: '"';
   }
+}
 
-  &--nowrap {
-    white-space: nowrap;
-  }
+.nowrap {
+  white-space: nowrap;
 }
 
 .number {

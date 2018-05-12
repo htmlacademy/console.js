@@ -113,7 +113,7 @@ export default class ObjectView extends TypeView {
     } else if (this.value instanceof Error) {
       isBraced = false;
       val = `<pre>${this.value.stack}</pre>`;
-      isOpeningDisabled = true;
+      // isOpeningDisabled = true;
       isStringified = true;
     } else if (this.value instanceof Number) {
       const view = this._console.createTypedView(Number.parseInt(this.value, 10), Mode.PREVIEW, this.nextNestingLevel, this);
@@ -136,7 +136,7 @@ export default class ObjectView extends TypeView {
       const obj = this.createContent(this.value, true);
       val = obj.fragment;
       isOversized = obj.isOversized;
-      isOpeningDisabled = this.contentEntriesKeys.size === 0;
+      // isOpeningDisabled = this.contentEntriesKeys.size === 0;
       if (this._stringTagName !== `Object` || (
         this._constructorName !== `Object`
       ) || this._propKey === `__proto__`) {

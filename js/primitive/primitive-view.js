@@ -41,7 +41,7 @@ export default class PrimitiveView extends TypeView {
         } else {
           str = value;
         }
-        html = `<pre class="console__item item item--primitive string ${this._mode === Mode.PROP || this._mode === Mode.PREVIEW ? `string--nowrap` : ``} ${this._mode === Mode.PROP ? `pointer` : ``} ${this._mode === Mode.ERROR ? `${this._mode}` : ``}">${str}</pre>`;
+        html = `<pre class="console__item item item--primitive string ${this._mode === Mode.PROP || this._mode === Mode.PREVIEW ? `nowrap` : ``} ${this._mode === Mode.PROP ? `pointer` : ``} ${this._mode === Mode.ERROR ? `${this._mode}` : ``}">${str}</pre>`;
         break;
       case `symbol`:
         html = `<div class="console__item item item--primitive symbol">${value}</div>`;
@@ -60,7 +60,7 @@ export default class PrimitiveView extends TypeView {
     if (this._mode === Mode.PROP && this._type === `string`) {
       this.el.addEventListener(`click`, (evt) => {
         evt.preventDefault();
-        this.el.classList.toggle(`string--nowrap`);
+        this.el.classList.toggle(`nowrap`);
       });
     }
   }

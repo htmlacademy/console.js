@@ -2,6 +2,9 @@ const params = {
   object: {
     maxFieldsInHead: 5
   },
+  function: {
+    nowrapOnLog: true
+  },
   common: {
     excludeProperties: [`__proto__`]
   }

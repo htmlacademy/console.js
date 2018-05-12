@@ -30,10 +30,12 @@ export default class FunctionView extends TypeView {
   get template() {
     const isShowInfo = this._fnType !== FnType.ARROW || this._mode === Mode.PREVIEW;
     const body = this._getBody();
+    const nowrapOnLog = this._console.params[this.viewType].nowrapOnLog;
+
     return `\
 <div class="console__item item item--${this.viewType} ${this._mode === Mode.ERROR ? `error` : ``}">\
   <div class="head item__head italic">\
-    <pre class="head__content"><span class="info info--function ${isShowInfo ? `` : `hidden`}">${this._getInfo()}</span>${isShowInfo && body ? ` ` : ``}${this._getBody()}</pre>\
+    <pre class="head__content ${nowrapOnLog ? `nowrap` : `` }"><span class="info info--function ${isShowInfo ? `` : `hidden`}">${this._getInfo()}</span>${isShowInfo && body ? ` ` : ``}${this._getBody()}</pre>\
   </div>\
   <div class="item__content entry-container entry-container--${this.viewType} hidden"></div>\
 </div>`;
@@ -45,6 +47,12 @@ export default class FunctionView extends TypeView {
     };
 
     this.state = params;
+
+    if (this._mode === Mode.LOG) {
+      this._headContentEl.addEventListener(`click`, () => {
+        this._headContentEl.classList.toggle(`nowrap`);
+      });
+    }
   }
 
   _getInfo() {
