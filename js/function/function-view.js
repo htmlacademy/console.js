@@ -159,9 +159,7 @@ ${this._fnType === FnType.ARROW ? ` => ` : ` `}${bodyLines.join(`\n`)}`;
       entriesKeys.add(key);
     }
     for (let key of entriesKeys) {
-      try {
-        fragment.appendChild(this._createTypedEntryEl({obj: fn, key, mode: Mode.PROP, keyElClass: BUILTIN_FIELDS.includes(key) ? `grey` : null}));
-      } catch (err) {}
+      fragment.appendChild(this._createTypedEntryEl({obj: fn, key, mode: Mode.PROP, keyElClass: BUILTIN_FIELDS.includes(key) ? `grey` : null}));
     }
     return {fragment};
   }

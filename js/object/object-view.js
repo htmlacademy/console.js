@@ -207,10 +207,8 @@ export default class ObjectView extends TypeView {
         isOversized = true;
         break;
       }
-      try {
-        fragment.appendChild(this._createTypedEntryEl({obj, key, mode}));
-        addedKeysCounter++;
-      } catch (err) {}
+      fragment.appendChild(this._createTypedEntryEl({obj, key, mode}));
+      addedKeysCounter++;
     }
     if (!inHead && !entriesKeys.has(`__proto__`) && typeof this.value[`__proto__`] !== `undefined`) {
       fragment.appendChild(this._createTypedEntryEl({obj, key: `__proto__`, mode, keyElClass: `grey`, notCheckDescriptors: true}));

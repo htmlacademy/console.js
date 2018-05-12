@@ -1,4 +1,5 @@
 /* eslint guard-for-in: "off"*/
+/* eslint no-empty: "off"*/
 import AbstractView from './abstract-view';
 import {getElement} from './utils';
 import {Mode, Env} from './enums';
@@ -303,10 +304,10 @@ ${withoutKey ? `` : `<span class="entry-container__key ${keyElClass ? keyElClass
         let viewEl;
         try {
           viewEl = getViewEl();
+          valueContEl.appendChild(viewEl);
         } catch (err) {
           valueContEl.textContent = `[Exception: ${err.stack}]`;
         }
-        valueContEl.appendChild(viewEl);
         valueContEl.removeEventListener(`click`, insertEl);
       };
       valueContEl.addEventListener(`click`, insertEl);
@@ -332,14 +333,16 @@ ${withoutKey ? `` : `<span class="entry-container__key ${keyElClass ? keyElClass
       return this._console.createTypedView(val, mode, this.nextNestingLevel, this, key).el;
     };
     let el;
-    if (notCheckDescriptors) {
-      el = getViewEl();
-    } else {
-      const descriptors = Object.getOwnPropertyDescriptors(obj);
-      if (!(key in descriptors) || !descriptors[key].get || key === `__proto__`) {
+    try {
+      if (notCheckDescriptors) {
         el = getViewEl();
+      } else {
+        const descriptors = Object.getOwnPropertyDescriptors(obj);
+        if (!(key in descriptors) || !descriptors[key].get || key === `__proto__`) {
+          el = getViewEl();
+        }
       }
-    }
+    } catch (err) {}
     return this._createEntryEl({key, el, withoutKey, keyElClass, getViewEl});
   }
 
