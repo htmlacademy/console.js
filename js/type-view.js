@@ -35,6 +35,11 @@ export default class TypeView extends AbstractView {
     this.afterRender();
   }
 
+  /**
+   * Current state
+   * @type {{}}
+   * @param {{}} params — object with values which will be assigned throught setters
+   */
   set state(params) {
     if (!this._state) {
       this._state = {};
@@ -65,6 +70,9 @@ export default class TypeView extends AbstractView {
     return {};
   }
 
+  /**
+   * @return {{}} — object that contains descriptors only
+   */
   _getStateCommonProxyObject() {
     const self = this;
     return {
@@ -138,10 +146,17 @@ export default class TypeView extends AbstractView {
     return TypeView.toggleMiddleware(this._headEl, `item__head--arrow-bottom`, isEnable);
   }
 
+  /**
+   * Value to log
+   */
   get value() {
     return this._value;
   }
 
+  /**
+   * Log mode
+   * @type {Mode}
+   */
   get mode() {
     return this._mode;
   }
@@ -186,6 +201,10 @@ export default class TypeView extends AbstractView {
     return keys;
   }
 
+  /**
+   * Head content entries keys
+   * @type {Set}
+   */
   get headContentEntriesKeys() {
     if (!this._headEntriesKeys) {
       this._headEntriesKeys = this._getEntriesKeys(true);
@@ -193,6 +212,10 @@ export default class TypeView extends AbstractView {
     return this._headEntriesKeys;
   }
 
+  /**
+   * Content entries keys
+   * @type {Set}
+   */
   get contentEntriesKeys() {
     if (!this._entriesKeys) {
       this._entriesKeys = this._getEntriesKeys(false);
@@ -200,6 +223,10 @@ export default class TypeView extends AbstractView {
     return this._entriesKeys;
   }
 
+  /**
+   * Check if autoexpand needed
+   * @type {boolean}
+   */
   get _isAutoExpandNeeded() {
     if (!this._isAutoExpandNeededProxied) {
       this._isAutoExpandNeededProxied = false;
@@ -247,6 +274,17 @@ export default class TypeView extends AbstractView {
     }
   }
 
+  /**
+   * Create entry element
+   * @protected
+   * @param {{}} params
+   * @param {string} params.key — key, index of array or field name
+   * @param {HTMLSpanElement|undefined} params.el — HTML span element to append into container
+   * @param {boolean} [params.withoutKey] — create entry without key element
+   * @param {string} [params.keyElClass] — CSS class for key element
+   * @param {function} [params.getViewEl] — function to get element if so wasn't present while calling this method
+   * @return {HTMLSpanElement}
+   */
   _createEntryEl({key, el, withoutKey, keyElClass, getViewEl}) {
     const entryEl = getElement(`\
 <span class="entry-container__entry">\
@@ -276,8 +314,9 @@ ${withoutKey ? `` : `<span class="entry-container__key ${keyElClass ? keyElClass
 
     return entryEl;
   }
+
   /**
-   * Create entry element
+   * Create typed entry element
    * @protected
    * @param {{}} params
    * @param {{}} params.obj — object/array/fn
@@ -304,6 +343,15 @@ ${withoutKey ? `` : `<span class="entry-container__key ${keyElClass ? keyElClass
     return this._createEntryEl({key, el, withoutKey, keyElClass, getViewEl});
   }
 
+  /**
+   * Toggle CSS class on element
+   * If isEnable not present just toggle, otherwise add or remove
+   * @static
+   * @param {HTMLElement} el — element to toggle CSS class
+   * @param {string} className — CSS class
+   * @param {boolean|undefined} isEnable — add/remove if present, otherwise toggle
+   * @return {boolean} — added — true, removed — false
+   */
   static toggleMiddleware(el, className, isEnable) {
     if (typeof isEnable === `undefined`) {
       return el.classList.toggle(className);

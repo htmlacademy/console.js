@@ -1,9 +1,7 @@
 const params = {
-  object: {
-    maxFieldsInHead: 5
-  },
   common: {
-    excludeProperties: [`__proto__`]
+    expandDepth: 2,
+    maxFieldsToExpand: 10
   }
 };
 
