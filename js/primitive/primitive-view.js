@@ -4,7 +4,7 @@ import {Mode, ViewType} from '../enums';
 export default class PrimitiveView extends TypeView {
   constructor(params, cons) {
     super(params, cons);
-    this._viewType = ViewType.PRIMITIVE;
+    this.viewType = ViewType.PRIMITIVE;
   }
 
   get template() {

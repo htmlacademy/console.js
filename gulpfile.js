@@ -20,7 +20,7 @@ const sourcemaps = require(`gulp-sourcemaps`);
 const concat = require(`gulp-concat`);
 // const mocha = require(`gulp-mocha`);
 const debug = require(`gulp-debug`);
-const Server = require(`karma`).Server;
+const KarmaServer = require(`karma`).Server;
 
 gulp.task(`style`, () => {
   return gulp.src(`sass/**/*.{css,scss,sass}`)
@@ -61,15 +61,32 @@ gulp.task(`build-scripts`, () => {
             presets: [
               [`env`, {modules: false}]
             ],
-            plugins: [
-              `external-helpers`,
-            ]
+            plugins: [`external-helpers`]
           })
         ]
       }, `iife`))
       .pipe(uglify())
       .pipe(sourcemaps.write(``))
       .pipe(gulp.dest(`build/js`));
+});
+
+gulp.task(`build-js-presets`, () => {
+  return gulp.src([`js/presets/**/*.js`])
+      .pipe(debug({title: `debug`}))
+      .pipe(plumber())
+      .pipe(rollup({
+        plugins: [
+          babel({
+            babelrc: false,
+            presets: [
+              [`env`, {modules: false}]
+            ],
+            plugins: [`external-helpers`]
+          })
+        ]
+      }, `iife`))
+      .pipe(uglify())
+      .pipe(gulp.dest(`build/js/presets`));
 });
 
 gulp.task(`build-tests`, () => {
@@ -91,18 +108,17 @@ gulp.task(`test`, function (done) {
   //       compilers: [`js:babel-register`],
   //       reporter: `spec`
   //     }));
-  new Server({
+  new KarmaServer({
     configFile: __dirname + `/karma.conf.js`,
-    singleRun: true
+    // singleRun: true,
+    debug: true
   }, done).start();
 });
 
 gulp.task(`test:noerror`, function (done) {
-  const handleErr = () => done();
-  new Server({
-    configFile: __dirname + `/karma.conf.js`,
-    singleRun: true
-  }, handleErr).start();
+  new KarmaServer({
+    configFile: __dirname + `/karma.conf.js`
+  }, done).start();
 });
 
 gulp.task(`copy-html`, () => {
@@ -111,7 +127,7 @@ gulp.task(`copy-html`, () => {
       .pipe(server.stream());
 });
 
-gulp.task(`copy`, gulp.series(`copy-html`, `build-scripts`, `build-tests`, `style`, () => {
+gulp.task(`copy`, gulp.series(`copy-html`, `build-scripts`, `build-js-presets`, `build-tests`, `style`, () => {
   return gulp.src([
     `fonts/**/*.{woff,woff2}`,
     `img/**.*`
@@ -136,7 +152,7 @@ gulp.task(`clean`, () => {
   return del(`build`);
 });
 
-gulp.task(`js-watch`, gulp.series(`build-scripts`, `build-tests`, (done) => {
+gulp.task(`js-watch`, gulp.series(`build-scripts`, `build-js-presets`, `build-tests`, (done) => {
   server.reload();
   done();
 }));
@@ -153,11 +169,7 @@ gulp.task(`serve`, gulp.series(`assemble`, () => {
   });
 
   gulp.watch(`sass/**/*.{scss,sass}`, gulp.series(`style`));
-  gulp.watch(`*.html`).on(`change`, (e) => {
-    if (e.type !== `deleted`) {
-      gulp.series(`copy-html`);
-    }
-  });
+  gulp.watch(`*.html`).on(`change`, gulp.series(`copy-html`));
   gulp.watch(`js/**/*.js`, gulp.series(`js-watch`));
 }));
 
@@ -168,6 +180,7 @@ gulp.task(`test-watch`, gulp.series(`assemble`, `test:noerror`, () => {
       gulp.series(`copy-html`);
     }
   });
-  gulp.watch(`js/**/*.js`, gulp.series(`build-scripts`, `build-tests`, `test:noerror`));
+  gulp.series(`test`);
+  gulp.watch(`js/**/*.js`, gulp.series(`build-tests`));
 }));
 gulp.task(`build`, gulp.series(`assemble`, `imagemin`));

@@ -5,6 +5,17 @@ module.exports = function (config) {
     files: [
       `build/js/tests/**/*.test.js`,
     ],
+    browserConsoleLogOpptions: {
+      level: `debug`,
+      format: `%b %T: %m`,
+      terminal: true
+    },
+    singleRun: true,
+    client: {
+      mocha: {
+        timeout: 15000 // 6 seconds - upped from 2 seconds
+      }
+    },
     browsers: [`ChromeHeadless`],
     customLaunchers: {
       ChromeHeadlessNoSandbox: {

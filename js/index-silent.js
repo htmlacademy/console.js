@@ -1,4 +1,5 @@
 import Console from './main';
+import merge from 'lodash.merge';
 
 const CSS_URL = `//htmlacademy.github.io/console.js/css/style.min.css`;
 
@@ -28,7 +29,8 @@ window.console.dir = collectDirs;
 const init = function () {
   const div = window.document.createElement(`div`);
   div.classList.add(`console`);
-  const jsConsole = new Console(div);
+  const config = merge(...window.jsConsolePresets);
+  const jsConsole = new Console(div, config);
   window.document.body.appendChild(div);
 
   jsConsole.extend(window.console);
@@ -47,14 +49,12 @@ const init = function () {
   });
 };
 
-const loadStyles = function () {
-  const style = window.document.createElement(`link`);
-  style.rel = `stylesheet`;
-  style.href = CSS_URL;
-  window.document.head.appendChild(style);
-};
-
-window.addEventListener(`DOMContentLoaded`, function () {
-  init();
-  loadStyles();
+window.addEventListener(`DOMContentLoaded`, () => {
+  const link = window.document.createElement(`link`);
+  link.rel = `stylesheet`;
+  link.href = CSS_URL;
+  link.addEventListener(`load`, () => {
+    init();
+  });
+  window.document.head.appendChild(link);
 });

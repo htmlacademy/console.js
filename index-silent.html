@@ -5,36 +5,26 @@
     <title>console.js</title>
   </head>
   <body>
+    <script src="js/presets/htmlacademy.js"></script>
+    <script src="js/presets/autoexpand-all.js"></script>
     <script src="js/index-silent.js"></script>
 
     <script>
-      console.log('error ---------------------------------------------------------------------------------------------------------------');
-
-      console.error(undefined);
-      console.error(NaN);
-      console.error(null);
-      console.error(true);
-      console.error(100);
-      console.error(Infinity);
-      console.error(-Infinity);
-// const err = new TypeError(12);
-//
-//   throw err;
-
-// console.error(err)
-      try {
-        const agentName;
-        agentName = '008';
-        console.log('Имя агента: ' + agentName);
-      } catch (err) {
-        console.dir(err)
-      }
-      try {
-        const viewModel = new ViewModel();
-      } catch (err) {
-        console.error(err)
-      }
-
+      const obj = {};
+      const arr = [obj];
+      arr.push(arr);
+      // arr.fn = fn;
+      const fn = (bar = 123) => {
+        return bar;
+      };
+      fn.arr = arr;
+      fn.obj = obj;
+      obj.obj = obj;
+      obj.arr = arr;
+      obj.fn = fn;
+      console.log(obj);
+      console.dir(fn);
+      console.log(arr);
     </script>
   </body>
 </html>

@@ -6,17 +6,28 @@ import {Mode, ViewType} from '../enums';
 export default class ObjectView extends TypeView {
   constructor(params, cons) {
     super(params, cons);
-    this._viewType = ViewType.OBJECT;
+    this.viewType = ViewType.OBJECT;
     if (!params.parentView) {
-      this._rootViewType = this._viewType;
+      this._rootView = this;
     }
     const stringTag = Object.prototype.toString.call(this.value);
     this._stringTagName = stringTag.substring(8, stringTag.length - 1);
-    this._constructorName = this.value.constructor.name;
+    this._constructorName = this.value.constructor ? this.value.constructor.name : null;
+  }
+
+  get template() {
+    return `\
+<div class="console__item item item--${this.viewType}">\
+  <div class="head item__head">\
+    <span class="info head__info hidden"></span>\
+    <div class="head__content entry-container entry-container--head entry-container--${this.viewType} hidden"></div>\
+  </div>\
+  <div class="item__content entry-container entry-container--${this.viewType} hidden"></div>\
+</div>`;
   }
 
   afterRender() {
-    const {elOrStr, stateParams, headContentClassName} = this._getHeadContent();
+    const {elOrStr, stateParams, isShowNotOwn, headContentClassName} = this._getHeadContent();
     this._headContent = elOrStr;
 
     if (headContentClassName) {
@@ -24,13 +35,12 @@ export default class ObjectView extends TypeView {
     }
 
     if (this._constructorName === `Object` && this._stringTagName !== `Object`) {
-      this._headInfoEl.textContent = this._stringTagName;
+      this._infoEl.textContent = this._stringTagName;
     } else {
-      this._headInfoEl.textContent = this._constructorName;
+      this._infoEl.textContent = this._constructorName;
     }
-
+    this.isShowNotOwn = isShowNotOwn;
     this.state = stateParams;
-    window.consoleViews.set(this.el, this);
   }
 
   _getStateProxyObject() {
@@ -51,9 +61,6 @@ export default class ObjectView extends TypeView {
       },
       set isBraced(bool) {
         self.toggleHeadContentBraced(bool);
-      },
-      set isOversized(bool) {
-        self.toggleHeadContentOversized(bool);
       },
       set isStringified(bool) {
         if (!bool && (self._mode === Mode.LOG || self._mode === Mode.ERROR) && !self._parentView) {
@@ -105,7 +112,8 @@ export default class ObjectView extends TypeView {
       return this._getHeadDirContent();
     } else if (this.value instanceof Error) {
       isBraced = false;
-      val = this.value.toString();
+      val = `<pre>${this.value.stack}</pre>`;
+      isOpeningDisabled = true;
       isStringified = true;
     } else if (this.value instanceof Number) {
       const view = this._console.createTypedView(Number.parseInt(this.value, 10), Mode.PREVIEW, this.nextNestingLevel, this);
@@ -128,7 +136,10 @@ export default class ObjectView extends TypeView {
       const obj = this.createContent(this.value, true);
       val = obj.fragment;
       isOversized = obj.isOversized;
-      if (this._stringTagName !== `Object` || this._constructorName !== `Object`) {
+      isOpeningDisabled = this.contentEntriesKeys.size === 0;
+      if (this._stringTagName !== `Object` || (
+        this._constructorName !== `Object`
+      ) || this._propKey === `__proto__`) {
         isShowInfo = true;
       }
     }
@@ -137,7 +148,7 @@ export default class ObjectView extends TypeView {
       headContentClassName,
       stateParams: {
         isShowInfo,
-        isHeadContentShowed: true,
+        isHeadContentShowed: this._propKey !== `__proto__`,
         isBraced,
         isOpeningDisabled,
         isOversized,
@@ -151,6 +162,7 @@ export default class ObjectView extends TypeView {
     let isShowInfo = false;
     let isHeadContentShowed = true;
     let isBraced = false;
+    let isShowNotOwn = false;
     if (this.value instanceof HTMLElement) {
       let str = this.value.tagName.toLowerCase();
       str += this.value.id;
@@ -158,6 +170,7 @@ export default class ObjectView extends TypeView {
         str += `.` + Array.prototype.join.call(this.value.classList, `.`);
       }
       val = str;
+      isShowNotOwn = true;
     } else if (this.value instanceof Date) {
       val = this.value.toString();
     } else if (this.value instanceof RegExp) {
@@ -175,56 +188,33 @@ export default class ObjectView extends TypeView {
         isShowInfo,
         isHeadContentShowed,
         isBraced,
-        isOpeningDisabled: false
-      }
+        isOpeningDisabled: false,
+      },
+      isShowNotOwn
     };
   }
 
-  createContent(obj, isPreview) {
+  createContent(obj, inHead) {
     const fragment = document.createDocumentFragment();
-    const addedKeys = new Set();
-    // TODO: Добавить счётчик, чтобы больше 5 значений не добавлялось
-    for (let key in obj) {
-      if (isPreview && !obj.hasOwnProperty(key)) { // Перечисляемые свои
-        continue;
-      }
-      if (isPreview && addedKeys.size === this._console.params[this._viewType].maxFieldsInHead) {
-        return {
-          fragment,
-          isOversized: true
-        };
-      }
-      try {
-        const val = obj[key];
-        fragment.appendChild(this._createObjectEntryEl(key, val, isPreview));
-        addedKeys.add(key);
-      } catch (err) {}
-    }
-    const ownPropertyNamesAndSymbols = Object.getOwnPropertyNames(obj).concat(Object.getOwnPropertySymbols(obj));
-    for (let key of ownPropertyNamesAndSymbols) { // Неперечисляемые свои
-      if (addedKeys.has(key)) {
-        continue;
-      }
-      if (isPreview && addedKeys.size === this._console.params[this._viewType].maxFieldsInHead) {
-        return {
-          fragment,
-          isOversized: true
-        };
-      }
-      try {
-        const val = obj[key];
-        fragment.appendChild(this._createObjectEntryEl(key, val, isPreview));
-        addedKeys.add(key);
-      } catch (err) {}
-    }
-    return {
-      fragment,
-      isOversized: false
-    };
-  }
+    const entriesKeys = inHead ? this.headContentEntriesKeys : this.contentEntriesKeys;
+    let isOversized = false;
+    let addedKeysCounter = 0;
 
-  _createObjectEntryEl(key, val, isPreview) {
-    const view = this._console.createTypedView(val, isPreview ? Mode.PREVIEW : Mode.PROP, this.nextNestingLevel, this);
-    return ObjectView.createEntryEl(key.toString(), view.el);
+    const maxFieldsInHead = this._console.params[this.viewType].maxFieldsInHead;
+    const mode = inHead ? Mode.PREVIEW : Mode.PROP;
+    for (let key of entriesKeys) {
+      if (inHead && addedKeysCounter === maxFieldsInHead) {
+        isOversized = true;
+        break;
+      }
+      try {
+        fragment.appendChild(this._createTypedEntryEl({obj, key, mode}));
+        addedKeysCounter++;
+      } catch (err) {}
+    }
+    if (!inHead && !entriesKeys.has(`__proto__`) && typeof this.value[`__proto__`] !== `undefined`) {
+      fragment.appendChild(this._createTypedEntryEl({obj, key: `__proto__`, mode, keyElClass: `grey`, notCheckDescriptors: true}));
+    }
+    return {fragment, isOversized};
   }
 }

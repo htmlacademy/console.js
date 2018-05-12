@@ -5,8 +5,6 @@ import PrimitiveView from './primitive/primitive-view';
 import {getElement} from './utils';
 import {Mode, ViewType} from './enums';
 
-const MAX_HEAD_ELEMENTS_LENGTH = 5;
-
 /**
  * Console
  * @class
@@ -16,44 +14,51 @@ export default class Console {
    * Initialize console into container
    * @param {HTMLElement} container — console container
    * @param {{}} params — parameters
-   * @property {number} params.minFieldsToExpand — min number of fields in obj to expand
-   * @property {number} params.maxFieldsInHead — max number of preview fields inside head
-   * @property {number} params.expandDepth — level of depth to expand
+   * @param {number} params.minFieldsToExpand — min number of fields in obj to expand
+   * @param {number} params.maxFieldsInHead — max number of preview fields inside head
+   * @param {number} params.expandDepth — level of depth to expand
+   * @param {Env} params.env — environment
    **/
   constructor(container, params = {}) {
     if (!container) {
       throw new Error(`Console is not inited!`);
+    } else if (!(container instanceof HTMLElement)) {
+      throw new TypeError(`HTML element must be passed as container`);
     }
-    window.consoleViews = new Map();
+    this._views = new Map();
     this._container = container;
+    const commonParams = this._parseParams(params.common);
     this.params = {
-      object: this._parseParams(params.object, `object`),
-      array: this._parseParams(params.array, `array`),
-      function: this._parseParams(params.function, `function`)
+      object: this._parseParams(Object.assign({}, commonParams, params.object)),
+      array: this._parseParams(Object.assign({}, commonParams, params.array)),
+      function: this._parseParams(Object.assign({}, commonParams, params.function)),
+      env: params.env
     };
   }
 
-  _parseParams(paramsObject, paramName) {
-    if (paramsObject) {
-      // Set this._expandDepth and this._minFieldsToExpand only if expandDepth provided and > 0
-      if (typeof paramsObject.expandDepth === `number` &&
-      paramsObject.expandDepth > 0) {
+  _parseParams(paramsObject = {}) {
+    // Set this._expandDepth and this._minFieldsToExpand only if expandDepth provided and > 0
+    if (typeof paramsObject.expandDepth === `number` &&
+    paramsObject.expandDepth > 0) {
 
-        paramsObject.minFieldsToExpand = (
-          typeof paramsObject.minFieldsToExpand === `number` &&
-          paramsObject.minFieldsToExpand > 0
-        ) ? paramsObject.minFieldsToExpand : 0;
-      }
+      paramsObject.minFieldsToExpand = (
+        typeof paramsObject.minFieldsToExpand === `number` &&
+        paramsObject.minFieldsToExpand > 0
+      ) ? paramsObject.minFieldsToExpand : 0;
 
-      paramsObject.maxFieldsInHead = (
-        typeof paramsObject.maxFieldsInHead === `number` &&
-        paramsObject.maxFieldsInHead > 0
-      ) ? paramsObject.maxFieldsInHead : MAX_HEAD_ELEMENTS_LENGTH;
-    } else {
-      paramsObject = {};
-      if (paramName === `object`) {
-        paramsObject.maxFieldsInHead = MAX_HEAD_ELEMENTS_LENGTH;
-      }
+      paramsObject.maxFieldsToExpand = (
+        typeof paramsObject.maxFieldsToExpand === `number` &&
+        paramsObject.maxFieldsToExpand > 0
+      ) ? paramsObject.maxFieldsToExpand : Number.POSITIVE_INFINITY;
+    }
+
+    paramsObject.maxFieldsInHead = (
+      typeof paramsObject.maxFieldsInHead === `number` &&
+      paramsObject.maxFieldsInHead > 0
+    ) ? paramsObject.maxFieldsInHead : Number.POSITIVE_INFINITY;
+
+    if (!Array.isArray(paramsObject.excludeProperties)) {
+      paramsObject.excludeProperties = [];
     }
     if (!Array.isArray(paramsObject.exclude)) {
       paramsObject.exclude = [];
@@ -130,8 +135,8 @@ export default class Console {
     this._container.innerHTML = ``;
   }
 
-  createTypedView(val, mode, depth, parentView) {
-    const params = {val, mode, depth, parentView, type: typeof val};
+  createTypedView(val, mode, depth, parentView, propKey) {
+    const params = {val, mode, depth, parentView, type: typeof val, propKey};
     let view;
     switch (params.type) {
       case `function`:
@@ -152,6 +157,7 @@ export default class Console {
         view = new PrimitiveView(params, this);
         break;
     }
+    // this._views.set(view.el, view);
     return view;
   }
 

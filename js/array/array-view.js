@@ -1,20 +1,34 @@
 import TypeView from '../type-view';
+import {getElement} from '../utils';
 import {Mode, ViewType} from '../enums';
+
+const EMPTY = `empty`;
 
 export default class ArrayView extends TypeView {
   constructor(params, cons) {
     super(params, cons);
-    this._viewType = ViewType.ARRAY;
+    this.viewType = ViewType.ARRAY;
     if (!params.parentView) {
-      this._rootViewType = this._viewType;
+      this._rootView = this;
     }
+  }
 
-    this._templateParams.withHeadContentlength = true;
+  get template() {
+    return `\
+<div class="console__item item item--${this.viewType}">\
+  <div class="head item__head">\
+    <span class="info head__info hidden"></span>\
+    <span class="length head__length hidden">${this.value.length}</span>\
+    <div class="head__content entry-container entry-container--head entry-container--${this.viewType} hidden"></div>\
+  </div>\
+  <div class="item__content entry-container entry-container--${this.viewType} hidden"></div>\
+</div>`;
   }
 
   afterRender() {
+    this._lengthEl = this.el.querySelector(`.length`);
     this.toggleHeadContentBraced();
-    this._headInfoEl.textContent = this.value.constructor.name;
+    this._infoEl.textContent = this.value.constructor.name;
     this.state = this._getStateParams();
 
     if ((this._mode === Mode.LOG || this._mode === Mode.ERROR) && !this._parentView) {
@@ -27,15 +41,24 @@ export default class ArrayView extends TypeView {
     return {
       set isHeadContentShowed(bool) {
         if (bool && self._headContentEl.childElementCount === 0) {
-          self._headContentEl.appendChild(self.createContent(self.value, true).fragment);
+          const {fragment, isOversized} = self.createContent(self.value, true);
+          self.state.isOversized = isOversized;
+          self._headContentEl.appendChild(fragment);
         }
         self.toggleHeadContentShowed(bool);
+      },
+      set isShowLength(bool) {
+        self.toggleContentLengthShowed(bool);
       }
     };
   }
 
+  toggleContentLengthShowed(isEnable) {
+    return !TypeView.toggleMiddleware(this._lengthEl, `hidden`, !isEnable);
+  }
+
   _additionHeadClickHandler() {
-    if (this._mode === Mode.PROP) {
+    if (this._mode === Mode.PROP && this._propKey !== `__proto__`) {
       this.state.isShowInfo = this._isContentShowed;
       this.state.isHeadContentShowed = !this._isContentShowed;
       this.state.isShowLength = this._isContentShowed || this.value.length > 1;
@@ -57,6 +80,12 @@ export default class ArrayView extends TypeView {
     } else if (this._mode === Mode.PROP) {
       isShowInfo = false;
       isHeadContentShowed = true;
+
+      if (this._propKey === `__proto__`) {
+        isShowInfo = true;
+        isHeadContentShowed = false;
+        isShowLength = true;
+      }
     }
     return {
       isShowInfo,
@@ -66,31 +95,44 @@ export default class ArrayView extends TypeView {
     };
   }
 
-  createContent(arr, isPreview) {
-    const keys = Object.keys(arr);
-    const addedKeys = new Set();
+  createContent(arr, inHead) {
+    const entriesKeys = inHead ? this.headContentEntriesKeys : this.contentEntriesKeys;
     const fragment = document.createDocumentFragment();
-    for (let key of keys) {
-      addedKeys.add(key);
-      const val = arr[key];
-      fragment.appendChild(this._createArrayEntryEl(key, val, isPreview));
-    }
-    for (let key of Object.getOwnPropertyNames(arr)) {
-      if (addedKeys.has(key)) {
-        continue;
-      }
-      if (isPreview && keys.indexOf(key) === -1) {
-        continue;
-      }
-      const val = arr[key];
-      fragment.appendChild(this._createArrayEntryEl(key, val, isPreview));
-    }
-    return {fragment};
-  }
+    entriesKeys.delete(`length`);
+    let isOversized = false;
+    let addedKeysCounter = 0;
 
-  _createArrayEntryEl(key, val, isPreview) {
-    const isKeyNaN = Number.isNaN(Number.parseInt(key, 10));
-    const view = this._console.createTypedView(val, isPreview ? Mode.PREVIEW : Mode.PROP, this.nextNestingLevel, this);
-    return ArrayView.createEntryEl(key.toString(), view.el, isPreview ? !isKeyNaN : isPreview);
+    const maxFieldsInHead = this._console.params[this.viewType].maxFieldsInHead;
+    const mode = inHead ? Mode.PREVIEW : Mode.PROP;
+
+    for (let i = 0, l = arr.length; i < l; i++) {
+      if (inHead && addedKeysCounter === maxFieldsInHead) {
+        isOversized = true;
+        break;
+      }
+      const key = i.toString();
+      if (entriesKeys.has(key)) {
+        fragment.appendChild(this._createTypedEntryEl({obj: arr, key: i, mode, withoutKey: inHead, notCheckDescriptors: true}));
+        entriesKeys.delete(key);
+        addedKeysCounter++;
+      } else if (inHead) {
+        const entryEl = this._createEntryEl({key: i, el: getElement(`<span>${EMPTY}</span>`), withoutKey: true, keyElClass: `grey`});
+        fragment.appendChild(entryEl);
+        addedKeysCounter++;
+      }
+    }
+    for (let key of entriesKeys) {
+      if (inHead && addedKeysCounter === maxFieldsInHead) {
+        isOversized = true;
+        break;
+      }
+      fragment.appendChild(this._createTypedEntryEl({obj: arr, key, mode, withoutKey: inHead}));
+      addedKeysCounter++;
+    }
+    if (!inHead) {
+      fragment.appendChild(this._createTypedEntryEl({obj: arr, key: `length`, mode, keyElClass: `grey`, notCheckDescriptors: true}));
+      fragment.appendChild(this._createTypedEntryEl({obj: arr, key: `__proto__`, mode, keyElClass: `grey`, notCheckDescriptors: true}));
+    }
+    return {fragment, isOversized};
   }
 }
