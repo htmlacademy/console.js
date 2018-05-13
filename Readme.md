@@ -52,21 +52,36 @@ Script will automatically create console container and extend native browser `wi
 </script>
 ```
 
-## Customize output
+## Presets
+
+Use predefined configurations by connecting scripts on page:
+
+```html
+<script src="//htmlacademy.github.io/console.js/js/presets/preset-1.js"></script>
+<script src="//htmlacademy.github.io/console.js/js/presets/preset-2.js"></script>
+<script src="//htmlacademy.github.io/console.js/js/index-silent.js"></script>
+```
+
+Lower connected preset script has higher priority than others. Will be [merged](#presets-merge) with
+[lodash.mergeWith](https://lodash.com/docs/4.17.10#mergeWith) using concatinating arrays
+
+### Customize output
 
 If you want to configure console, all you need is
 ```js
-const jsConsole = new Console(document.querySelector(`.console`), {});
+const jsConsole = new Console(document.querySelector(`.console`), config);
 ```
 
 Where 2nd argument in constructor call is params object
 
 You can specify 3 types of views here: `object`, `function` and `array`.
+And `common`, that has lower priority than concrete. Will be [merged](#presets-merge) into concrete one
+with [lodash.mergeWith](https://lodash.com/docs/4.17.10#mergeWith) using concatinating arrays
 
 For example to autoexpand logged object specify:
 
 ```js
-const jsConsole = new Console(document.querySelector(`.console`), {
+{
   object: {
     expandDepth: 2,
     minFieldsToExpand: 1, // will expand if object has 1 or more enumerable fields
@@ -79,8 +94,12 @@ const jsConsole = new Console(document.querySelector(`.console`), {
     expandDepth: 2, // expand 2 levels
     minFieldsToExpand: 4, // if there is 4 enum fields in array
     exclude: [`object`] // objects inside array won't be expanded
+  },
+  common: {
+    expandDepth: 1,
+    maxFieldsToExpand: 10
   }
-});
+}
 ```
 
 * `expandDepth` — depth on which fields of this object will be expanded. If not specified — 0 by default.
@@ -91,5 +110,90 @@ You can also trim preview elements inside head (only available in object yet):
 ```js
 object: {
   `maxFieldsInHead`: 3 // trim preview elements down to 3
+}
+```
+
+## Config merge example
+
+### Common merge
+
+This config:
+```js
+{
+  object: {
+    maxFieldsToExpand: 10,
+    exclude: [`object`]
+  },
+  common: {
+    expandDepth: 1
+    maxFieldsToExpand: 15,
+    exclude: [`array`]
+  }
+};
+```
+
+will be transformed into this on application start:
+
+```js
+{
+  object: {
+    maxFieldsToExpand: 10,
+    expandDepth: 1,
+    exclude: [`object`, `array`]
+  }
+}
+```
+
+### Presets merge
+
+Using [lodash.mergeWith](https://lodash.com/docs/4.17.10#mergeWith) to merge objects
+and concat arrays inside them
+
+You have 2 preset files:
+```html
+<script src="//htmlacademy.github.io/console.js/js/presets/preset-1.js"></script>
+<script src="//htmlacademy.github.io/console.js/js/presets/preset-2.js"></script>
+<script src="//htmlacademy.github.io/console.js/js/index-silent.js"></script>
+```
+
+preset-1.js contains:
+```js
+{
+  object: {
+    maxFieldsToExpand: 5,
+    exclude: [`object`]
+  },
+  common: {
+    exclude: [`function`]
+  }
+}
+```
+
+preset-2.js contains:
+
+```js
+{
+  object: {
+    maxFieldsToExpand: 10
+  },
+  common: {
+    expandDepth: 1
+    exclude: [`array`]
+  }
+}
+```
+
+result will be:
+
+```js
+{
+  object: {
+    maxFieldsToExpand: 10,
+    exclude: [`object`]
+  },
+  common: {
+    expandDepth: 1
+    exclude: [`array`, `function`]
+  }
 }
 ```

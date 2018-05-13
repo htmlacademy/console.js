@@ -76,6 +76,8 @@ gulp.task(`build-js-presets`, () => {
       .pipe(plumber())
       .pipe(rollup({
         plugins: [
+          nodeResolve(),
+          commonjs(),
           babel({
             babelrc: false,
             presets: [
@@ -94,7 +96,12 @@ gulp.task(`build-tests`, () => {
       .pipe(debug({title: `debug`}))
       .pipe(plumber())
       .pipe(sourcemaps.init())
-      .pipe(rollup({}, `iife`))
+      .pipe(rollup({
+        plugins: [
+          nodeResolve(),
+          commonjs()
+        ]
+      }, `iife`))
       .pipe(sourcemaps.write(``))
       .pipe(gulp.dest(`build/js/tests`));
 });

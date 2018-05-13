@@ -78,6 +78,7 @@ describe(`Check depth object`, () => {
     cons.log(obj);
     // console.log(document.querySelector(`.console`).innerHTML);
     const {objLength, arrLength, fnLength} = getLengths();
+    // console.log(`objLength: ${objLength}, arrLength: ${arrLength}, fnLength: ${fnLength}`);
     assert(objLength === 13 && arrLength === 0 && fnLength === 65);
   });
   it(`root object should be opened with excluding nested functions`, () => {

@@ -3,3 +3,10 @@ export const getElement = (htmlMarkup) => {
   div.innerHTML = htmlMarkup;
   return div.firstElementChild;
 };
+
+export const customizer = (objValue, srcValue) => {
+  if (Array.isArray(objValue)) {
+    return objValue.concat(srcValue);
+  }
+  return void 0;
+};

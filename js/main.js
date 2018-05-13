@@ -1,10 +1,10 @@
+import mergeWith from 'lodash.mergewith';
 import ObjectView from './object/object-view';
 import ArrayView from './array/array-view';
 import FunctionView from './function/function-view';
 import PrimitiveView from './primitive/primitive-view';
-import {getElement} from './utils';
+import {getElement, customizer} from './utils';
 import {Mode, ViewType} from './enums';
-
 /**
  * Console
  * @class
@@ -27,11 +27,10 @@ export default class Console {
     }
     this._views = new Map();
     this._container = container;
-    const commonParams = this._parseParams(params.common);
     this.params = {
-      object: this._parseParams(Object.assign({}, commonParams, params.object)),
-      array: this._parseParams(Object.assign({}, commonParams, params.array)),
-      function: this._parseParams(Object.assign({}, commonParams, params.function)),
+      object: this._parseParams(mergeWith({}, params.common, params.object, customizer)),
+      array: this._parseParams(mergeWith({}, params.common, params.array, customizer)),
+      function: this._parseParams(mergeWith({}, params.common, params.function, customizer)),
       env: params.env
     };
   }
