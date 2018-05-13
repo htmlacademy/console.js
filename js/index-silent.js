@@ -1,5 +1,6 @@
 import Console from './main';
-import merge from 'lodash.merge';
+import mergeWith from 'lodash.mergewith';
+import {customizer} from './utils';
 
 const CSS_URL = `//htmlacademy.github.io/console.js/0.1.0/css/style.min.css`;
 
@@ -31,7 +32,7 @@ const init = function () {
   div.classList.add(`console`);
   let config;
   if (Array.isArray(window.jsConsolePresets)) {
-    config = merge(...window.jsConsolePresets);
+    config = mergeWith({}, ...window.jsConsolePresets.slice().reverse(), customizer);
   }
   const jsConsole = new Console(div, config);
   window.document.body.appendChild(div);

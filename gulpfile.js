@@ -63,7 +63,10 @@ gulp.task(`build-scripts`, () => {
             ],
             plugins: [`external-helpers`]
           })
-        ]
+        ],
+        output: {
+          globals: [`lodash.mergewith`]
+        }
       }, `iife`))
       .pipe(uglify())
       .pipe(sourcemaps.write(``))
@@ -76,6 +79,8 @@ gulp.task(`build-js-presets`, () => {
       .pipe(plumber())
       .pipe(rollup({
         plugins: [
+          nodeResolve(),
+          commonjs(),
           babel({
             babelrc: false,
             presets: [
@@ -94,7 +99,22 @@ gulp.task(`build-tests`, () => {
       .pipe(debug({title: `debug`}))
       .pipe(plumber())
       .pipe(sourcemaps.init())
-      .pipe(rollup({}, `iife`))
+      .pipe(rollup({
+        plugins: [
+          nodeResolve(),
+          commonjs(),
+          babel({
+            babelrc: false,
+            presets: [
+              [`env`, {modules: false}]
+            ],
+            plugins: [`external-helpers`]
+          })
+        ],
+        output: {
+          globals: [`lodash.mergewith`]
+        },
+      }, `iife`))
       .pipe(sourcemaps.write(``))
       .pipe(gulp.dest(`build/js/tests`));
 });

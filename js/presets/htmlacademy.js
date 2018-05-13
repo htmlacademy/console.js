@@ -1,6 +1,6 @@
 const params = {
   object: {
-    maxFieldsInHead: 5
+    maxFieldsInHead: 5,
   },
   function: {
     nowrapOnLog: true
