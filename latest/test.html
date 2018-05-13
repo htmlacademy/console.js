@@ -27,9 +27,9 @@
         };
       };
       const jsConsole = new Console(document.querySelector(`.console`), {
-        function: {
+        object: {
           expandDepth: 4,
-          exclude: [`object`]
+          exclude: [`array`]
         }
       });
       const obj = {};
