@@ -63,10 +63,7 @@ gulp.task(`build-scripts`, () => {
             ],
             plugins: [`external-helpers`]
           })
-        ],
-        output: {
-          globals: [`lodash.mergewith`]
-        }
+        ]
       }, `iife`))
       .pipe(uglify())
       .pipe(sourcemaps.write(``))
@@ -102,18 +99,8 @@ gulp.task(`build-tests`, () => {
       .pipe(rollup({
         plugins: [
           nodeResolve(),
-          commonjs(),
-          babel({
-            babelrc: false,
-            presets: [
-              [`env`, {modules: false}]
-            ],
-            plugins: [`external-helpers`]
-          })
-        ],
-        output: {
-          globals: [`lodash.mergewith`]
-        },
+          commonjs()
+        ]
       }, `iife`))
       .pipe(sourcemaps.write(``))
       .pipe(gulp.dest(`build/js/tests`));
