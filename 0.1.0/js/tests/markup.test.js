@@ -1995,19 +1995,31 @@ class AbstractView {
    */
   get template() {}
 
+  /**
+   * @return {HTMLElement}
+   */
   get el() {
     if (!this._el) {
-      this._el = this.render();
-      this.bind(this._el);
+      this._el = this._render();
+      this._bind(this._el);
     }
     return this._el;
   }
 
-  render() {
+  /**
+   * Renders element from this.template
+   * @private
+   * @return {HTMLElement}
+   */
+  _render() {
     return getElement(this.template);
   }
 
-  bind() {}
+  /**
+   * Method to work with element after render
+   * @protected
+   */
+  _bind() {}
 }
 
 /**
@@ -2019,7 +2031,8 @@ const Mode = {
   DIR: `dir`,
   PREVIEW: `preview`,
   PROP: `prop`,
-  ERROR: `error`
+  ERROR: `error`,
+  LOG_HTML: `log-html`
 };
 
 /**
@@ -2048,7 +2061,7 @@ class TypeView extends AbstractView {
     super();
     if (params.parentView) {
       this._parentView = params.parentView;
-      this._rootView = params.parentView._rootView;
+      this.rootView = params.parentView.rootView;
     }
     this._console = cons;
     this._value = params.val;
@@ -2058,21 +2071,25 @@ class TypeView extends AbstractView {
     this._currentDepth = typeof params.depth === `number` ? params.depth : 1;
   }
 
-  afterRender() {}
+  /**
+   * @abstract
+   * @protected
+   */
+  _afterRender() {}
 
-  bind() {
+  _bind() {
     if (!this.viewType) {
       throw new Error(`this.viewType must be specified`);
     }
-    if (!this._rootView) {
-      throw new Error(`this._rootView must be specified`);
+    if (!this.rootView) {
+      throw new Error(`this.rootView must be specified`);
     }
     this._headEl = this.el.querySelector(`.head`);
     this._headContentEl = this.el.querySelector(`.head__content`);
     this._infoEl = this.el.querySelector(`.info`);
     this._contentEl = this.el.querySelector(`.item__content`);
 
-    this.afterRender();
+    this._afterRender();
   }
 
   /**
@@ -2080,40 +2097,40 @@ class TypeView extends AbstractView {
    * @type {{}}
    * @param {{}} params — object with values which will be assigned throught setters
    */
-  set state(params) {
-    if (!this._state) {
-      this._state = {};
+  set _state(params) {
+    if (!this._viewState) {
+      this._viewState = {};
       Object.defineProperties(
-          this._state,
-          Object.getOwnPropertyDescriptors(this._getStateCommonProxyObject())
+          this._viewState,
+          Object.getOwnPropertyDescriptors(this._getStateCommonDescriptorsObject())
       );
       Object.defineProperties(
-          this._state,
-          Object.getOwnPropertyDescriptors(this._getStateProxyObject())
+          this._viewState,
+          Object.getOwnPropertyDescriptors(this._getStateDescriptorsObject())
       );
-      Object.seal(this._state);
+      Object.seal(this._viewState);
     }
     for (let key in params) {
-      this._state[key] = params[key];
+      this._viewState[key] = params[key];
     }
   }
 
-  get state() {
-    return this._state;
+  get _state() {
+    return this._viewState;
   }
 
   /**
    * @abstract
    * @return {{}} if not overriden return object without descriptors
    */
-  _getStateProxyObject() {
+  _getStateDescriptorsObject() {
     return {};
   }
 
   /**
    * @return {{}} — object that contains descriptors only
    */
-  _getStateCommonProxyObject() {
+  _getStateCommonDescriptorsObject() {
     const self = this;
     return {
       set isShowInfo(bool) {
@@ -2128,7 +2145,7 @@ class TypeView extends AbstractView {
         }
         self.togglePointer(!bool);
         self._addOrRemoveHeadClickHandler(!bool);
-        self.state.isContentShowed = !bool && self._isAutoExpandNeeded;
+        self._state.isContentShowed = !bool && self.isAutoExpandNeeded;
         self._isOpeningDisabled = bool;
       },
       get isOpeningDisabled() {
@@ -2138,7 +2155,7 @@ class TypeView extends AbstractView {
         self.toggleArrowBottom(bool);
         self._isContentShowed = self.toggleContentShowed(bool);
         if (self._isContentShowed && self._contentEl.childElementCount === 0) {
-          self._contentEl.appendChild(self.createContent(self.value, false).fragment);
+          self._contentEl.appendChild(self.createContent(self._value, false).fragment);
         }
       },
       get isContentShowed() {
@@ -2186,21 +2203,6 @@ class TypeView extends AbstractView {
     return TypeView.toggleMiddleware(this._headEl, `item__head--arrow-bottom`, isEnable);
   }
 
-  /**
-   * Value to log
-   */
-  get value() {
-    return this._value;
-  }
-
-  /**
-   * Log mode
-   * @type {Mode}
-   */
-  get mode() {
-    return this._mode;
-  }
-
   get nextNestingLevel() {
     return this._currentDepth + 1;
   }
@@ -2210,7 +2212,7 @@ class TypeView extends AbstractView {
    * @return {Set}
    */
   _getEntriesKeys(inHead) {
-    const obj = this.value;
+    const obj = this._value;
 
     const ownPropertyNamesAndSymbols = Object.getOwnPropertyNames(obj)
         .concat(Object.getOwnPropertySymbols(obj)); // Неперечисляемые свои
@@ -2267,31 +2269,31 @@ class TypeView extends AbstractView {
    * Check if autoexpand needed
    * @type {boolean}
    */
-  get _isAutoExpandNeeded() {
-    if (!this._isAutoExpandNeededProxied) {
-      this._isAutoExpandNeededProxied = false;
+  get isAutoExpandNeeded() {
+    if (!this.isAutoExpandNeededProxied) {
+      this.isAutoExpandNeededProxied = false;
 
-      const typeParams = this._console.params[this._rootView.viewType];
+      const typeParams = this._console.params[this.rootView.viewType];
 
       if (this._currentDepth > typeParams.expandDepth) {
-        return this._isAutoExpandNeededProxied;
+        return this.isAutoExpandNeededProxied;
       }
 
       if (this._parentView) {
         if (!typeParams.exclude.includes(this.viewType) &&
         !typeParams.excludeProperties.includes(this._propKey) &&
-        this._parentView._isAutoExpandNeeded) {
-          this._isAutoExpandNeededProxied = true;
+        this._parentView.isAutoExpandNeeded) {
+          this.isAutoExpandNeededProxied = true;
         }
       } else {
         const entriesKeysLength = this._getEntriesKeys(false).size;
         if (typeParams.maxFieldsToExpand >= entriesKeysLength &&
           entriesKeysLength >= typeParams.minFieldsToExpand) {
-          this._isAutoExpandNeededProxied = true;
+          this.isAutoExpandNeededProxied = true;
         }
       }
     }
-    return this._isAutoExpandNeededProxied;
+    return this.isAutoExpandNeededProxied;
   }
 
   _additionHeadClickHandler() {}
@@ -2299,18 +2301,18 @@ class TypeView extends AbstractView {
   _headClickHandler(evt) {
     evt.preventDefault();
     this.toggleArrowBottom();
-    this.state.isContentShowed = !this.state.isContentShowed;
+    this._state.isContentShowed = !this._state.isContentShowed;
     this._additionHeadClickHandler();
   }
 
   _addOrRemoveHeadClickHandler(bool) {
-    if (!this._bindedHeadClickHandler) {
-      this._bindedHeadClickHandler = this._headClickHandler.bind(this);
+    if (!this.__bindedHeadClickHandler) {
+      this.__bindedHeadClickHandler = this._headClickHandler.bind(this);
     }
     if (bool) {
-      this._headEl.addEventListener(`click`, this._bindedHeadClickHandler);
+      this._headEl.addEventListener(`click`, this.__bindedHeadClickHandler);
     } else {
-      this._headEl.removeEventListener(`click`, this._bindedHeadClickHandler);
+      this._headEl.removeEventListener(`click`, this.__bindedHeadClickHandler);
     }
   }
 
@@ -2415,11 +2417,11 @@ class ObjectView extends TypeView {
     super(params, cons);
     this.viewType = ViewType.OBJECT;
     if (!params.parentView) {
-      this._rootView = this;
+      this.rootView = this;
     }
-    const stringTag = Object.prototype.toString.call(this.value);
+    const stringTag = Object.prototype.toString.call(this._value);
     this._stringTagName = stringTag.substring(8, stringTag.length - 1);
-    this._constructorName = this.value.constructor ? this.value.constructor.name : null;
+    this._constructorName = this._value.constructor ? this._value.constructor.name : null;
   }
 
   get template() {
@@ -2433,7 +2435,7 @@ class ObjectView extends TypeView {
 </div>`;
   }
 
-  afterRender() {
+  _afterRender() {
     const {elOrStr, stateParams, isShowNotOwn, headContentClassName} = this._getHeadContent();
     this._headContent = elOrStr;
 
@@ -2447,10 +2449,10 @@ class ObjectView extends TypeView {
       this._infoEl.textContent = this._constructorName;
     }
     this.isShowNotOwn = isShowNotOwn;
-    this.state = stateParams;
+    this._state = stateParams;
   }
 
-  _getStateProxyObject() {
+  _getStateDescriptorsObject() {
     const self = this;
     return {
       set isShowInfo(bool) {
@@ -2470,7 +2472,7 @@ class ObjectView extends TypeView {
         self.toggleHeadContentBraced(bool);
       },
       set isStringified(bool) {
-        if (!bool && (self._mode === Mode.LOG || self._mode === Mode.ERROR) && !self._parentView) {
+        if (!bool && (self._mode === Mode.LOG || self._mode === Mode.LOG_HTML || self._mode === Mode.ERROR) && !self._parentView) {
           self.toggleItalic(bool);
         }
         if (bool && self._mode === Mode.ERROR) {
@@ -2484,7 +2486,7 @@ class ObjectView extends TypeView {
     let obj;
     if (this._mode === Mode.DIR) {
       obj = this._getHeadDirContent();
-    } else if (this._mode === Mode.LOG || this._mode === Mode.PROP || this._mode === Mode.ERROR) {
+    } else if (this._mode === Mode.LOG || this._mode === Mode.LOG_HTML || this._mode === Mode.PROP || this._mode === Mode.ERROR) {
       obj = this._getHeadLogContent();
     } else if (this._mode === Mode.PREVIEW) {
       obj = this._getHeadPreviewContent();
@@ -2515,32 +2517,32 @@ class ObjectView extends TypeView {
     let isStringified = false;
     let headContentClassName;
 
-    if (this.value instanceof HTMLElement && Object.getPrototypeOf(this.value).constructor !== HTMLElement) {
+    if (this._value instanceof HTMLElement && Object.getPrototypeOf(this._value).constructor !== HTMLElement) {
       return this._getHeadDirContent();
-    } else if (this.value instanceof Error) {
+    } else if (this._value instanceof Error) {
       isBraced = false;
-      val = `<pre>${this.value.stack}</pre>`;
+      val = `<pre>${this._value.stack}</pre>`;
       // isOpeningDisabled = true;
       isStringified = true;
-    } else if (this.value instanceof Number) {
-      const view = this._console.createTypedView(Number.parseInt(this.value, 10), Mode.PREVIEW, this.nextNestingLevel, this);
+    } else if (this._value instanceof Number) {
+      const view = this._console.createTypedView(Number.parseInt(this._value, 10), Mode.PREVIEW, this.nextNestingLevel, this);
       val = view.el;
       isShowInfo = true;
-    } else if (this.value instanceof String) {
-      const view = this._console.createTypedView(this.value.toString(), Mode.PREVIEW, this.nextNestingLevel, this);
+    } else if (this._value instanceof String) {
+      const view = this._console.createTypedView(this._value.toString(), Mode.PREVIEW, this.nextNestingLevel, this);
       val = view.el;
       isShowInfo = true;
-    } else if (this.value instanceof Date) {
-      val = this.value.toString();
+    } else if (this._value instanceof Date) {
+      val = this._value.toString();
       isStringified = true;
       isBraced = false;
-    } else if (this.value instanceof RegExp) {
-      val = `/${this.value.source}/${this.value.flags}`;
+    } else if (this._value instanceof RegExp) {
+      val = `/${this._value.source}/${this._value.flags}`;
       headContentClassName = `regexp`;
       isOpeningDisabled = true;
       isBraced = false;
     } else {
-      const obj = this.createContent(this.value, true);
+      const obj = this.createContent(this._value, true);
       val = obj.fragment;
       isOversized = obj.isOversized;
       // isOpeningDisabled = this.contentEntriesKeys.size === 0;
@@ -2570,22 +2572,22 @@ class ObjectView extends TypeView {
     let isHeadContentShowed = true;
     let isBraced = false;
     let isShowNotOwn = false;
-    if (this.value instanceof HTMLElement) {
-      let str = this.value.tagName.toLowerCase();
-      str += this.value.id;
-      if (this.value.classList.length) {
-        str += `.` + Array.prototype.join.call(this.value.classList, `.`);
+    if (this._value instanceof HTMLElement) {
+      let str = this._value.tagName.toLowerCase();
+      str += this._value.id;
+      if (this._value.classList.length) {
+        str += `.` + Array.prototype.join.call(this._value.classList, `.`);
       }
       val = str;
       isShowNotOwn = true;
-    } else if (this.value instanceof Date) {
-      val = this.value.toString();
-    } else if (this.value instanceof RegExp) {
-      val = `/${this.value.source}/${this.value.flags}`;
-    } else if (this.value instanceof Error) {
-      val = this.value.toString();
+    } else if (this._value instanceof Date) {
+      val = this._value.toString();
+    } else if (this._value instanceof RegExp) {
+      val = `/${this._value.source}/${this._value.flags}`;
+    } else if (this._value instanceof Error) {
+      val = this._value.toString();
     } else {
-      val = this.value;
+      val = this._value;
       isShowInfo = true;
       isHeadContentShowed = false;
     }
@@ -2617,7 +2619,7 @@ class ObjectView extends TypeView {
       fragment.appendChild(this._createTypedEntryEl({obj, key, mode}));
       addedKeysCounter++;
     }
-    if (!inHead && !entriesKeys.has(`__proto__`) && typeof this.value[`__proto__`] !== `undefined`) {
+    if (!inHead && !entriesKeys.has(`__proto__`) && typeof this._value[`__proto__`] !== `undefined`) {
       fragment.appendChild(this._createTypedEntryEl({obj, key: `__proto__`, mode, keyElClass: `grey`, notCheckDescriptors: true}));
     }
     return {fragment, isOversized};
@@ -2631,7 +2633,7 @@ class ArrayView extends TypeView {
     super(params, cons);
     this.viewType = ViewType.ARRAY;
     if (!params.parentView) {
-      this._rootView = this;
+      this.rootView = this;
     }
   }
 
@@ -2640,31 +2642,31 @@ class ArrayView extends TypeView {
 <div class="console__item item item--${this.viewType}">\
   <div class="head item__head">\
     <span class="info head__info hidden"></span>\
-    <span class="length head__length hidden">${this.value.length}</span>\
+    <span class="length head__length hidden">${this._value.length}</span>\
     <div class="head__content entry-container entry-container--head entry-container--${this.viewType} hidden"></div>\
   </div>\
   <div class="item__content entry-container entry-container--${this.viewType} hidden"></div>\
 </div>`;
   }
 
-  afterRender() {
+  _afterRender() {
     this._lengthEl = this.el.querySelector(`.length`);
     this.toggleHeadContentBraced();
-    this._infoEl.textContent = this.value.constructor.name;
-    this.state = this._getStateParams();
+    this._infoEl.textContent = this._value.constructor.name;
+    this._state = this._getStateParams();
 
-    if ((this._mode === Mode.LOG || this._mode === Mode.ERROR) && !this._parentView) {
+    if ((this._mode === Mode.LOG || this._mode === Mode.LOG_HTML || this._mode === Mode.ERROR) && !this._parentView) {
       this.toggleItalic(true);
     }
   }
 
-  _getStateProxyObject() {
+  _getStateDescriptorsObject() {
     const self = this;
     return {
       set isHeadContentShowed(bool) {
         if (bool && self._headContentEl.childElementCount === 0) {
-          const {fragment, isOversized} = self.createContent(self.value, true);
-          self.state.isOversized = isOversized;
+          const {fragment, isOversized} = self.createContent(self._value, true);
+          self._state.isOversized = isOversized;
           self._headContentEl.appendChild(fragment);
         }
         self.toggleHeadContentShowed(bool);
@@ -2681,16 +2683,16 @@ class ArrayView extends TypeView {
 
   _additionHeadClickHandler() {
     if (this._mode === Mode.PROP && this._propKey !== `__proto__`) {
-      this.state.isShowInfo = this._isContentShowed;
-      this.state.isHeadContentShowed = !this._isContentShowed;
-      this.state.isShowLength = this._isContentShowed || this.value.length > 1;
+      this._state.isShowInfo = this._isContentShowed;
+      this._state.isHeadContentShowed = !this._isContentShowed;
+      this._state.isShowLength = this._isContentShowed || this._value.length > 1;
     }
   }
 
   _getStateParams() {
     let isShowInfo = false;
     let isHeadContentShowed = true;
-    let isShowLength = this.value.length > 1;
+    let isShowLength = this._value.length > 1;
     if (this._mode === Mode.DIR) {
       isShowInfo = true;
       isHeadContentShowed = false;
@@ -2781,9 +2783,9 @@ class FunctionView extends TypeView {
     super(params, cons);
     this.viewType = ViewType.FUNCTION;
     if (!params.parentView) {
-      this._rootView = this;
+      this.rootView = this;
     }
-    this._fnType = FunctionView.checkFnType(this.value);
+    this._fnType = FunctionView.checkFnType(this._value);
   }
 
   get template() {
@@ -2800,14 +2802,14 @@ class FunctionView extends TypeView {
 </div>`;
   }
 
-  afterRender() {
+  _afterRender() {
     const params = {
       isOpeningDisabled: this._mode !== Mode.DIR && this._mode !== Mode.PROP
     };
 
-    this.state = params;
+    this._state = params;
 
-    if (this._mode === Mode.LOG) {
+    if (this._mode === Mode.LOG || this._mode === Mode.LOG_HTML) {
       this._headContentEl.addEventListener(`click`, () => {
         this._headContentEl.classList.toggle(`nowrap`);
       });
@@ -2838,6 +2840,7 @@ class FunctionView extends TypeView {
         str = this._getHeadDirMarkup();
         break;
       case Mode.LOG:
+      case Mode.LOG_HTML:
       case Mode.ERROR:
         str = this._getHeadLogMarkup();
         break;
@@ -2851,7 +2854,7 @@ class FunctionView extends TypeView {
     const joinedLines = bodyLines.map((str) => str.trim()).join(` `);
 
     let markup = `\
-${this.value.name ? this.value.name : ``}\
+${this._value.name ? this._value.name : ``}\
 ${this._fnType !== FnType.CLASS ? `(${params.join(`, `)})` : ``}\
 ${this._fnType === FnType.ARROW ? ` => ` : ` `}`;
     if (this._fnType === FnType.ARROW) {
@@ -2864,7 +2867,7 @@ ${this._fnType === FnType.ARROW ? ` => ` : ` `}`;
     const params = this._parseParams();
 
     let markup = `\
-${this.value.name ? this.value.name : ``}\
+${this._value.name ? this._value.name : ``}\
 ${this._fnType === FnType.PLAIN ? `(${params.join(`, `)})` : ``}\
 ${this._fnType === FnType.ARROW ? `()` : ``}`;
     return markup;
@@ -2875,13 +2878,13 @@ ${this._fnType === FnType.ARROW ? `()` : ``}`;
     const params = this._parseParams();
 
     return `\
-${this.value.name && this._fnType !== FnType.ARROW ? `${this.value.name} ` : ``}\
+${this._value.name && this._fnType !== FnType.ARROW ? `${this._value.name} ` : ``}\
 ${this._fnType !== FnType.CLASS ? `(${params.join(`, `)})` : ``}\
 ${this._fnType === FnType.ARROW ? ` => ` : ` `}${bodyLines.join(`\n`)}`;
   }
 
   _parseParams() {
-    const str = this.value.toString();
+    const str = this._value.toString();
     const paramsStart = str.indexOf(`(`);
     const paramsEnd = str.indexOf(`)`);
 
@@ -2891,7 +2894,7 @@ ${this._fnType === FnType.ARROW ? ` => ` : ` `}${bodyLines.join(`\n`)}`;
   }
 
   _parseBody() {
-    let str = this.value.toString().trim();
+    let str = this._value.toString().trim();
 
     let bodyContent = [];
     if (this._fnType === FnType.ARROW) {
@@ -2954,13 +2957,16 @@ class PrimitiveView extends TypeView {
 
   get template() {
     const type = this._type;
-    let value = this.value;
+    let value = this._value;
     let html = ``;
     if (type === `string` || type === `symbol`) {
       if (type === `symbol`) {
         value = value.toString();
       }
-      value = this.escapeHtml(value);
+
+      if (this._parentView ? this._parentView.mode !== Mode.LOG_HTML : this._mode !== Mode.LOG_HTML) {
+        value = this.escapeHtml(value);
+      }
     }
     switch (type) {
       case `undefined`:
@@ -3001,7 +3007,7 @@ class PrimitiveView extends TypeView {
     return html;
   }
 
-  bind() {
+  _bind() {
     if (this._mode === Mode.PROP && this._type === `string`) {
       this.el.addEventListener(`click`, (evt) => {
         evt.preventDefault();
@@ -3098,6 +3104,12 @@ class Console {
   onlog() {}
 
   /**
+   * Subscribe on logHTML event fired
+   * @abstract
+   **/
+  onlogHTML() {}
+
+  /**
    * Subscribe on dir event fired
    * @abstract
    **/
@@ -3116,6 +3128,11 @@ class Console {
   log(...rest) {
     this._container.appendChild(this._getRowEl(rest, Mode.LOG));
     this.onlog();
+  }
+
+  logHTML(...rest) {
+    this._container.appendChild(this._getRowEl(rest, Mode.LOG_HTML));
+    this.onlogHTML();
   }
 
   /**
