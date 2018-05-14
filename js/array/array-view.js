@@ -9,7 +9,7 @@ export default class ArrayView extends TypeView {
     super(params, cons);
     this.viewType = ViewType.ARRAY;
     if (!params.parentView) {
-      this._rootView = this;
+      this.rootView = this;
     }
   }
 
@@ -18,31 +18,31 @@ export default class ArrayView extends TypeView {
 <div class="console__item item item--${this.viewType}">\
   <div class="head item__head">\
     <span class="info head__info hidden"></span>\
-    <span class="length head__length hidden">${this.value.length}</span>\
+    <span class="length head__length hidden">${this._value.length}</span>\
     <div class="head__content entry-container entry-container--head entry-container--${this.viewType} hidden"></div>\
   </div>\
   <div class="item__content entry-container entry-container--${this.viewType} hidden"></div>\
 </div>`;
   }
 
-  afterRender() {
+  _afterRender() {
     this._lengthEl = this.el.querySelector(`.length`);
     this.toggleHeadContentBraced();
-    this._infoEl.textContent = this.value.constructor.name;
-    this.state = this._getStateParams();
+    this._infoEl.textContent = this._value.constructor.name;
+    this._state = this._getStateParams();
 
     if ((this._mode === Mode.LOG || this._mode === Mode.LOG_HTML || this._mode === Mode.ERROR) && !this._parentView) {
       this.toggleItalic(true);
     }
   }
 
-  _getStateProxyObject() {
+  _getStateDescriptorsObject() {
     const self = this;
     return {
       set isHeadContentShowed(bool) {
         if (bool && self._headContentEl.childElementCount === 0) {
-          const {fragment, isOversized} = self.createContent(self.value, true);
-          self.state.isOversized = isOversized;
+          const {fragment, isOversized} = self.createContent(self._value, true);
+          self._state.isOversized = isOversized;
           self._headContentEl.appendChild(fragment);
         }
         self.toggleHeadContentShowed(bool);
@@ -59,16 +59,16 @@ export default class ArrayView extends TypeView {
 
   _additionHeadClickHandler() {
     if (this._mode === Mode.PROP && this._propKey !== `__proto__`) {
-      this.state.isShowInfo = this._isContentShowed;
-      this.state.isHeadContentShowed = !this._isContentShowed;
-      this.state.isShowLength = this._isContentShowed || this.value.length > 1;
+      this._state.isShowInfo = this._isContentShowed;
+      this._state.isHeadContentShowed = !this._isContentShowed;
+      this._state.isShowLength = this._isContentShowed || this._value.length > 1;
     }
   }
 
   _getStateParams() {
     let isShowInfo = false;
     let isHeadContentShowed = true;
-    let isShowLength = this.value.length > 1;
+    let isShowLength = this._value.length > 1;
     if (this._mode === Mode.DIR) {
       isShowInfo = true;
       isHeadContentShowed = false;

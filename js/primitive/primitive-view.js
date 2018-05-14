@@ -9,7 +9,7 @@ export default class PrimitiveView extends TypeView {
 
   get template() {
     const type = this._type;
-    let value = this.value;
+    let value = this._value;
     let html = ``;
     if (type === `string` || type === `symbol`) {
       if (type === `symbol`) {
@@ -59,7 +59,7 @@ export default class PrimitiveView extends TypeView {
     return html;
   }
 
-  bind() {
+  _bind() {
     if (this._mode === Mode.PROP && this._type === `string`) {
       this.el.addEventListener(`click`, (evt) => {
         evt.preventDefault();

@@ -22,9 +22,9 @@ export default class FunctionView extends TypeView {
     super(params, cons);
     this.viewType = ViewType.FUNCTION;
     if (!params.parentView) {
-      this._rootView = this;
+      this.rootView = this;
     }
-    this._fnType = FunctionView.checkFnType(this.value);
+    this._fnType = FunctionView.checkFnType(this._value);
   }
 
   get template() {
@@ -41,12 +41,12 @@ export default class FunctionView extends TypeView {
 </div>`;
   }
 
-  afterRender() {
+  _afterRender() {
     const params = {
       isOpeningDisabled: this._mode !== Mode.DIR && this._mode !== Mode.PROP
     };
 
-    this.state = params;
+    this._state = params;
 
     if (this._mode === Mode.LOG || this._mode === Mode.LOG_HTML) {
       this._headContentEl.addEventListener(`click`, () => {
@@ -93,7 +93,7 @@ export default class FunctionView extends TypeView {
     const joinedLines = bodyLines.map((str) => str.trim()).join(` `);
 
     let markup = `\
-${this.value.name ? this.value.name : ``}\
+${this._value.name ? this._value.name : ``}\
 ${this._fnType !== FnType.CLASS ? `(${params.join(`, `)})` : ``}\
 ${this._fnType === FnType.ARROW ? ` => ` : ` `}`;
     if (this._fnType === FnType.ARROW) {
@@ -106,7 +106,7 @@ ${this._fnType === FnType.ARROW ? ` => ` : ` `}`;
     const params = this._parseParams();
 
     let markup = `\
-${this.value.name ? this.value.name : ``}\
+${this._value.name ? this._value.name : ``}\
 ${this._fnType === FnType.PLAIN ? `(${params.join(`, `)})` : ``}\
 ${this._fnType === FnType.ARROW ? `()` : ``}`;
     return markup;
@@ -117,13 +117,13 @@ ${this._fnType === FnType.ARROW ? `()` : ``}`;
     const params = this._parseParams();
 
     return `\
-${this.value.name && this._fnType !== FnType.ARROW ? `${this.value.name} ` : ``}\
+${this._value.name && this._fnType !== FnType.ARROW ? `${this._value.name} ` : ``}\
 ${this._fnType !== FnType.CLASS ? `(${params.join(`, `)})` : ``}\
 ${this._fnType === FnType.ARROW ? ` => ` : ` `}${bodyLines.join(`\n`)}`;
   }
 
   _parseParams() {
-    const str = this.value.toString();
+    const str = this._value.toString();
     const paramsStart = str.indexOf(`(`);
     const paramsEnd = str.indexOf(`)`);
 
@@ -133,7 +133,7 @@ ${this._fnType === FnType.ARROW ? ` => ` : ` `}${bodyLines.join(`\n`)}`;
   }
 
   _parseBody() {
-    let str = this.value.toString().trim();
+    let str = this._value.toString().trim();
 
     let bodyContent = [];
     if (this._fnType === FnType.ARROW) {

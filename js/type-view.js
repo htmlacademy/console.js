@@ -9,7 +9,7 @@ export default class TypeView extends AbstractView {
     super();
     if (params.parentView) {
       this._parentView = params.parentView;
-      this._rootView = params.parentView._rootView;
+      this.rootView = params.parentView.rootView;
     }
     this._console = cons;
     this._value = params.val;
@@ -19,21 +19,25 @@ export default class TypeView extends AbstractView {
     this._currentDepth = typeof params.depth === `number` ? params.depth : 1;
   }
 
-  afterRender() {}
+  /**
+   * @abstract
+   * @protected
+   */
+  _afterRender() {}
 
-  bind() {
+  _bind() {
     if (!this.viewType) {
       throw new Error(`this.viewType must be specified`);
     }
-    if (!this._rootView) {
-      throw new Error(`this._rootView must be specified`);
+    if (!this.rootView) {
+      throw new Error(`this.rootView must be specified`);
     }
     this._headEl = this.el.querySelector(`.head`);
     this._headContentEl = this.el.querySelector(`.head__content`);
     this._infoEl = this.el.querySelector(`.info`);
     this._contentEl = this.el.querySelector(`.item__content`);
 
-    this.afterRender();
+    this._afterRender();
   }
 
   /**
@@ -41,40 +45,40 @@ export default class TypeView extends AbstractView {
    * @type {{}}
    * @param {{}} params — object with values which will be assigned throught setters
    */
-  set state(params) {
-    if (!this._state) {
-      this._state = {};
+  set _state(params) {
+    if (!this._viewState) {
+      this._viewState = {};
       Object.defineProperties(
-          this._state,
-          Object.getOwnPropertyDescriptors(this._getStateCommonProxyObject())
+          this._viewState,
+          Object.getOwnPropertyDescriptors(this._getStateCommonDescriptorsObject())
       );
       Object.defineProperties(
-          this._state,
-          Object.getOwnPropertyDescriptors(this._getStateProxyObject())
+          this._viewState,
+          Object.getOwnPropertyDescriptors(this._getStateDescriptorsObject())
       );
-      Object.seal(this._state);
+      Object.seal(this._viewState);
     }
     for (let key in params) {
-      this._state[key] = params[key];
+      this._viewState[key] = params[key];
     }
   }
 
-  get state() {
-    return this._state;
+  get _state() {
+    return this._viewState;
   }
 
   /**
    * @abstract
    * @return {{}} if not overriden return object without descriptors
    */
-  _getStateProxyObject() {
+  _getStateDescriptorsObject() {
     return {};
   }
 
   /**
    * @return {{}} — object that contains descriptors only
    */
-  _getStateCommonProxyObject() {
+  _getStateCommonDescriptorsObject() {
     const self = this;
     return {
       set isShowInfo(bool) {
@@ -89,7 +93,7 @@ export default class TypeView extends AbstractView {
         }
         self.togglePointer(!bool);
         self._addOrRemoveHeadClickHandler(!bool);
-        self.state.isContentShowed = !bool && self._isAutoExpandNeeded;
+        self._state.isContentShowed = !bool && self.isAutoExpandNeeded;
         self._isOpeningDisabled = bool;
       },
       get isOpeningDisabled() {
@@ -99,7 +103,7 @@ export default class TypeView extends AbstractView {
         self.toggleArrowBottom(bool);
         self._isContentShowed = self.toggleContentShowed(bool);
         if (self._isContentShowed && self._contentEl.childElementCount === 0) {
-          self._contentEl.appendChild(self.createContent(self.value, false).fragment);
+          self._contentEl.appendChild(self.createContent(self._value, false).fragment);
         }
       },
       get isContentShowed() {
@@ -147,21 +151,6 @@ export default class TypeView extends AbstractView {
     return TypeView.toggleMiddleware(this._headEl, `item__head--arrow-bottom`, isEnable);
   }
 
-  /**
-   * Value to log
-   */
-  get value() {
-    return this._value;
-  }
-
-  /**
-   * Log mode
-   * @type {Mode}
-   */
-  get mode() {
-    return this._mode;
-  }
-
   get nextNestingLevel() {
     return this._currentDepth + 1;
   }
@@ -171,7 +160,7 @@ export default class TypeView extends AbstractView {
    * @return {Set}
    */
   _getEntriesKeys(inHead) {
-    const obj = this.value;
+    const obj = this._value;
 
     const ownPropertyNamesAndSymbols = Object.getOwnPropertyNames(obj)
         .concat(Object.getOwnPropertySymbols(obj)); // Неперечисляемые свои
@@ -228,31 +217,31 @@ export default class TypeView extends AbstractView {
    * Check if autoexpand needed
    * @type {boolean}
    */
-  get _isAutoExpandNeeded() {
-    if (!this._isAutoExpandNeededProxied) {
-      this._isAutoExpandNeededProxied = false;
+  get isAutoExpandNeeded() {
+    if (!this.isAutoExpandNeededProxied) {
+      this.isAutoExpandNeededProxied = false;
 
-      const typeParams = this._console.params[this._rootView.viewType];
+      const typeParams = this._console.params[this.rootView.viewType];
 
       if (this._currentDepth > typeParams.expandDepth) {
-        return this._isAutoExpandNeededProxied;
+        return this.isAutoExpandNeededProxied;
       }
 
       if (this._parentView) {
         if (!typeParams.exclude.includes(this.viewType) &&
         !typeParams.excludeProperties.includes(this._propKey) &&
-        this._parentView._isAutoExpandNeeded) {
-          this._isAutoExpandNeededProxied = true;
+        this._parentView.isAutoExpandNeeded) {
+          this.isAutoExpandNeededProxied = true;
         }
       } else {
         const entriesKeysLength = this._getEntriesKeys(false).size;
         if (typeParams.maxFieldsToExpand >= entriesKeysLength &&
           entriesKeysLength >= typeParams.minFieldsToExpand) {
-          this._isAutoExpandNeededProxied = true;
+          this.isAutoExpandNeededProxied = true;
         }
       }
     }
-    return this._isAutoExpandNeededProxied;
+    return this.isAutoExpandNeededProxied;
   }
 
   _additionHeadClickHandler() {}
@@ -260,18 +249,18 @@ export default class TypeView extends AbstractView {
   _headClickHandler(evt) {
     evt.preventDefault();
     this.toggleArrowBottom();
-    this.state.isContentShowed = !this.state.isContentShowed;
+    this._state.isContentShowed = !this._state.isContentShowed;
     this._additionHeadClickHandler();
   }
 
   _addOrRemoveHeadClickHandler(bool) {
-    if (!this._bindedHeadClickHandler) {
-      this._bindedHeadClickHandler = this._headClickHandler.bind(this);
+    if (!this.__bindedHeadClickHandler) {
+      this.__bindedHeadClickHandler = this._headClickHandler.bind(this);
     }
     if (bool) {
-      this._headEl.addEventListener(`click`, this._bindedHeadClickHandler);
+      this._headEl.addEventListener(`click`, this.__bindedHeadClickHandler);
     } else {
-      this._headEl.removeEventListener(`click`, this._bindedHeadClickHandler);
+      this._headEl.removeEventListener(`click`, this.__bindedHeadClickHandler);
     }
   }
 

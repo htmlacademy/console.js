@@ -8,11 +8,11 @@ export default class ObjectView extends TypeView {
     super(params, cons);
     this.viewType = ViewType.OBJECT;
     if (!params.parentView) {
-      this._rootView = this;
+      this.rootView = this;
     }
-    const stringTag = Object.prototype.toString.call(this.value);
+    const stringTag = Object.prototype.toString.call(this._value);
     this._stringTagName = stringTag.substring(8, stringTag.length - 1);
-    this._constructorName = this.value.constructor ? this.value.constructor.name : null;
+    this._constructorName = this._value.constructor ? this._value.constructor.name : null;
   }
 
   get template() {
@@ -26,7 +26,7 @@ export default class ObjectView extends TypeView {
 </div>`;
   }
 
-  afterRender() {
+  _afterRender() {
     const {elOrStr, stateParams, isShowNotOwn, headContentClassName} = this._getHeadContent();
     this._headContent = elOrStr;
 
@@ -40,10 +40,10 @@ export default class ObjectView extends TypeView {
       this._infoEl.textContent = this._constructorName;
     }
     this.isShowNotOwn = isShowNotOwn;
-    this.state = stateParams;
+    this._state = stateParams;
   }
 
-  _getStateProxyObject() {
+  _getStateDescriptorsObject() {
     const self = this;
     return {
       set isShowInfo(bool) {
@@ -108,32 +108,32 @@ export default class ObjectView extends TypeView {
     let isStringified = false;
     let headContentClassName;
 
-    if (this.value instanceof HTMLElement && Object.getPrototypeOf(this.value).constructor !== HTMLElement) {
+    if (this._value instanceof HTMLElement && Object.getPrototypeOf(this._value).constructor !== HTMLElement) {
       return this._getHeadDirContent();
-    } else if (this.value instanceof Error) {
+    } else if (this._value instanceof Error) {
       isBraced = false;
-      val = `<pre>${this.value.stack}</pre>`;
+      val = `<pre>${this._value.stack}</pre>`;
       // isOpeningDisabled = true;
       isStringified = true;
-    } else if (this.value instanceof Number) {
-      const view = this._console.createTypedView(Number.parseInt(this.value, 10), Mode.PREVIEW, this.nextNestingLevel, this);
+    } else if (this._value instanceof Number) {
+      const view = this._console.createTypedView(Number.parseInt(this._value, 10), Mode.PREVIEW, this.nextNestingLevel, this);
       val = view.el;
       isShowInfo = true;
-    } else if (this.value instanceof String) {
-      const view = this._console.createTypedView(this.value.toString(), Mode.PREVIEW, this.nextNestingLevel, this);
+    } else if (this._value instanceof String) {
+      const view = this._console.createTypedView(this._value.toString(), Mode.PREVIEW, this.nextNestingLevel, this);
       val = view.el;
       isShowInfo = true;
-    } else if (this.value instanceof Date) {
-      val = this.value.toString();
+    } else if (this._value instanceof Date) {
+      val = this._value.toString();
       isStringified = true;
       isBraced = false;
-    } else if (this.value instanceof RegExp) {
-      val = `/${this.value.source}/${this.value.flags}`;
+    } else if (this._value instanceof RegExp) {
+      val = `/${this._value.source}/${this._value.flags}`;
       headContentClassName = `regexp`;
       isOpeningDisabled = true;
       isBraced = false;
     } else {
-      const obj = this.createContent(this.value, true);
+      const obj = this.createContent(this._value, true);
       val = obj.fragment;
       isOversized = obj.isOversized;
       // isOpeningDisabled = this.contentEntriesKeys.size === 0;
@@ -163,22 +163,22 @@ export default class ObjectView extends TypeView {
     let isHeadContentShowed = true;
     let isBraced = false;
     let isShowNotOwn = false;
-    if (this.value instanceof HTMLElement) {
-      let str = this.value.tagName.toLowerCase();
-      str += this.value.id;
-      if (this.value.classList.length) {
-        str += `.` + Array.prototype.join.call(this.value.classList, `.`);
+    if (this._value instanceof HTMLElement) {
+      let str = this._value.tagName.toLowerCase();
+      str += this._value.id;
+      if (this._value.classList.length) {
+        str += `.` + Array.prototype.join.call(this._value.classList, `.`);
       }
       val = str;
       isShowNotOwn = true;
-    } else if (this.value instanceof Date) {
-      val = this.value.toString();
-    } else if (this.value instanceof RegExp) {
-      val = `/${this.value.source}/${this.value.flags}`;
-    } else if (this.value instanceof Error) {
-      val = this.value.toString();
+    } else if (this._value instanceof Date) {
+      val = this._value.toString();
+    } else if (this._value instanceof RegExp) {
+      val = `/${this._value.source}/${this._value.flags}`;
+    } else if (this._value instanceof Error) {
+      val = this._value.toString();
     } else {
-      val = this.value;
+      val = this._value;
       isShowInfo = true;
       isHeadContentShowed = false;
     }
@@ -210,7 +210,7 @@ export default class ObjectView extends TypeView {
       fragment.appendChild(this._createTypedEntryEl({obj, key, mode}));
       addedKeysCounter++;
     }
-    if (!inHead && !entriesKeys.has(`__proto__`) && typeof this.value[`__proto__`] !== `undefined`) {
+    if (!inHead && !entriesKeys.has(`__proto__`) && typeof this._value[`__proto__`] !== `undefined`) {
       fragment.appendChild(this._createTypedEntryEl({obj, key: `__proto__`, mode, keyElClass: `grey`, notCheckDescriptors: true}));
     }
     return {fragment, isOversized};

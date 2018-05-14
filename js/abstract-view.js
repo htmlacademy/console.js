@@ -9,17 +9,29 @@ export default class AbstractView {
    */
   get template() {}
 
+  /**
+   * @return {HTMLElement}
+   */
   get el() {
     if (!this._el) {
-      this._el = this.render();
-      this.bind(this._el);
+      this._el = this._render();
+      this._bind(this._el);
     }
     return this._el;
   }
 
-  render() {
+  /**
+   * Renders element from this.template
+   * @private
+   * @return {HTMLElement}
+   */
+  _render() {
     return getElement(this.template);
   }
 
-  bind() {}
+  /**
+   * Method to work with element after render
+   * @protected
+   */
+  _bind() {}
 }
