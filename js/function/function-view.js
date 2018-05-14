@@ -48,7 +48,7 @@ export default class FunctionView extends TypeView {
 
     this.state = params;
 
-    if (this._mode === Mode.LOG) {
+    if (this._mode === Mode.LOG || this._mode === Mode.LOG_HTML) {
       this._headContentEl.addEventListener(`click`, () => {
         this._headContentEl.classList.toggle(`nowrap`);
       });
@@ -79,6 +79,7 @@ export default class FunctionView extends TypeView {
         str = this._getHeadDirMarkup();
         break;
       case Mode.LOG:
+      case Mode.LOG_HTML:
       case Mode.ERROR:
         str = this._getHeadLogMarkup();
         break;

@@ -7,7 +7,8 @@ export const Mode = {
   DIR: `dir`,
   PREVIEW: `preview`,
   PROP: `prop`,
-  ERROR: `error`
+  ERROR: `error`,
+  LOG_HTML: `log-html`
 };
 
 /**

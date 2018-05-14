@@ -15,7 +15,10 @@ export default class PrimitiveView extends TypeView {
       if (type === `symbol`) {
         value = value.toString();
       }
-      value = this.escapeHtml(value);
+
+      if (this._parentView ? this._parentView.mode !== Mode.LOG_HTML : this._mode !== Mode.LOG_HTML) {
+        value = this.escapeHtml(value);
+      }
     }
     switch (type) {
       case `undefined`:

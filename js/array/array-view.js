@@ -31,7 +31,7 @@ export default class ArrayView extends TypeView {
     this._infoEl.textContent = this.value.constructor.name;
     this.state = this._getStateParams();
 
-    if ((this._mode === Mode.LOG || this._mode === Mode.ERROR) && !this._parentView) {
+    if ((this._mode === Mode.LOG || this._mode === Mode.LOG_HTML || this._mode === Mode.ERROR) && !this._parentView) {
       this.toggleItalic(true);
     }
   }

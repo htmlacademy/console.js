@@ -83,6 +83,12 @@ export default class Console {
   onlog() {}
 
   /**
+   * Subscribe on logHTML event fired
+   * @abstract
+   **/
+  onlogHTML() {}
+
+  /**
    * Subscribe on dir event fired
    * @abstract
    **/
@@ -101,6 +107,11 @@ export default class Console {
   log(...rest) {
     this._container.appendChild(this._getRowEl(rest, Mode.LOG));
     this.onlog();
+  }
+
+  logHTML(...rest) {
+    this._container.appendChild(this._getRowEl(rest, Mode.LOG_HTML));
+    this.onlogHTML();
   }
 
   /**

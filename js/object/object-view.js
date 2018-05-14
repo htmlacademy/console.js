@@ -63,7 +63,7 @@ export default class ObjectView extends TypeView {
         self.toggleHeadContentBraced(bool);
       },
       set isStringified(bool) {
-        if (!bool && (self._mode === Mode.LOG || self._mode === Mode.ERROR) && !self._parentView) {
+        if (!bool && (self._mode === Mode.LOG || self._mode === Mode.LOG_HTML || self._mode === Mode.ERROR) && !self._parentView) {
           self.toggleItalic(bool);
         }
         if (bool && self._mode === Mode.ERROR) {
@@ -77,7 +77,7 @@ export default class ObjectView extends TypeView {
     let obj;
     if (this._mode === Mode.DIR) {
       obj = this._getHeadDirContent();
-    } else if (this._mode === Mode.LOG || this._mode === Mode.PROP || this._mode === Mode.ERROR) {
+    } else if (this._mode === Mode.LOG || this._mode === Mode.LOG_HTML || this._mode === Mode.PROP || this._mode === Mode.ERROR) {
       obj = this._getHeadLogContent();
     } else if (this._mode === Mode.PREVIEW) {
       obj = this._getHeadPreviewContent();
