@@ -2740,7 +2740,7 @@ class ArrayView extends TypeView {
         entriesKeys.delete(key);
         addedKeysCounter++;
       } else if (inHead) {
-        const entryEl = this._createEntryEl({key: i, el: getElement(`<span>${EMPTY}</span>`), withoutKey: true, keyElClass: `grey`});
+        const entryEl = this._createEntryEl({key: i, el: getElement(`<span class="grey">${EMPTY}</span>`), withoutKey: true});
         fragment.appendChild(entryEl);
         addedKeysCounter++;
       }
