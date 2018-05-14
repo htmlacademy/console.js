@@ -2522,7 +2522,7 @@ class ObjectView extends TypeView {
     } else if (this._value instanceof Error) {
       isBraced = false;
       val = `<pre>${this._value.stack}</pre>`;
-      // isOpeningDisabled = true;
+      isOpeningDisabled = true;
       isStringified = true;
     } else if (this._value instanceof Number) {
       const view = this._console.createTypedView(Number.parseInt(this._value, 10), Mode.PREVIEW, this.nextNestingLevel, this);
