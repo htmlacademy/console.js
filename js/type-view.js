@@ -4,6 +4,7 @@ import AbstractView from './abstract-view';
 import {getElement} from './utils';
 import {Mode, Env} from './enums';
 
+// var re = /{\s*\[native code\]\s*}/g
 const getAllPropertyDescriptors = (objToGetDescriptors, descriptors = {}) => {
   if (objToGetDescriptors === null) {
     return descriptors;
