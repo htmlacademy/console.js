@@ -4,6 +4,15 @@ import AbstractView from './abstract-view';
 import {getElement} from './utils';
 import {Mode, Env} from './enums';
 
+const getAllPropertyDescriptors = (objToGetDescriptors, descriptors = {}) => {
+  if (objToGetDescriptors === null) {
+    return descriptors;
+  }
+  console.log(objToGetDescriptors, descriptors);
+  Object.assign(descriptors, Object.getOwnPropertyDescriptors(objToGetDescriptors));
+  return getAllPropertyDescriptors(Object.getPrototypeOf(objToGetDescriptors), descriptors);
+};
+
 export default class TypeView extends AbstractView {
   constructor(params, cons) {
     super();
@@ -164,22 +173,19 @@ export default class TypeView extends AbstractView {
 
     const ownPropertyNamesAndSymbols = Object.getOwnPropertyNames(obj)
         .concat(Object.getOwnPropertySymbols(obj)); // Неперечисляемые свои
+
     const keys = new Set(ownPropertyNamesAndSymbols);
 
-    if (this.isShowNotOwn) {
-      for (let key in obj) {
-        if (inHead && !obj.hasOwnProperty(key)) {
-          continue;
-        }
-        keys.add(key);
-      }
-    }
+    // const propertyDescriptors = getAllPropertyDescriptors(obj);
+    // for (let key in propertyDescriptors) {
+    //   keys.add(key);
+    // }
 
     if (inHead) {
       const descriptors = Object.getOwnPropertyDescriptors(obj);
-      for (let descriptor in descriptors) {
-        if (typeof Object.getOwnPropertyDescriptors(descriptors[descriptor]).get !== `undefined`) {
-          keys.delete(descriptor);
+      for (let key in descriptors) {
+        if (typeof Object.getOwnPropertyDescriptors(descriptors[key]).get !== `undefined`) {
+          keys.delete(key);
         }
       }
     }

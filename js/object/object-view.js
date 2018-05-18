@@ -50,7 +50,7 @@ export default class ObjectView extends TypeView {
         self.toggleInfoShowed(bool);
       },
       set isHeadContentShowed(bool) {
-        if (!self._headContentEl.innerHTML) {
+        if (bool && !self._headContentEl.innerHTML) {
           if (self._headContent instanceof HTMLElement || self._headContent instanceof DocumentFragment) {
             self._headContentEl.appendChild(self._headContent);
           } else {
@@ -108,7 +108,7 @@ export default class ObjectView extends TypeView {
     let isStringified = false;
     let headContentClassName;
 
-    if (this._value instanceof HTMLElement && Object.getPrototypeOf(this._value).constructor !== HTMLElement) {
+    if (this._value instanceof Node && !this._value.hasOwnProperty(`constructor`)) {
       return this._getHeadDirContent();
     } else if (this._value instanceof Error) {
       isBraced = false;
@@ -163,13 +163,17 @@ export default class ObjectView extends TypeView {
     let isHeadContentShowed = true;
     let isBraced = false;
     let isShowNotOwn = false;
-    if (this._value instanceof HTMLElement) {
-      let str = this._value.tagName.toLowerCase();
-      str += this._value.id;
-      if (this._value.classList.length) {
-        str += `.` + Array.prototype.join.call(this._value.classList, `.`);
+    if (this._value instanceof Node && !this._value.hasOwnProperty(`constructor`)) {
+      if (this._value instanceof HTMLElement) {
+        let str = this._value.tagName.toLowerCase();
+        str += this._value.id;
+        if (this._value.classList.length) {
+          str += `.` + Array.prototype.join.call(this._value.classList, `.`);
+        }
+        val = str;
+      } else {
+        val = this._value.nodeName;
       }
-      val = str;
       isShowNotOwn = true;
     } else if (this._value instanceof Date) {
       val = this._value.toString();
@@ -178,7 +182,6 @@ export default class ObjectView extends TypeView {
     } else if (this._value instanceof Error) {
       val = this._value.toString();
     } else {
-      val = this._value;
       isShowInfo = true;
       isHeadContentShowed = false;
     }
@@ -196,7 +199,9 @@ export default class ObjectView extends TypeView {
 
   createContent(obj, inHead) {
     const fragment = document.createDocumentFragment();
-    const entriesKeys = inHead ? this.headContentEntriesKeys : this.contentEntriesKeys;
+    // const entriesKeys = inHead ? this.headContentEntriesKeys : this.contentEntriesKeys;
+    const entriesKeys = this._getEntriesKeys(inHead);
+    // console.log(entriesKeys.has(`$`), inHead)
     let isOversized = false;
     let addedKeysCounter = 0;
 
