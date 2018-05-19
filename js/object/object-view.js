@@ -204,7 +204,6 @@ export default class ObjectView extends TypeView {
     // console.log(entriesKeys.has(`$`), inHead)
     let isOversized = false;
     let addedKeysCounter = 0;
-
     const maxFieldsInHead = this._console.params[this.viewType].maxFieldsInHead;
     const mode = inHead ? Mode.PREVIEW : Mode.PROP;
     for (let key of entriesKeys) {

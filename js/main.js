@@ -56,6 +56,9 @@ export default class Console {
       paramsObject.maxFieldsInHead > 0
     ) ? paramsObject.maxFieldsInHead : Number.POSITIVE_INFINITY;
 
+    paramsObject.showGetters = typeof paramsObject.showGetters === `boolean` ?
+      paramsObject.showGetters : true;
+
     if (!Array.isArray(paramsObject.excludeProperties)) {
       paramsObject.excludeProperties = [];
     }

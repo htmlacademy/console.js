@@ -4,14 +4,19 @@ import AbstractView from './abstract-view';
 import {getElement} from './utils';
 import {Mode, Env} from './enums';
 
-// var re = /{\s*\[native code\]\s*}/g
-const getAllPropertyDescriptors = (objToGetDescriptors, descriptors = {}) => {
-  if (objToGetDescriptors === null) {
+// var a = {};
+// Object.getPrototypeOf(Object.getOwnPropertyDescriptors(a.__proto__)) === Object.getOwnPropertyDescriptors(a.__proto__).__proto__
+
+const isNativeFunction = (fn) => {
+  return /{\s*\[native code\]\s*}/g.test(fn);
+};
+const getAllPropertyDescriptors = (objToGetDescriptors) => {
+  const descriptors = Object.getOwnPropertyDescriptors(objToGetDescriptors);
+  const prototype = Object.getPrototypeOf(objToGetDescriptors);
+  if (prototype === null) {
     return descriptors;
   }
-  console.log(objToGetDescriptors, descriptors);
-  Object.assign(descriptors, Object.getOwnPropertyDescriptors(objToGetDescriptors));
-  return getAllPropertyDescriptors(Object.getPrototypeOf(objToGetDescriptors), descriptors);
+  return Object.assign(getAllPropertyDescriptors(prototype), descriptors);
 };
 
 export default class TypeView extends AbstractView {
@@ -165,6 +170,46 @@ export default class TypeView extends AbstractView {
     return this._currentDepth + 1;
   }
 
+  get _ownPropertyDescriptors() {
+    if (!this._ownPropertyDescriptorsCached) {
+      this._ownPropertyDescriptorsCached = Object.getOwnPropertyDescriptors(this._value);
+    }
+    return this._ownPropertyDescriptorsCached;
+  }
+
+  get _ownPropertyDescriptorsLength() {
+    if (!this._ownPropertyDescriptorsLengthCached) {
+      let count = 0;
+      for (let key in this._ownPropertyDescriptors) {
+        count++;
+      }
+      this._ownPropertyDescriptorsLengthCached = count;
+    }
+    return this._ownPropertyDescriptorsLengthCached;
+  }
+
+  get _allPropertyDescriptorsGetters() {
+    if (!this._allPropertyDescriptorsGettersCached) {
+      const prototype = Object.getPrototypeOf(this._value);
+      const ownPropertyDescriptors = this._ownPropertyDescriptors;
+      let allPropertyDescriptors = {};
+      if (prototype !== null) {
+        const prototypesPropertyDescriptors = getAllPropertyDescriptors(Object.getPrototypeOf(this._value));
+        Object.assign(allPropertyDescriptors, prototypesPropertyDescriptors);
+      }
+      Object.assign(allPropertyDescriptors, ownPropertyDescriptors);
+      const allPropertyDescriptorsGetters = {};
+      for (let key in allPropertyDescriptors) {
+        const descriptor = allPropertyDescriptors[key];
+        if (descriptor.get) {
+          allPropertyDescriptorsGetters[key] = descriptor;
+        }
+      }
+      this._allPropertyDescriptorsGettersCached = allPropertyDescriptorsGetters;
+    }
+    return this._allPropertyDescriptorsGettersCached;
+  }
+
   /**
    * @param {boolean} inHead — is head entries
    * @return {Set}
@@ -177,24 +222,28 @@ export default class TypeView extends AbstractView {
 
     const keys = new Set(ownPropertyNamesAndSymbols);
 
-    // const propertyDescriptors = getAllPropertyDescriptors(obj);
-    // for (let key in propertyDescriptors) {
-    //   keys.add(key);
-    // }
-
-    if (inHead) {
-      const descriptors = Object.getOwnPropertyDescriptors(obj);
-      for (let key in descriptors) {
-        if (typeof Object.getOwnPropertyDescriptors(descriptors[key]).get !== `undefined`) {
-          keys.delete(key);
-        }
+    const allPropertyDescriptorsGetters = this._allPropertyDescriptorsGetters;
+    for (let key in allPropertyDescriptorsGetters) {
+      if (allPropertyDescriptorsGetters.hasOwnProperty(key)) {
+        keys.add(key);
       }
     }
+
+    // FIXME херня тут чекнуть натив
+    // if (inHead) {
+    //   const descriptors = Object.getOwnPropertyDescriptors(obj);
+    //   for (let key in descriptors) {
+    //     if (typeof descriptors[key].get !== `undefined`) {
+    //       keys.delete(key);
+    //     }
+    //   }
+    // }
 
     if (this._console.params.env === Env.TEST) {
       keys.delete(`should`);
     }
 
+// console.log(allPropertyDescriptorsGetters, this._value);
     return keys;
   }
 
@@ -241,7 +290,10 @@ export default class TypeView extends AbstractView {
           this.isAutoExpandNeededProxied = true;
         }
       } else {
-        const entriesKeysLength = this._getEntriesKeys(false).size;
+        let entriesKeysLength = this.contentEntriesKeys.size;
+        if (typeParams.showGetters) {
+          entriesKeysLength += this._ownPropertyDescriptorsLength;
+        }
         if (typeParams.maxFieldsToExpand >= entriesKeysLength &&
           entriesKeysLength >= typeParams.minFieldsToExpand) {
           this.isAutoExpandNeededProxied = true;
