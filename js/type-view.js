@@ -10,13 +10,16 @@ import {Mode, Env} from './enums';
 const isNativeFunction = (fn) => {
   return /{\s*\[native code\]\s*}/g.test(fn);
 };
-const getAllPropertyDescriptors = (objToGetDescriptors) => {
-  const descriptors = Object.getOwnPropertyDescriptors(objToGetDescriptors);
-  const prototype = Object.getPrototypeOf(objToGetDescriptors);
-  if (prototype === null) {
+const getAllPropertyDescriptors = (objToGetDescriptors, descriptors = Object.getOwnPropertyDescriptors(objToGetDescriptors)) => {
+  if (objToGetDescriptors === null) {
     return descriptors;
   }
-  return Object.assign(getAllPropertyDescriptors(prototype), descriptors);
+  return Object.assign(
+    getAllPropertyDescriptors(
+      Object.getPrototypeOf(objToGetDescriptors)
+    ),
+    descriptors
+  );
 };
 
 export default class TypeView extends AbstractView {
