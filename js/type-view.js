@@ -193,14 +193,10 @@ export default class TypeView extends AbstractView {
 
   get _allPropertyDescriptorsGetters() {
     if (!this._allPropertyDescriptorsGettersCached) {
-      const prototype = Object.getPrototypeOf(this._value);
-      const ownPropertyDescriptors = this._ownPropertyDescriptors;
-      let allPropertyDescriptors = {};
-      if (prototype !== null) {
-        const prototypesPropertyDescriptors = getAllPropertyDescriptors(Object.getPrototypeOf(this._value));
-        Object.assign(allPropertyDescriptors, prototypesPropertyDescriptors);
-      }
-      Object.assign(allPropertyDescriptors, ownPropertyDescriptors);
+      const allPropertyDescriptors = getAllPropertyDescriptors(
+        Object.getPrototypeOf(this._value);,
+        this._ownPropertyDescriptors
+      );
       const allPropertyDescriptorsGetters = {};
       for (let key in allPropertyDescriptors) {
         const descriptor = allPropertyDescriptors[key];
