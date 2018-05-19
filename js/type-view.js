@@ -194,7 +194,7 @@ export default class TypeView extends AbstractView {
   get _allPropertyDescriptorsGetters() {
     if (!this._allPropertyDescriptorsGettersCached) {
       const allPropertyDescriptors = getAllPropertyDescriptors(
-        Object.getPrototypeOf(this._value);,
+        Object.getPrototypeOf(this._value),
         this._ownPropertyDescriptors
       );
       const allPropertyDescriptorsGetters = {};
