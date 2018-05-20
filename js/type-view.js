@@ -247,8 +247,6 @@ export default class TypeView extends AbstractView {
           }
         }
       });
-      enumerableProperties.sort(TypeView.compareProperties);
-      notEnumerableProperties.sort(TypeView.compareProperties);
       this._categorizedPropertiesCached = {enumerableProperties, notEnumerableProperties};
     }
     return this._categorizedPropertiesCached;
@@ -260,6 +258,10 @@ export default class TypeView extends AbstractView {
    */
   _getEntriesKeys(inHead) {
     const {enumerableProperties, notEnumerableProperties} = this._categorizedSortedProperties;
+    if (!inHead) {
+      enumerableProperties.sort(TypeView.compareProperties);
+      notEnumerableProperties.sort(TypeView.compareProperties);
+    }
     const symbols = this._ownPropertySymbols;
 
     const keys = new Set(enumerableProperties.concat(notEnumerableProperties).concat(symbols));
