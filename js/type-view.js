@@ -36,6 +36,8 @@ export default class TypeView extends AbstractView {
     this._type = params.type;
     this._propKey = params.propKey;
     this._currentDepth = typeof params.depth === `number` ? params.depth : 1;
+
+    this._cache = {};
   }
 
   /**
@@ -177,21 +179,21 @@ export default class TypeView extends AbstractView {
   }
 
   get _ownPropertyDescriptors() {
-    if (!this._ownPropertyDescriptorsCached) {
-      this._ownPropertyDescriptorsCached = Object.getOwnPropertyDescriptors(this._value);
+    if (!this._cache.ownPropertyDescriptors) {
+      this._cache.ownPropertyDescriptors = Object.getOwnPropertyDescriptors(this._value);
     }
-    return this._ownPropertyDescriptorsCached;
+    return this._cache.ownPropertyDescriptors;
   }
 
   get _ownPropertySymbols() {
-    if (!this._ownPropertySymbolsCached) {
-      this._ownPropertySymbolsCached = Object.getOwnPropertySymbols(this._value);
+    if (!this._cache.ownPropertySymbols) {
+      this._cache.ownPropertySymbols = Object.getOwnPropertySymbols(this._value);
     }
-    return this._ownPropertySymbolsCached;
+    return this._cache.ownPropertySymbols;
   }
 
   get _ownPropertyDescriptorsLength() {
-    if (!this._ownPropertyDescriptorsLengthCached) {
+    if (!this._cache.ownPropertyDescriptorsLength) {
       let count = 0;
       for (let key in this._ownPropertyDescriptors) {
         if (!Object.prototype.hasOwnProperty.call(this._ownPropertyDescriptors, key)) {
@@ -199,23 +201,23 @@ export default class TypeView extends AbstractView {
         }
         count++;
       }
-      this._ownPropertyDescriptorsLengthCached = count;
+      this._cache.ownPropertyDescriptorsLength = count;
     }
-    return this._ownPropertyDescriptorsLengthCached;
+    return this._cache.ownPropertyDescriptorsLength;
   }
 
   get _allPropertyDescriptors() {
-    if (!this._allPropertyDescriptorsCached) {
-      this._allPropertyDescriptorsCached = getAllPropertyDescriptors(
+    if (!this._cache.allPropertyDescriptors) {
+      this._cache.allPropertyDescriptors = getAllPropertyDescriptors(
           Object.getPrototypeOf(this._value),
           this._ownPropertyDescriptors
       );
     }
-    return this._allPropertyDescriptorsCached;
+    return this._cache.allPropertyDescriptors;
   }
 
   get _allPropertyDescriptorsGetters() {
-    if (!this._allPropertyDescriptorsGettersCached) {
+    if (!this._cache.allPropertyDescriptorsGetters) {
       const allPropertyDescriptors = getAllPropertyDescriptors(
           Object.getPrototypeOf(this._value),
           this._ownPropertyDescriptors
@@ -230,13 +232,13 @@ export default class TypeView extends AbstractView {
           allPropertyDescriptorsGetters[key] = descriptor;
         }
       }
-      this._allPropertyDescriptorsGettersCached = allPropertyDescriptorsGetters;
+      this._cache.allPropertyDescriptorsGetters = allPropertyDescriptorsGetters;
     }
-    return this._allPropertyDescriptorsGettersCached;
+    return this._cache.allPropertyDescriptorsGetters;
   }
 
   get _categorizedSortedProperties() {
-    if (!this._categorizedPropertiesCached) {
+    if (!this._cache.categorizedProperties) {
       const ownPropertyDescriptors = this._ownPropertyDescriptors;
       const allPropertyDescriptors = this._allPropertyDescriptors;
       const allPropertyDescriptorsGetters = this._allPropertyDescriptorsGetters;
@@ -255,9 +257,9 @@ export default class TypeView extends AbstractView {
           }
         }
       });
-      this._categorizedPropertiesCached = {enumerableProperties, notEnumerableProperties};
+      this._cache.categorizedProperties = {enumerableProperties, notEnumerableProperties};
     }
-    return this._categorizedPropertiesCached;
+    return this._cache.categorizedProperties;
   }
 
   /**
