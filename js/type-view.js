@@ -216,32 +216,32 @@ export default class TypeView extends AbstractView {
     return this._cache.allPropertyDescriptors;
   }
 
-  get _allPropertyDescriptorsGetters() {
-    if (!this._cache.allPropertyDescriptorsGetters) {
+  get _allPropertyDescriptorsWithGetters() {
+    if (!this._cache.allPropertyDescriptorsWithGetters) {
       const allPropertyDescriptors = getAllPropertyDescriptors(
           Object.getPrototypeOf(this._value),
           this._ownPropertyDescriptors
       );
-      const allPropertyDescriptorsGetters = {};
+      const allPropertyDescriptorsWithGetters = {};
       for (let key in allPropertyDescriptors) {
         if (!Object.prototype.hasOwnProperty.call(allPropertyDescriptors, key)) {
           continue;
         }
         const descriptor = allPropertyDescriptors[key];
         if (descriptor.get) {
-          allPropertyDescriptorsGetters[key] = descriptor;
+          allPropertyDescriptorsWithGetters[key] = descriptor;
         }
       }
-      this._cache.allPropertyDescriptorsGetters = allPropertyDescriptorsGetters;
+      this._cache.allPropertyDescriptorsWithGetters = allPropertyDescriptorsWithGetters;
     }
-    return this._cache.allPropertyDescriptorsGetters;
+    return this._cache.allPropertyDescriptorsWithGetters;
   }
 
   get _categorizedSortedProperties() {
     if (!this._cache.categorizedProperties) {
       const ownPropertyDescriptors = this._ownPropertyDescriptors;
       const allPropertyDescriptors = this._allPropertyDescriptors;
-      const allPropertyDescriptorsGetters = this._allPropertyDescriptorsGetters;
+      const allPropertyDescriptorsWithGetters = this._allPropertyDescriptorsWithGetters;
       const keys = Object.keys(allPropertyDescriptors);
 
       const enumerableProperties = []; // Перечисляемые свои и из цепочки прототипов с геттерами
@@ -249,7 +249,7 @@ export default class TypeView extends AbstractView {
       keys.forEach((key) => {
         const descriptor = allPropertyDescriptors[key];
         if (Object.prototype.hasOwnProperty.call(ownPropertyDescriptors, key) || // cause Object.prototype has hasOwnProperty descriptor
-        Object.prototype.hasOwnProperty.call(allPropertyDescriptorsGetters, key)) {
+        Object.prototype.hasOwnProperty.call(allPropertyDescriptorsWithGetters, key)) {
           if (descriptor.enumerable) {
             enumerableProperties.push(key);
           } else {
@@ -276,14 +276,14 @@ export default class TypeView extends AbstractView {
 
     const keys = new Set(enumerableProperties.concat(notEnumerableProperties).concat(symbols));
 
-    const allPropertyDescriptorsGetters = this._allPropertyDescriptorsGetters;
+    const allPropertyDescriptorsWithGetters = this._allPropertyDescriptorsWithGetters;
 
     if (inHead) {
-      for (let key in allPropertyDescriptorsGetters) {
-        if (!Object.prototype.hasOwnProperty.call(allPropertyDescriptorsGetters, key)) {
+      for (let key in allPropertyDescriptorsWithGetters) {
+        if (!Object.prototype.hasOwnProperty.call(allPropertyDescriptorsWithGetters, key)) {
           continue;
         }
-        const descriptorGetter = allPropertyDescriptorsGetters[key].get;
+        const descriptorGetter = allPropertyDescriptorsWithGetters[key].get;
         if (!isNativeFunction(descriptorGetter)) {
           keys.delete(key);
         }
@@ -442,7 +442,7 @@ ${withoutKey ? `` : `<span class="entry-container__key ${isGrey ? `grey` : ``}">
       if (notCheckDescriptors) {
         el = getViewEl();
       } else {
-        const descriptors = this._allPropertyDescriptorsGetters;
+        const descriptors = this._allPropertyDescriptorsWithGetters;
         if (!(key in descriptors) || isNativeFunction(descriptors[key].get) || !descriptors[key].get || key === `__proto__`) {
           el = getViewEl();
         }
