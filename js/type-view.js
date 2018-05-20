@@ -236,10 +236,10 @@ export default class TypeView extends AbstractView {
 
       const enumerableProperties = []; // Перечисляемые свои и из цепочки прототипов с геттерами
       const notEnumerableProperties = []; // Неперечисляемые свои и из цепочки прототипов с геттерами
-
       keys.forEach((key) => {
         const descriptor = allPropertyDescriptors[key];
-        if (ownPropertyDescriptors.hasOwnProperty(key) || allPropertyDescriptorsGetters.hasOwnProperty(key)) {
+        if (Object.prototype.hasOwnProperty.call(ownPropertyDescriptors, key) || // cause Object.prototype has hasOwnProperty descriptor
+        Object.prototype.hasOwnProperty.call(allPropertyDescriptorsGetters, key)) {
           if (descriptor.enumerable) {
             enumerableProperties.push(key);
           } else {
@@ -471,8 +471,9 @@ ${withoutKey ? `` : `<span class="entry-container__key ${isGrey ? `grey` : ``}">
   }
 
   static compareProperties(a, b) {
-    if (a === b)
-        return 0;
+    if (a === b) {
+      return 0;
+    }
 
     let diff = 0;
     const chunk = /^\d+|^\D+/;
