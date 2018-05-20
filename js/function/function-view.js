@@ -10,13 +10,6 @@ const FnType = {
   CLASS: `class`
 };
 
-const BUILTIN_FIELDS = [`arguments`, `caller`, `length`, `name`, `prototype`, `__proto__`];
-
-// if .caller not accessed — не выводим
-// if prototype undefined — не выводим
-// name — если неименованная — получает имя переменной, в которую записана
-// если именнованная — то имя ф-ии
-
 export default class FunctionView extends TypeView {
   constructor(params, cons) {
     super(params, cons);

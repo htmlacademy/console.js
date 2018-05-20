@@ -136,7 +136,6 @@ export default class ObjectView extends TypeView {
       const obj = this.createContent(this._value, true);
       val = obj.fragment;
       isOversized = obj.isOversized;
-      // isOpeningDisabled = this.contentEntriesKeys.size === 0;
       if (this._stringTagName !== `Object` || (
         this._constructorName !== `Object`
       ) || this._propKey === `__proto__`) {
@@ -199,13 +198,12 @@ export default class ObjectView extends TypeView {
 
   createContent(obj, inHead) {
     const fragment = document.createDocumentFragment();
-    // const entriesKeys = inHead ? this.headContentEntriesKeys : this.contentEntriesKeys;
-    const entriesKeys = this._getEntriesKeys(inHead);
-    // console.log(entriesKeys.has(`$`), inHead)
+    const entriesKeys = inHead ? this.headContentEntriesKeys : this.contentEntriesKeys;
     let isOversized = false;
     let addedKeysCounter = 0;
     const maxFieldsInHead = this._console.params[this.viewType].maxFieldsInHead;
     const mode = inHead ? Mode.PREVIEW : Mode.PROP;
+    entriesKeys.delete(`__proto__`); // Object may not have prototype
 
     for (let key of entriesKeys) {
       if (inHead && addedKeysCounter === maxFieldsInHead) {
@@ -215,8 +213,7 @@ export default class ObjectView extends TypeView {
       TypeView.appendEntryIntoFragment(this._createTypedEntryEl({obj, key, mode, canReturnNull: inHead}), fragment);
       addedKeysCounter++;
     }
-
-    if (!inHead && !entriesKeys.has(`__proto__`) && Object.getPrototypeOf(obj) !== null) {
+    if (!inHead && Object.getPrototypeOf(obj) !== null) {
       TypeView.appendEntryIntoFragment(
           this._createTypedEntryEl({obj, key: `__proto__`, mode, notCheckDescriptors: true}),
           fragment

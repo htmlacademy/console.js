@@ -1,5 +1,5 @@
-/* eslint guard-for-in: "off"*/
 /* eslint no-empty: "off"*/
+/* eslint no-unused-vars: "off"*/
 import AbstractView from './abstract-view';
 import {getElement} from './utils';
 import {Mode, Env} from './enums';
@@ -78,7 +78,9 @@ export default class TypeView extends AbstractView {
       Object.seal(this._viewState);
     }
     for (let key in params) {
-      this._viewState[key] = params[key];
+      if (this._viewState.hasOwnProperty(key)) {
+        this._viewState[key] = params[key];
+      }
     }
   }
 
@@ -192,6 +194,9 @@ export default class TypeView extends AbstractView {
     if (!this._ownPropertyDescriptorsLengthCached) {
       let count = 0;
       for (let key in this._ownPropertyDescriptors) {
+        if (!Object.prototype.hasOwnProperty.call(this._ownPropertyDescriptors, key)) {
+          continue;
+        }
         count++;
       }
       this._ownPropertyDescriptorsLengthCached = count;
@@ -217,6 +222,9 @@ export default class TypeView extends AbstractView {
       );
       const allPropertyDescriptorsGetters = {};
       for (let key in allPropertyDescriptors) {
+        if (!Object.prototype.hasOwnProperty.call(allPropertyDescriptors, key)) {
+          continue;
+        }
         const descriptor = allPropertyDescriptors[key];
         if (descriptor.get) {
           allPropertyDescriptorsGetters[key] = descriptor;
@@ -270,6 +278,9 @@ export default class TypeView extends AbstractView {
 
     if (inHead) {
       for (let key in allPropertyDescriptorsGetters) {
+        if (!Object.prototype.hasOwnProperty.call(allPropertyDescriptorsGetters, key)) {
+          continue;
+        }
         const descriptorGetter = allPropertyDescriptorsGetters[key].get;
         if (!isNativeFunction(descriptorGetter)) {
           keys.delete(key);
@@ -366,16 +377,18 @@ export default class TypeView extends AbstractView {
    * @param {{}} params
    * @param {string} params.key — key, index of array or field name
    * @param {HTMLSpanElement|undefined} params.el — HTML span element to append into container
+   * @param {Mode} params.mode — log mode
    * @param {boolean} [params.withoutKey] — create entry without key element
    * @param {function} [params.getViewEl] — function to get element if so wasn't present while calling this method
    * @return {HTMLSpanElement}
    */
-  _createEntryEl({key, el, withoutKey, getViewEl}) {
+  _createEntryEl({key, el, mode, withoutKey, getViewEl}) {
     const {notEnumerableProperties} = this._categorizedSortedProperties;
     let isGrey = false;
-    if (notEnumerableProperties.indexOf(key) !== -1 ||
-    this._ownPropertySymbols.indexOf(key) !== -1 ||
-    key === `__proto__`) {
+    if (mode !== Mode.PREVIEW &&
+      (notEnumerableProperties.indexOf(key) !== -1 ||
+      this._ownPropertySymbols.indexOf(key) !== -1 ||
+      key === `__proto__`)) {
       isGrey = true;
     }
     const entryEl = getElement(`\
@@ -419,7 +432,7 @@ ${withoutKey ? `` : `<span class="entry-container__key ${isGrey ? `grey` : ``}">
    */
   _createTypedEntryEl({obj, key, mode, withoutKey, notCheckDescriptors, canReturnNull = false}) {
     const getViewEl = () => {
-      const val = obj[key];
+      const val = key !== `__proto__` ? obj[key] : Object.getPrototypeOf(obj);
       return this._console.createTypedView(val, mode, this.nextNestingLevel, this, key).el;
     };
     let el;
@@ -437,7 +450,7 @@ ${withoutKey ? `` : `<span class="entry-container__key ${isGrey ? `grey` : ``}">
         return null;
       }
     }
-    return this._createEntryEl({key, el, withoutKey, getViewEl});
+    return this._createEntryEl({key, el, mode, withoutKey, getViewEl});
   }
 
   /**
@@ -476,36 +489,43 @@ ${withoutKey ? `` : `<span class="entry-container__key ${isGrey ? `grey` : ``}">
     if (a === b) {
       return 0;
     }
-
-    let diff = 0;
     const chunk = /^\d+|^\D+/;
-    let chunka, chunkb, anum, bnum;
+    let chunka;
+    let chunkb;
+    let anum;
+    let bnum;
+    let diff = 0;
     while (diff === 0) {
-        if (!a && b)
-            return -1;
-        if (!b && a)
-            return 1;
-        chunka = a.match(chunk)[0];
-        chunkb = b.match(chunk)[0];
-        anum = !isNaN(chunka);
-        bnum = !isNaN(chunkb);
-        if (anum && !bnum)
-            return -1;
-        if (bnum && !anum)
-            return 1;
-        if (anum && bnum) {
-            diff = chunka - chunkb;
-            if (diff === 0 && chunka.length !== chunkb.length) {
-                if (!+chunka && !+chunkb) // chunks are strings of all 0s (special case)
-                    return chunka.length - chunkb.length;
-                else
-                    return chunkb.length - chunka.length;
-            }
-        } else if (chunka !== chunkb) {
-          return chunka < chunkb ? -1 : 1;
+      if (!a && b) {
+        return -1;
+      }
+      if (!b && a) {
+        return 1;
+      }
+      chunka = a.match(chunk)[0];
+      chunkb = b.match(chunk)[0];
+      anum = !Number.isNaN(chunka);
+      bnum = !Number.isNaN(chunkb);
+      if (anum && !bnum) {
+        return -1;
+      }
+      if (bnum && !anum) {
+        return 1;
+      }
+      if (anum && bnum) {
+        diff = chunka - chunkb;
+        if (diff === 0 && chunka.length !== chunkb.length) {
+          if (!+chunka && !+chunkb) { // chunks are strings of all 0s (special case)
+            return chunka.length - chunkb.length;
+          } else {
+            return chunkb.length - chunka.length;
+          }
         }
-        a = a.substring(chunka.length);
-        b = b.substring(chunkb.length);
+      } else if (chunka !== chunkb) {
+        return chunka < chunkb ? -1 : 1;
+      }
+      a = a.substring(chunka.length);
+      b = b.substring(chunkb.length);
     }
     return diff;
   }
