@@ -10,15 +10,16 @@ import {Mode, Env} from './enums';
 const isNativeFunction = (fn) => {
   return /{\s*\[native code\]\s*}/g.test(fn);
 };
-const getAllPropertyDescriptors = (objToGetDescriptors, descriptors = Object.getOwnPropertyDescriptors(objToGetDescriptors)) => {
+const getAllPropertyDescriptors = (objToGetDescriptors, descriptors = {}) => {
   if (objToGetDescriptors === null) {
     return descriptors;
   }
   return Object.assign(
-    getAllPropertyDescriptors(
-      Object.getPrototypeOf(objToGetDescriptors)
-    ),
-    descriptors
+      getAllPropertyDescriptors(
+          Object.getPrototypeOf(objToGetDescriptors),
+          Object.getOwnPropertyDescriptors(objToGetDescriptors)
+      ),
+      descriptors
   );
 };
 
@@ -180,6 +181,13 @@ export default class TypeView extends AbstractView {
     return this._ownPropertyDescriptorsCached;
   }
 
+  get _ownPropertySymbols() {
+    if (!this._ownPropertySymbolsCached) {
+      this._ownPropertySymbolsCached = Object.getOwnPropertySymbols(this._value);
+    }
+    return this._ownPropertySymbolsCached;
+  }
+
   get _ownPropertyDescriptorsLength() {
     if (!this._ownPropertyDescriptorsLengthCached) {
       let count = 0;
@@ -191,11 +199,21 @@ export default class TypeView extends AbstractView {
     return this._ownPropertyDescriptorsLengthCached;
   }
 
+  get _allPropertyDescriptors() {
+    if (!this._allPropertyDescriptorsCached) {
+      this._allPropertyDescriptorsCached = getAllPropertyDescriptors(
+          Object.getPrototypeOf(this._value),
+          this._ownPropertyDescriptors
+      );
+    }
+    return this._allPropertyDescriptorsCached;
+  }
+
   get _allPropertyDescriptorsGetters() {
     if (!this._allPropertyDescriptorsGettersCached) {
       const allPropertyDescriptors = getAllPropertyDescriptors(
-        Object.getPrototypeOf(this._value),
-        this._ownPropertyDescriptors
+          Object.getPrototypeOf(this._value),
+          this._ownPropertyDescriptors
       );
       const allPropertyDescriptorsGetters = {};
       for (let key in allPropertyDescriptors) {
@@ -209,40 +227,58 @@ export default class TypeView extends AbstractView {
     return this._allPropertyDescriptorsGettersCached;
   }
 
+  get _categorizedSortedProperties() {
+    if (!this._categorizedPropertiesCached) {
+      const ownPropertyDescriptors = this._ownPropertyDescriptors;
+      const allPropertyDescriptors = this._allPropertyDescriptors;
+      const allPropertyDescriptorsGetters = this._allPropertyDescriptorsGetters;
+      const keys = Object.keys(allPropertyDescriptors);
+
+      const enumerableProperties = []; // Перечисляемые свои и из цепочки прототипов с геттерами
+      const notEnumerableProperties = []; // Неперечисляемые свои и из цепочки прототипов с геттерами
+
+      keys.forEach((key) => {
+        const descriptor = allPropertyDescriptors[key];
+        if (ownPropertyDescriptors.hasOwnProperty(key) || allPropertyDescriptorsGetters.hasOwnProperty(key)) {
+          if (descriptor.enumerable) {
+            enumerableProperties.push(key);
+          } else {
+            notEnumerableProperties.push(key);
+          }
+        }
+      });
+      enumerableProperties.sort(TypeView.compareProperties);
+      notEnumerableProperties.sort(TypeView.compareProperties);
+      this._categorizedPropertiesCached = {enumerableProperties, notEnumerableProperties};
+    }
+    return this._categorizedPropertiesCached;
+  }
+
   /**
    * @param {boolean} inHead — is head entries
    * @return {Set}
    */
   _getEntriesKeys(inHead) {
-    const obj = this._value;
+    const {enumerableProperties, notEnumerableProperties} = this._categorizedSortedProperties;
+    const symbols = this._ownPropertySymbols;
 
-    const ownPropertyNamesAndSymbols = Object.getOwnPropertyNames(obj)
-        .concat(Object.getOwnPropertySymbols(obj)); // Неперечисляемые свои
-
-    const keys = new Set(ownPropertyNamesAndSymbols);
+    const keys = new Set(enumerableProperties.concat(notEnumerableProperties).concat(symbols));
 
     const allPropertyDescriptorsGetters = this._allPropertyDescriptorsGetters;
-    for (let key in allPropertyDescriptorsGetters) {
-      if (allPropertyDescriptorsGetters.hasOwnProperty(key)) {
-        keys.add(key);
+
+    if (inHead) {
+      for (let key in allPropertyDescriptorsGetters) {
+        const descriptorGetter = allPropertyDescriptorsGetters[key].get;
+        if (!isNativeFunction(descriptorGetter)) {
+          keys.delete(key);
+        }
       }
     }
-
-    // FIXME херня тут чекнуть натив
-    // if (inHead) {
-    //   const descriptors = Object.getOwnPropertyDescriptors(obj);
-    //   for (let key in descriptors) {
-    //     if (typeof descriptors[key].get !== `undefined`) {
-    //       keys.delete(key);
-    //     }
-    //   }
-    // }
 
     if (this._console.params.env === Env.TEST) {
       keys.delete(`should`);
     }
 
-// console.log(allPropertyDescriptorsGetters, this._value);
     return keys;
   }
 
@@ -329,14 +365,20 @@ export default class TypeView extends AbstractView {
    * @param {string} params.key — key, index of array or field name
    * @param {HTMLSpanElement|undefined} params.el — HTML span element to append into container
    * @param {boolean} [params.withoutKey] — create entry without key element
-   * @param {string} [params.keyElClass] — CSS class for key element
    * @param {function} [params.getViewEl] — function to get element if so wasn't present while calling this method
    * @return {HTMLSpanElement}
    */
-  _createEntryEl({key, el, withoutKey, keyElClass, getViewEl}) {
+  _createEntryEl({key, el, withoutKey, getViewEl}) {
+    const {notEnumerableProperties} = this._categorizedSortedProperties;
+    let isGrey = false;
+    if (notEnumerableProperties.indexOf(key) !== -1 ||
+    this._ownPropertySymbols.indexOf(key) !== -1 ||
+    key === `__proto__`) {
+      isGrey = true;
+    }
     const entryEl = getElement(`\
 <span class="entry-container__entry">\
-${withoutKey ? `` : `<span class="entry-container__key ${keyElClass ? keyElClass : ``}">${key.toString()}</span>`}<span class="entry-container__value-container"></span>\
+${withoutKey ? `` : `<span class="entry-container__key ${isGrey ? `grey` : ``}">${key.toString()}</span>`}<span class="entry-container__value-container"></span>\
 </span>`);
     const valueContEl = entryEl.querySelector(`.entry-container__value-container`);
 
@@ -371,10 +413,9 @@ ${withoutKey ? `` : `<span class="entry-container__key ${keyElClass ? keyElClass
    * @param {string} params.key — key, index of array or field name
    * @param {Mode} params.mode — log mode
    * @param {boolean} [params.withoutKey] — create entry without key element
-   * @param {string} [params.keyElClass] — CSS class for key element
    * @return {HTMLSpanElement}
    */
-  _createTypedEntryEl({obj, key, mode, withoutKey, keyElClass, notCheckDescriptors}) {
+  _createTypedEntryEl({obj, key, mode, withoutKey, notCheckDescriptors, canReturnNull = false}) {
     const getViewEl = () => {
       const val = obj[key];
       return this._console.createTypedView(val, mode, this.nextNestingLevel, this, key).el;
@@ -384,13 +425,27 @@ ${withoutKey ? `` : `<span class="entry-container__key ${keyElClass ? keyElClass
       if (notCheckDescriptors) {
         el = getViewEl();
       } else {
-        const descriptors = Object.getOwnPropertyDescriptors(obj);
-        if (!(key in descriptors) || !descriptors[key].get || key === `__proto__`) {
+        const descriptors = this._allPropertyDescriptorsGetters;
+        if (!(key in descriptors) || isNativeFunction(descriptors[key].get) || !descriptors[key].get || key === `__proto__`) {
           el = getViewEl();
         }
       }
-    } catch (err) {}
-    return this._createEntryEl({key, el, withoutKey, keyElClass, getViewEl});
+    } catch (err) {
+      if (canReturnNull) {
+        return null;
+      }
+    }
+    return this._createEntryEl({key, el, withoutKey, getViewEl});
+  }
+
+  /**
+   * @param {HTMLSpanElement|null} entryEl
+   * @param {DocumentFragment} fragment
+   */
+  static appendEntryIntoFragment(entryEl, fragment) {
+    if (entryEl !== null) {
+      fragment.appendChild(entryEl);
+    }
   }
 
   /**
@@ -414,4 +469,42 @@ ${withoutKey ? `` : `<span class="entry-container__key ${keyElClass ? keyElClass
       return false;
     }
   }
+
+  static compareProperties(a, b) {
+    if (a === b)
+        return 0;
+
+    let diff = 0;
+    const chunk = /^\d+|^\D+/;
+    let chunka, chunkb, anum, bnum;
+    while (diff === 0) {
+        if (!a && b)
+            return -1;
+        if (!b && a)
+            return 1;
+        chunka = a.match(chunk)[0];
+        chunkb = b.match(chunk)[0];
+        anum = !isNaN(chunka);
+        bnum = !isNaN(chunkb);
+        if (anum && !bnum)
+            return -1;
+        if (bnum && !anum)
+            return 1;
+        if (anum && bnum) {
+            diff = chunka - chunkb;
+            if (diff === 0 && chunka.length !== chunkb.length) {
+                if (!+chunka && !+chunkb) // chunks are strings of all 0s (special case)
+                    return chunka.length - chunkb.length;
+                else
+                    return chunkb.length - chunka.length;
+            }
+        } else if (chunka !== chunkb) {
+          return chunka < chunkb ? -1 : 1;
+        }
+        a = a.substring(chunka.length);
+        b = b.substring(chunkb.length);
+    }
+    return diff;
+  }
+
 }

@@ -27,9 +27,12 @@
         };
       };
       const jsConsole = new Console(document.querySelector(`.console`), {
-        function: {
-          expandDepth: 4,
-          minFieldsToExpand: 1
+        common: {
+          excludeProperties: [`__proto__`],
+          expandDepth: 1,
+          minFieldsToExpand: 5, // как в object.maxFieldsInHead
+          // maxFieldsToExpand: 15,
+          expandDepth: 1
         }
       });
       const obj = {};
@@ -47,6 +50,8 @@
       jsConsole.log(obj);
       jsConsole.dir(fn);
       jsConsole.log(arr);
+      const div = document.createElement(`div`);
+      jsConsole.log(div);
     </script>
   </body>
 </html>

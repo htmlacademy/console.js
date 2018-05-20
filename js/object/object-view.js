@@ -88,7 +88,7 @@ export default class ObjectView extends TypeView {
   _getHeadPreviewContent() {
     if (this._stringTagName === `Object`) {
       return {
-        elOrStr: `...`,
+        elOrStr: `…`,
         stateParams: {
           isShowInfo: false,
           isHeadContentShowed: true,
@@ -206,16 +206,21 @@ export default class ObjectView extends TypeView {
     let addedKeysCounter = 0;
     const maxFieldsInHead = this._console.params[this.viewType].maxFieldsInHead;
     const mode = inHead ? Mode.PREVIEW : Mode.PROP;
+
     for (let key of entriesKeys) {
       if (inHead && addedKeysCounter === maxFieldsInHead) {
         isOversized = true;
         break;
       }
-      fragment.appendChild(this._createTypedEntryEl({obj, key, mode}));
+      TypeView.appendEntryIntoFragment(this._createTypedEntryEl({obj, key, mode, canReturnNull: inHead}), fragment);
       addedKeysCounter++;
     }
-    if (!inHead && !entriesKeys.has(`__proto__`) && typeof this._value[`__proto__`] !== `undefined`) {
-      fragment.appendChild(this._createTypedEntryEl({obj, key: `__proto__`, mode, keyElClass: `grey`, notCheckDescriptors: true}));
+
+    if (!inHead && !entriesKeys.has(`__proto__`) && Object.getPrototypeOf(obj) !== null) {
+      TypeView.appendEntryIntoFragment(
+          this._createTypedEntryEl({obj, key: `__proto__`, mode, notCheckDescriptors: true}),
+          fragment
+      );
     }
     return {fragment, isOversized};
   }

@@ -164,12 +164,16 @@ ${this._fnType === FnType.ARROW ? ` => ` : ` `}${bodyLines.join(`\n`)}`;
   createContent(fn) {
     const fragment = document.createDocumentFragment();
     const entriesKeys = this.contentEntriesKeys;
-    for (let key of BUILTIN_FIELDS) {
-      entriesKeys.add(key);
-    }
     for (let key of entriesKeys) {
-      fragment.appendChild(this._createTypedEntryEl({obj: fn, key, mode: Mode.PROP, keyElClass: BUILTIN_FIELDS.includes(key) ? `grey` : null}));
+      TypeView.appendEntryIntoFragment(
+          this._createTypedEntryEl({obj: fn, key, mode: Mode.PROP}),
+          fragment
+      );
     }
+    TypeView.appendEntryIntoFragment(
+        this._createTypedEntryEl({obj: fn, key: `__proto__`, mode: Mode.PROP, notCheckDescriptors: true}),
+        fragment
+    );
     return {fragment};
   }
 

@@ -5,6 +5,9 @@ import FunctionView from './function/function-view';
 import PrimitiveView from './primitive/primitive-view';
 import {getElement, customizer} from './utils';
 import {Mode, ViewType} from './enums';
+
+const DEFAULT_MAX_FIELDS_IN_HEAD = 5;
+
 /**
  * Console
  * @class
@@ -54,10 +57,13 @@ export default class Console {
     paramsObject.maxFieldsInHead = (
       typeof paramsObject.maxFieldsInHead === `number` &&
       paramsObject.maxFieldsInHead > 0
-    ) ? paramsObject.maxFieldsInHead : Number.POSITIVE_INFINITY;
+    ) ? paramsObject.maxFieldsInHead : DEFAULT_MAX_FIELDS_IN_HEAD;
 
     paramsObject.showGetters = typeof paramsObject.showGetters === `boolean` ?
       paramsObject.showGetters : true;
+
+    paramsObject.countEntriesWithoutKeys = typeof paramsObject.countEntriesWithoutKeys === `boolean` ?
+      paramsObject.countEntriesWithoutKeys : false;
 
     if (!Array.isArray(paramsObject.excludeProperties)) {
       paramsObject.excludeProperties = [];

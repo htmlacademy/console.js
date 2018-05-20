@@ -1,12 +1,13 @@
 const params = {
-  object: {
-    maxFieldsInHead: 5,
-  },
   // function: {
   //   nowrapOnLog: true
   // },
   common: {
-    excludeProperties: [`__proto__`]
+    excludeProperties: [`__proto__`],
+    expandDepth: 1,
+    maxFieldsInHead: 5,
+    minFieldsToExpand: 5,
+    maxFieldsToExpand: 15
   }
 };
 
