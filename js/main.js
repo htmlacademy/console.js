@@ -8,6 +8,8 @@ import {Mode, ViewType} from './enums';
 
 const DEFAULT_MAX_FIELDS_IN_HEAD = 5;
 
+const TypedArray = Object.getPrototypeOf(Int8Array);
+
 /**
  * Console
  * @class
@@ -31,14 +33,14 @@ export default class Console {
     this._views = new Map();
     this._container = container;
     this.params = {
-      object: this._parseParams(mergeWith({}, params.common, params.object, customizer)),
-      array: this._parseParams(mergeWith({}, params.common, params.array, customizer)),
-      function: this._parseParams(mergeWith({}, params.common, params.function, customizer)),
+      object: this._parseParams(ViewType.OBJECT, mergeWith({}, params.common, params.object, customizer)),
+      array: this._parseParams(ViewType.ARRAY, mergeWith({}, params.common, params.array, customizer)),
+      function: this._parseParams(ViewType.FUNCTION, mergeWith({}, params.common, params.function, customizer)),
       env: params.env
     };
   }
 
-  _parseParams(paramsObject = {}) {
+  _parseParams(viewType, paramsObject = {}) {
     // Set this._expandDepth and this._minFieldsToExpand only if expandDepth provided and > 0
     if (typeof paramsObject.expandDepth === `number` &&
     paramsObject.expandDepth > 0) {
@@ -62,8 +64,10 @@ export default class Console {
     paramsObject.showGetters = typeof paramsObject.showGetters === `boolean` ?
       paramsObject.showGetters : true;
 
-    paramsObject.countEntriesWithoutKeys = typeof paramsObject.countEntriesWithoutKeys === `boolean` ?
-      paramsObject.countEntriesWithoutKeys : false;
+    if (viewType === ViewType.ARRAY) {
+      paramsObject.countEntriesWithoutKeys = typeof paramsObject.countEntriesWithoutKeys === `boolean` ?
+        paramsObject.countEntriesWithoutKeys : false;
+    }
 
     if (!Array.isArray(paramsObject.excludeProperties)) {
       paramsObject.excludeProperties = [];
@@ -163,7 +167,15 @@ export default class Console {
         break;
       case `object`:
         if (val !== null) {
-          if (Array.isArray(val)) {
+          const stringTag = Object.prototype.toString.call(val);
+          const stringTagName = stringTag.substring(8, stringTag.length - 1);
+
+          if (Array.isArray(val) ||
+          val instanceof HTMLCollection ||
+          val instanceof NodeList ||
+          val instanceof DOMTokenList ||
+          val instanceof TypedArray ||
+          stringTagName === `Arguments`) {
             view = new ArrayView(params, this);
           } else {
             view = new ObjectView(params, this);

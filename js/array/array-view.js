@@ -11,6 +11,9 @@ export default class ArrayView extends TypeView {
     if (!params.parentView) {
       this.rootView = this;
     }
+    const stringTag = Object.prototype.toString.call(this._value);
+    this._stringTagName = stringTag.substring(8, stringTag.length - 1);
+    this._constructorName = this._value.constructor ? this._value.constructor.name : null;
   }
 
   get template() {
@@ -28,7 +31,7 @@ export default class ArrayView extends TypeView {
   _afterRender() {
     this._lengthEl = this.el.querySelector(`.length`);
     this.toggleHeadContentBraced();
-    this._infoEl.textContent = this._value.constructor.name;
+    this._infoEl.textContent = this._stringTagName;
     this._state = this._getStateParams();
 
     if ((this._mode === Mode.LOG || this._mode === Mode.LOG_HTML || this._mode === Mode.ERROR) && !this._parentView) {
@@ -87,6 +90,10 @@ export default class ArrayView extends TypeView {
         isShowLength = true;
       }
     }
+    if (this._stringTagName !== `Array` ||
+    this._constructorName !== `Array`) {
+      isShowInfo = true;
+    }
     return {
       isShowInfo,
       isHeadContentShowed,
@@ -98,7 +105,7 @@ export default class ArrayView extends TypeView {
   createContent(arr, inHead) {
     const entriesKeys = inHead ? this.headContentEntriesKeys : this.contentEntriesKeys;
     const fragment = document.createDocumentFragment();
-    entriesKeys.delete(`length`);
+    entriesKeys.delete(`length`); // Length property not displayed in head, exception
     let isOversized = false;
     let addedKeysCounter = 0;
 
@@ -122,7 +129,7 @@ export default class ArrayView extends TypeView {
         isIncrementCounter = false;
       }
 
-      TypeView.appendEntryIntoFragment(entryEl, fragment);
+      TypeView.appendEntryElIntoFragment(entryEl, fragment);
 
       if (isIncrementCounter) {
         addedKeysCounter++;
@@ -134,18 +141,18 @@ export default class ArrayView extends TypeView {
         isOversized = true;
         break;
       }
-      TypeView.appendEntryIntoFragment(
+      TypeView.appendEntryElIntoFragment(
           this._createTypedEntryEl({obj: arr, key, mode, canReturnNull: inHead}),
           fragment
       );
       addedKeysCounter++;
     }
     if (!inHead) {
-      TypeView.appendEntryIntoFragment(
+      TypeView.appendEntryElIntoFragment(
           this._createTypedEntryEl({obj: arr, key: `length`, mode, notCheckDescriptors: true}),
           fragment
       );
-      TypeView.appendEntryIntoFragment(
+      TypeView.appendEntryElIntoFragment(
           this._createTypedEntryEl({obj: arr, key: `__proto__`, mode, notCheckDescriptors: true}),
           fragment
       );

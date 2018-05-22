@@ -27,11 +27,13 @@
         };
       };
       const jsConsole = new Console(document.querySelector(`.console`), {
-        array: {
-          expandDepth: 4,
-          exclude: [`object`]
+        common: {
+          excludeProperties: [`__proto__`],
+          expandDepth: 1,
+          minFieldsToExpand: 5, // как в object.maxFieldsInHead
+          // maxFieldsToExpand: 15,
+          expandDepth: 1
         },
-        env: `test`
         // function: {
         //   expandDepth: 2,
         //   exclude: [ViewType.OBJECT, ViewType.ARRAY]

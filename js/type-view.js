@@ -10,6 +10,7 @@ import {Mode, Env} from './enums';
 const isNativeFunction = (fn) => {
   return /{\s*\[native code\]\s*}/g.test(fn);
 };
+
 const getAllPropertyDescriptors = (objToGetDescriptors, descriptors = {}) => {
   if (objToGetDescriptors === null) {
     return descriptors;
@@ -21,6 +22,13 @@ const getAllPropertyDescriptors = (objToGetDescriptors, descriptors = {}) => {
       ),
       descriptors
   );
+};
+
+const getFirstProtoContainingObject = (typeView) => {
+  if (typeView.parentView && typeView.propKey === `__proto__`) {
+    return getFirstProtoContainingObject(typeView.parentView);
+  }
+  return typeView.value;
 };
 
 export default class TypeView extends AbstractView {
@@ -59,6 +67,18 @@ export default class TypeView extends AbstractView {
     this._contentEl = this.el.querySelector(`.item__content`);
 
     this._afterRender();
+  }
+
+  get value() {
+    return this._value;
+  }
+
+  get propKey() {
+    return this._propKey;
+  }
+
+  get parentView() {
+    return this._parentView;
   }
 
   /**
@@ -178,13 +198,6 @@ export default class TypeView extends AbstractView {
     return this._currentDepth + 1;
   }
 
-  get _ownPropertyDescriptors() {
-    if (!this._cache.ownPropertyDescriptors) {
-      this._cache.ownPropertyDescriptors = Object.getOwnPropertyDescriptors(this._value);
-    }
-    return this._cache.ownPropertyDescriptors;
-  }
-
   get _ownPropertySymbols() {
     if (!this._cache.ownPropertySymbols) {
       this._cache.ownPropertySymbols = Object.getOwnPropertySymbols(this._value);
@@ -192,18 +205,42 @@ export default class TypeView extends AbstractView {
     return this._cache.ownPropertySymbols;
   }
 
-  get _ownPropertyDescriptorsLength() {
-    if (!this._cache.ownPropertyDescriptorsLength) {
-      let count = 0;
+  get _ownPropertyDescriptors() {
+    if (!this._cache.ownPropertyDescriptors) {
+      this._cache.ownPropertyDescriptors = Object.getOwnPropertyDescriptors(this._value);
+    }
+    return this._cache.ownPropertyDescriptors;
+  }
+
+  get _ownPropertyDescriptorsWithGetSet() {
+    if (!this._cache.ownPropertyDescriptorsWithGetSet) {
+      const descriptors = {};
       for (let key in this._ownPropertyDescriptors) {
         if (!Object.prototype.hasOwnProperty.call(this._ownPropertyDescriptors, key)) {
           continue;
         }
+        const descriptor = this._ownPropertyDescriptors[key];
+        if (descriptor.get || descriptor.set) {
+          descriptors[key] = descriptor;
+        }
+      }
+      this._cache.ownPropertyDescriptorsWithGetSet = descriptors;
+    }
+    return this._cache.ownPropertyDescriptorsWithGetSet;
+  }
+
+  get _ownPropertyDescriptorsWithGetSetLength() {
+    if (!this._cache.ownPropertyDescriptorsWithGetSetLength) {
+      let count = 0;
+      for (let key in this._ownPropertyDescriptorsWithGetSet) {
+        if (!Object.prototype.hasOwnProperty.call(this._ownPropertyDescriptorsWithGetSet, key)) {
+          continue;
+        }
         count++;
       }
-      this._cache.ownPropertyDescriptorsLength = count;
+      this._cache.ownPropertyDescriptorsWithGetSetLength = count;
     }
-    return this._cache.ownPropertyDescriptorsLength;
+    return this._cache.ownPropertyDescriptorsWithGetSetLength;
   }
 
   get _allPropertyDescriptors() {
@@ -260,6 +297,18 @@ export default class TypeView extends AbstractView {
       this._cache.categorizedProperties = {enumerableProperties, notEnumerableProperties};
     }
     return this._cache.categorizedProperties;
+  }
+
+  get _firstProtoContainingObject() {
+    if (this._cache.firstProtoContainingObject === void 0) {
+      if (this._propKey === `__proto__`) {
+        // console.log(this._value, this._propKey, this.parentView);
+        this._cache.firstProtoContainingObject = getFirstProtoContainingObject(this._parentView);
+      } else {
+        this._cache.firstProtoContainingObject = null;
+      }
+    }
+    return this._cache.firstProtoContainingObject;
   }
 
   /**
@@ -342,7 +391,7 @@ export default class TypeView extends AbstractView {
       } else {
         let entriesKeysLength = this.contentEntriesKeys.size;
         if (typeParams.showGetters) {
-          entriesKeysLength += this._ownPropertyDescriptorsLength;
+          entriesKeysLength += this._ownPropertyDescriptorsWithGetSetLength;
         }
         if (typeParams.maxFieldsToExpand >= entriesKeysLength &&
           entriesKeysLength >= typeParams.minFieldsToExpand) {
@@ -373,6 +422,34 @@ export default class TypeView extends AbstractView {
     }
   }
 
+  _createGettersEntriesFragment() {
+    const fragment = document.createDocumentFragment();
+    const mode = Mode.PROP;
+
+    const keys = Object.keys(this._ownPropertyDescriptorsWithGetSet);
+    keys.sort(TypeView.compareProperties);
+
+    for (let key of keys) {
+      const descriptor = this._ownPropertyDescriptorsWithGetSet[key];
+
+      if (descriptor.get !== void 0) {
+        const getterEl = this._console.createTypedView(descriptor.get, mode, this.nextNestingLevel, this, key).el;
+        TypeView.appendEntryElIntoFragment(
+            this._createEntryEl({key: `get ${key}`, el: getterEl, mode, isGrey: true}),
+            fragment
+        );
+      }
+      if (descriptor.set !== void 0) {
+        const setterEl = this._console.createTypedView(descriptor.set, mode, this.nextNestingLevel, this, key).el;
+        TypeView.appendEntryElIntoFragment(
+            this._createEntryEl({key: `set ${key}`, el: setterEl, mode, isGrey: true}),
+            fragment
+        );
+      }
+    }
+    return fragment;
+  }
+
   /**
    * Create entry element
    * @protected
@@ -384,15 +461,7 @@ export default class TypeView extends AbstractView {
    * @param {function} [params.getViewEl] — function to get element if so wasn't present while calling this method
    * @return {HTMLSpanElement}
    */
-  _createEntryEl({key, el, mode, withoutKey, getViewEl}) {
-    const {notEnumerableProperties} = this._categorizedSortedProperties;
-    let isGrey = false;
-    if (mode !== Mode.PREVIEW &&
-      (notEnumerableProperties.indexOf(key) !== -1 ||
-      this._ownPropertySymbols.indexOf(key) !== -1 ||
-      key === `__proto__`)) {
-      isGrey = true;
-    }
+  _createEntryEl({key, el, mode, withoutKey, getViewEl, isGrey}) {
     const entryEl = getElement(`\
 <span class="entry-container__entry">\
 ${withoutKey ? `` : `<span class="entry-container__key ${isGrey ? `grey` : ``}">${key.toString()}</span>`}<span class="entry-container__value-container"></span>\
@@ -433,8 +502,24 @@ ${withoutKey ? `` : `<span class="entry-container__key ${isGrey ? `grey` : ``}">
    * @return {HTMLSpanElement}
    */
   _createTypedEntryEl({obj, key, mode, withoutKey, notCheckDescriptors, canReturnNull = false}) {
+    const {notEnumerableProperties} = this._categorizedSortedProperties;
+    let isGrey = false;
+    if (mode !== Mode.PREVIEW &&
+      (notEnumerableProperties.indexOf(key) !== -1 ||
+      this._ownPropertySymbols.indexOf(key) !== -1 ||
+      key === `__proto__`)) {
+      isGrey = true;
+    }
+    // if obj is __proto__ or prototype property and has property descriptor with getter for the key
+    const isProtoChainCall = this._propKey === `__proto__` &&
+      Object.prototype.hasOwnProperty.call(this._allPropertyDescriptorsWithGetters, key);
     const getViewEl = () => {
-      const val = key !== `__proto__` ? obj[key] : Object.getPrototypeOf(obj);
+      let val;
+      if (isProtoChainCall) {
+        val = this._allPropertyDescriptorsWithGetters[key].get.call(this._firstProtoContainingObject);
+      } else {
+        val = key === `__proto__` ? Object.getPrototypeOf(obj) : obj[key];
+      }
       return this._console.createTypedView(val, mode, this.nextNestingLevel, this, key).el;
     };
     let el;
@@ -443,7 +528,12 @@ ${withoutKey ? `` : `<span class="entry-container__key ${isGrey ? `grey` : ``}">
         el = getViewEl();
       } else {
         const descriptors = this._allPropertyDescriptorsWithGetters;
-        if (!(key in descriptors) || isNativeFunction(descriptors[key].get) || !descriptors[key].get || key === `__proto__`) {
+        if (!isProtoChainCall && (
+          !Object.prototype.hasOwnProperty.call(descriptors, key) ||
+          isNativeFunction(descriptors[key].get) ||
+          !descriptors[key].get ||
+          key === `__proto__`)
+        ) {
           el = getViewEl();
         }
       }
@@ -452,14 +542,14 @@ ${withoutKey ? `` : `<span class="entry-container__key ${isGrey ? `grey` : ``}">
         return null;
       }
     }
-    return this._createEntryEl({key, el, mode, withoutKey, getViewEl});
+    return this._createEntryEl({key, el, mode, withoutKey, getViewEl, isGrey});
   }
 
   /**
    * @param {HTMLSpanElement|null} entryEl
    * @param {DocumentFragment} fragment
    */
-  static appendEntryIntoFragment(entryEl, fragment) {
+  static appendEntryElIntoFragment(entryEl, fragment) {
     if (entryEl !== null) {
       fragment.appendChild(entryEl);
     }
@@ -487,49 +577,85 @@ ${withoutKey ? `` : `<span class="entry-container__key ${isGrey ? `grey` : ``}">
     }
   }
 
+  // static compareProperties(a, b) {
+  //   if (a === b) {
+  //     return 0;
+  //   }
+  //   const chunk = /^\d+|^\D+/;
+  //   let chunka;
+  //   let chunkb;
+  //   let anum;
+  //   let bnum;
+  //   let diff = 0;
+  //   while (diff === 0) {
+  //     if (!a && b) {
+  //       return -1;
+  //     }
+  //     if (!b && a) {
+  //       return 1;
+  //     }
+  //     chunka = a.match(chunk)[0];
+  //     chunkb = b.match(chunk)[0];
+  //     anum = !Number.isNaN(chunka);
+  //     bnum = !Number.isNaN(chunkb);
+  //     if (anum && !bnum) {
+  //       return -1;
+  //     }
+  //     if (bnum && !anum) {
+  //       return 1;
+  //     }
+  //     if (anum && bnum) {
+  //       diff = chunka - chunkb;
+  //       if (diff === 0 && chunka.length !== chunkb.length) {
+  //         if (!+chunka && !+chunkb) { // chunks are strings of all 0s (special case)
+  //           return chunka.length - chunkb.length;
+  //         } else {
+  //           return chunkb.length - chunka.length;
+  //         }
+  //       }
+  //     } else if (chunka !== chunkb) {
+  //       return chunka < chunkb ? -1 : 1;
+  //     }
+  //     a = a.substring(chunka.length);
+  //     b = b.substring(chunkb.length);
+  //   }
+  //   return diff;
+  // }
   static compareProperties(a, b) {
     if (a === b) {
       return 0;
     }
-    const chunk = /^\d+|^\D+/;
-    let chunka;
-    let chunkb;
-    let anum;
-    let bnum;
+
     let diff = 0;
+    const chunk = /^\d+|^\D+/;
+    let chunka, chunkb, anum, bnum;
     while (diff === 0) {
-      if (!a && b) {
-        return -1;
-      }
-      if (!b && a) {
-        return 1;
-      }
-      chunka = a.match(chunk)[0];
-      chunkb = b.match(chunk)[0];
-      anum = !Number.isNaN(chunka);
-      bnum = !Number.isNaN(chunkb);
-      if (anum && !bnum) {
-        return -1;
-      }
-      if (bnum && !anum) {
-        return 1;
-      }
-      if (anum && bnum) {
-        diff = chunka - chunkb;
-        if (diff === 0 && chunka.length !== chunkb.length) {
-          if (!+chunka && !+chunkb) { // chunks are strings of all 0s (special case)
-            return chunka.length - chunkb.length;
-          } else {
-            return chunkb.length - chunka.length;
-          }
+        if (!a && b)
+            return -1;
+        if (!b && a)
+            return 1;
+        chunka = a.match(chunk)[0];
+        chunkb = b.match(chunk)[0];
+        anum = !isNaN(chunka);
+        bnum = !isNaN(chunkb);
+        if (anum && !bnum)
+            return -1;
+        if (bnum && !anum)
+            return 1;
+        if (anum && bnum) {
+            diff = chunka - chunkb;
+            if (diff === 0 && chunka.length !== chunkb.length) {
+                if (!+chunka && !+chunkb) // chunks are strings of all 0s (special case)
+                    return chunka.length - chunkb.length;
+                else
+                    return chunkb.length - chunka.length;
+            }
+        } else if (chunka !== chunkb) {
+          return chunka < chunkb ? -1 : 1;
         }
-      } else if (chunka !== chunkb) {
-        return chunka < chunkb ? -1 : 1;
-      }
-      a = a.substring(chunka.length);
-      b = b.substring(chunkb.length);
+        a = a.substring(chunka.length);
+        b = b.substring(chunkb.length);
     }
     return diff;
   }
-
 }

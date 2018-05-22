@@ -185,6 +185,9 @@ block__elem--mod — element's modifier
 }
 
 .head {
+  &__content {
+    white-space: normal;
+  }
   &__content,
   &__length,
   &__info {
