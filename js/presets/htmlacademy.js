@@ -4,7 +4,6 @@ const params = {
   // },
   common: {
     excludeProperties: [`__proto__`],
-    expandDepth: 1,
     maxFieldsInHead: 5,
     minFieldsToExpand: 5,
     maxFieldsToExpand: 15
