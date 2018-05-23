@@ -429,6 +429,13 @@ export default class TypeView extends AbstractView {
     const keys = Object.keys(this._ownPropertyDescriptorsWithGetSet);
     keys.sort(TypeView.compareProperties);
 
+    if (this._console.params.env === Env.TEST) {
+      const shouldKeyIndex = keys.indexOf(`should`);
+      if (shouldKeyIndex !== -1) {
+        keys.splice(shouldKeyIndex, 1);
+      }
+    }
+
     for (let key of keys) {
       const descriptor = this._ownPropertyDescriptorsWithGetSet[key];
 
@@ -577,84 +584,47 @@ ${withoutKey ? `` : `<span class="entry-container__key ${isGrey ? `grey` : ``}">
     }
   }
 
-  // static compareProperties(a, b) {
-  //   if (a === b) {
-  //     return 0;
-  //   }
-  //   const chunk = /^\d+|^\D+/;
-  //   let chunka;
-  //   let chunkb;
-  //   let anum;
-  //   let bnum;
-  //   let diff = 0;
-  //   while (diff === 0) {
-  //     if (!a && b) {
-  //       return -1;
-  //     }
-  //     if (!b && a) {
-  //       return 1;
-  //     }
-  //     chunka = a.match(chunk)[0];
-  //     chunkb = b.match(chunk)[0];
-  //     anum = !Number.isNaN(chunka);
-  //     bnum = !Number.isNaN(chunkb);
-  //     if (anum && !bnum) {
-  //       return -1;
-  //     }
-  //     if (bnum && !anum) {
-  //       return 1;
-  //     }
-  //     if (anum && bnum) {
-  //       diff = chunka - chunkb;
-  //       if (diff === 0 && chunka.length !== chunkb.length) {
-  //         if (!+chunka && !+chunkb) { // chunks are strings of all 0s (special case)
-  //           return chunka.length - chunkb.length;
-  //         } else {
-  //           return chunkb.length - chunka.length;
-  //         }
-  //       }
-  //     } else if (chunka !== chunkb) {
-  //       return chunka < chunkb ? -1 : 1;
-  //     }
-  //     a = a.substring(chunka.length);
-  //     b = b.substring(chunkb.length);
-  //   }
-  //   return diff;
-  // }
   static compareProperties(a, b) {
     if (a === b) {
       return 0;
     }
-
-    let diff = 0;
     const chunk = /^\d+|^\D+/;
-    let chunka, chunkb, anum, bnum;
+    let chunka;
+    let chunkb;
+    let anum;
+    let bnum;
+    let diff = 0;
     while (diff === 0) {
-        if (!a && b)
-            return -1;
-        if (!b && a)
-            return 1;
-        chunka = a.match(chunk)[0];
-        chunkb = b.match(chunk)[0];
-        anum = !isNaN(chunka);
-        bnum = !isNaN(chunkb);
-        if (anum && !bnum)
-            return -1;
-        if (bnum && !anum)
-            return 1;
-        if (anum && bnum) {
-            diff = chunka - chunkb;
-            if (diff === 0 && chunka.length !== chunkb.length) {
-                if (!+chunka && !+chunkb) // chunks are strings of all 0s (special case)
-                    return chunka.length - chunkb.length;
-                else
-                    return chunkb.length - chunka.length;
-            }
-        } else if (chunka !== chunkb) {
-          return chunka < chunkb ? -1 : 1;
+      if (!a && b) {
+        return -1;
+      }
+      if (!b && a) {
+        return 1;
+      }
+      chunka = a.match(chunk)[0];
+      chunkb = b.match(chunk)[0];
+      anum = !isNaN(chunka);
+      bnum = !isNaN(chunkb);
+      if (anum && !bnum) {
+        return -1;
+      }
+      if (bnum && !anum) {
+        return 1;
+      }
+      if (anum && bnum) {
+        diff = chunka - chunkb;
+        if (diff === 0 && chunka.length !== chunkb.length) {
+          if (!+chunka && !+chunkb) {
+            return chunka.length - chunkb.length;
+          } else {
+            return chunkb.length - chunka.length;
+          }
         }
-        a = a.substring(chunka.length);
-        b = b.substring(chunkb.length);
+      } else if (chunka !== chunkb) {
+        return chunka < chunkb ? -1 : 1;
+      }
+      a = a.substring(chunka.length);
+      b = b.substring(chunkb.length);
     }
     return diff;
   }

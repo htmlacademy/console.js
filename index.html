@@ -41,11 +41,11 @@
       });
       const obj = {};
       const arr = [obj];
-      arr.push(arr);
-      // arr.fn = fn;
       const fn = (bar = 123) => {
         return bar;
       };
+      arr.push(arr);
+      // arr.fn = fn;
       fn.arr = arr;
       fn.obj = obj;
       obj.obj = obj;
@@ -54,8 +54,6 @@
       jsConsole.log(obj);
       jsConsole.dir(fn);
       jsConsole.log(arr);
-      const div = document.createElement(`div`);
-      jsConsole.log(div);
     </script>
   </body>
 </html>
