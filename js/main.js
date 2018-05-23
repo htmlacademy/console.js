@@ -42,32 +42,27 @@ export default class Console {
 
   _parseParams(viewType, paramsObject = {}) {
     // Set this._expandDepth and this._minFieldsToExpand only if expandDepth provided and > 0
-    if (typeof paramsObject.expandDepth === `number` &&
-    paramsObject.expandDepth > 0) {
 
-      paramsObject.minFieldsToExpand = (
-        typeof paramsObject.minFieldsToExpand === `number` &&
-        paramsObject.minFieldsToExpand > 0
-      ) ? paramsObject.minFieldsToExpand : 0;
+    paramsObject.expandDepth = (
+      typeof paramsObject.expandDepth === `number` &&
+      paramsObject.expandDepth > 0
+    ) ? paramsObject.expandDepth : 0;
 
-      paramsObject.maxFieldsToExpand = (
-        typeof paramsObject.maxFieldsToExpand === `number` &&
-        paramsObject.maxFieldsToExpand > 0
-      ) ? paramsObject.maxFieldsToExpand : Number.POSITIVE_INFINITY;
-    }
+
+    paramsObject.minFieldsToExpand = (
+      typeof paramsObject.minFieldsToExpand === `number` &&
+      paramsObject.minFieldsToExpand > 0
+    ) ? paramsObject.minFieldsToExpand : 0;
+
+    paramsObject.maxFieldsToExpand = (
+      typeof paramsObject.maxFieldsToExpand === `number` &&
+      paramsObject.maxFieldsToExpand > 0
+    ) ? paramsObject.maxFieldsToExpand : Number.POSITIVE_INFINITY;
 
     paramsObject.maxFieldsInHead = (
       typeof paramsObject.maxFieldsInHead === `number` &&
       paramsObject.maxFieldsInHead > 0
     ) ? paramsObject.maxFieldsInHead : DEFAULT_MAX_FIELDS_IN_HEAD;
-
-    paramsObject.showGetters = typeof paramsObject.showGetters === `boolean` ?
-      paramsObject.showGetters : true;
-
-    if (viewType === ViewType.ARRAY) {
-      paramsObject.countEntriesWithoutKeys = typeof paramsObject.countEntriesWithoutKeys === `boolean` ?
-        paramsObject.countEntriesWithoutKeys : false;
-    }
 
     if (!Array.isArray(paramsObject.excludeProperties)) {
       paramsObject.excludeProperties = [];
@@ -86,6 +81,10 @@ export default class Console {
         throw new Error(`Provided type to exclude is not in available types`);
       }
     }
+
+    paramsObject.showGetters = typeof paramsObject.showGetters === `boolean` ?
+      paramsObject.showGetters : true;
+
     return paramsObject;
   }
 
