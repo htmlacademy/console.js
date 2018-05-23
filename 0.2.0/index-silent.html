@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>console.js</title>
+  </head>
+  <body>
+    <script src="js/presets/autoexpand-all.js"></script>
+    <script src="js/presets/htmlacademy.js"></script>
+    <script src="js/index-silent.js"></script>
+
+    <script>
+      const obj = {};
+      const arr = [obj];
+      arr.push(arr);
+      // arr.fn = fn;
+      const fn = (bar = 123) => {
+        return bar;
+      };
+      fn.arr = arr;
+      fn.obj = obj;
+      obj.obj = obj;
+      obj.arr = arr;
+      obj.fn = fn;
+      console.log(obj);
+      console.dir(fn);
+      console.log(arr);
+    </script>
+  </body>
+</html>
