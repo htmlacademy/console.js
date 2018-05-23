@@ -1,1 +1,1 @@
-!function(){"use strict";var e={common:{excludeProperties:["__proto__"],expandDepth:1,maxFieldsInHead:5,minFieldsToExpand:5,maxFieldsToExpand:15}};Array.isArray(window.jsConsolePresets)?window.jsConsolePresets.push(e):window.jsConsolePresets=[e]}();
+!function(){"use strict";var s={common:{excludeProperties:["__proto__"],maxFieldsInHead:5,minFieldsToExpand:5,maxFieldsToExpand:15}};Array.isArray(window.jsConsolePresets)?window.jsConsolePresets.push(s):window.jsConsolePresets=[s]}();
