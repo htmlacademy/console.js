@@ -111,6 +111,7 @@ block__elem--mod — element's modifier
   //   flex-direction: row;
   // }
   &--head {
+    white-space: normal;
     #{$parent}__entry {
       display: inline-block;
 
@@ -185,9 +186,6 @@ block__elem--mod — element's modifier
 }
 
 .head {
-  &__content {
-    white-space: normal;
-  }
   &__content,
   &__length,
   &__info {
