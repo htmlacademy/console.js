@@ -1,7 +1,6 @@
 const params = {
   common: {
-    expandDepth: 1,
-    maxFieldsToExpand: 15
+    expandDepth: 1
   }
 };
 

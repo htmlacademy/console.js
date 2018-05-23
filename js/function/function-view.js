@@ -10,13 +10,6 @@ const FnType = {
   CLASS: `class`
 };
 
-const BUILTIN_FIELDS = [`arguments`, `caller`, `length`, `name`, `prototype`, `__proto__`];
-
-// if .caller not accessed — не выводим
-// if prototype undefined — не выводим
-// name — если неименованная — получает имя переменной, в которую записана
-// если именнованная — то имя ф-ии
-
 export default class FunctionView extends TypeView {
   constructor(params, cons) {
     super(params, cons);
@@ -97,7 +90,7 @@ ${this._value.name ? this._value.name : ``}\
 ${this._fnType !== FnType.CLASS ? `(${params.join(`, `)})` : ``}\
 ${this._fnType === FnType.ARROW ? ` => ` : ` `}`;
     if (this._fnType === FnType.ARROW) {
-      markup += `${joinedLines.length <= MAX_PREVIEW_FN_BODY_LENGTH ? joinedLines : `{...}`}`;
+      markup += `${joinedLines.length <= MAX_PREVIEW_FN_BODY_LENGTH ? joinedLines : `{…}`}`;
     }
     return markup;
   }
@@ -164,12 +157,16 @@ ${this._fnType === FnType.ARROW ? ` => ` : ` `}${bodyLines.join(`\n`)}`;
   createContent(fn) {
     const fragment = document.createDocumentFragment();
     const entriesKeys = this.contentEntriesKeys;
-    for (let key of BUILTIN_FIELDS) {
-      entriesKeys.add(key);
-    }
     for (let key of entriesKeys) {
-      fragment.appendChild(this._createTypedEntryEl({obj: fn, key, mode: Mode.PROP, keyElClass: BUILTIN_FIELDS.includes(key) ? `grey` : null}));
+      TypeView.appendEntryElIntoFragment(
+          this._createTypedEntryEl({obj: fn, key, mode: Mode.PROP}),
+          fragment
+      );
     }
+    TypeView.appendEntryElIntoFragment(
+        this._createTypedEntryEl({obj: fn, key: `__proto__`, mode: Mode.PROP, notCheckDescriptors: true}),
+        fragment
+    );
     return {fragment};
   }
 

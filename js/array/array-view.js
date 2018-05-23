@@ -11,6 +11,9 @@ export default class ArrayView extends TypeView {
     if (!params.parentView) {
       this.rootView = this;
     }
+    const stringTag = Object.prototype.toString.call(this._value);
+    this._stringTagName = stringTag.substring(8, stringTag.length - 1);
+    this._constructorName = this._value.constructor ? this._value.constructor.name : null;
   }
 
   get template() {
@@ -28,7 +31,7 @@ export default class ArrayView extends TypeView {
   _afterRender() {
     this._lengthEl = this.el.querySelector(`.length`);
     this.toggleHeadContentBraced();
-    this._infoEl.textContent = this._value.constructor.name;
+    this._infoEl.textContent = this._stringTagName;
     this._state = this._getStateParams();
 
     if ((this._mode === Mode.LOG || this._mode === Mode.LOG_HTML || this._mode === Mode.ERROR) && !this._parentView) {
@@ -87,6 +90,10 @@ export default class ArrayView extends TypeView {
         isShowLength = true;
       }
     }
+    if (this._stringTagName !== `Array` ||
+    this._constructorName !== `Array`) {
+      isShowInfo = true;
+    }
     return {
       isShowInfo,
       isHeadContentShowed,
@@ -98,7 +105,7 @@ export default class ArrayView extends TypeView {
   createContent(arr, inHead) {
     const entriesKeys = inHead ? this.headContentEntriesKeys : this.contentEntriesKeys;
     const fragment = document.createDocumentFragment();
-    entriesKeys.delete(`length`);
+    entriesKeys.delete(`length`); // Length property not displayed in head, exception
     let isOversized = false;
     let addedKeysCounter = 0;
 
@@ -111,27 +118,44 @@ export default class ArrayView extends TypeView {
         break;
       }
       const key = i.toString();
+      let isIncrementCounter = this._console.params[this.viewType].countEntriesWithoutKeys;
+      let entryEl = null;
       if (entriesKeys.has(key)) {
-        fragment.appendChild(this._createTypedEntryEl({obj: arr, key: i, mode, withoutKey: inHead, notCheckDescriptors: true}));
+        entryEl = this._createTypedEntryEl({obj: arr, key: i, mode, withoutKey: inHead, notCheckDescriptors: true});
         entriesKeys.delete(key);
-        addedKeysCounter++;
       } else if (inHead) {
-        const entryEl = this._createEntryEl({key: i, el: getElement(`<span class="grey">${EMPTY}</span>`), withoutKey: true});
-        fragment.appendChild(entryEl);
+        entryEl = this._createEntryEl({key: i, el: getElement(`<span class="grey">${EMPTY}</span>`), withoutKey: true});
+      } else {
+        isIncrementCounter = false;
+      }
+
+      TypeView.appendEntryElIntoFragment(entryEl, fragment);
+
+      if (isIncrementCounter) {
         addedKeysCounter++;
       }
     }
+
     for (let key of entriesKeys) {
       if (inHead && addedKeysCounter === maxFieldsInHead) {
         isOversized = true;
         break;
       }
-      fragment.appendChild(this._createTypedEntryEl({obj: arr, key, mode, withoutKey: inHead}));
+      TypeView.appendEntryElIntoFragment(
+          this._createTypedEntryEl({obj: arr, key, mode, canReturnNull: inHead}),
+          fragment
+      );
       addedKeysCounter++;
     }
     if (!inHead) {
-      fragment.appendChild(this._createTypedEntryEl({obj: arr, key: `length`, mode, keyElClass: `grey`, notCheckDescriptors: true}));
-      fragment.appendChild(this._createTypedEntryEl({obj: arr, key: `__proto__`, mode, keyElClass: `grey`, notCheckDescriptors: true}));
+      TypeView.appendEntryElIntoFragment(
+          this._createTypedEntryEl({obj: arr, key: `length`, mode, notCheckDescriptors: true}),
+          fragment
+      );
+      TypeView.appendEntryElIntoFragment(
+          this._createTypedEntryEl({obj: arr, key: `__proto__`, mode, notCheckDescriptors: true}),
+          fragment
+      );
     }
     return {fragment, isOversized};
   }

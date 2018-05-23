@@ -27,18 +27,25 @@
         };
       };
       const jsConsole = new Console(document.querySelector(`.console`), {
-        function: {
-          expandDepth: 4,
-          minFieldsToExpand: 1
+        array: {
+          countEntriesWithoutKeys: true
+        },
+        common: {
+          excludeProperties: [`__proto__`],
+          expandDepth: 1,
+          maxFieldsInHead: 5,
+          minFieldsToExpand: 5, // как в object.maxFieldsInHead
+          maxFieldsToExpand: 15,
+          expandDepth: 1
         }
       });
       const obj = {};
       const arr = [obj];
-      arr.push(arr);
-      // arr.fn = fn;
       const fn = (bar = 123) => {
         return bar;
       };
+      arr.push(arr);
+      // arr.fn = fn;
       fn.arr = arr;
       fn.obj = obj;
       obj.obj = obj;

@@ -32,7 +32,12 @@ const getLengths = () => {
 };
 
 const getConsole = (container, params) => {
-  return new Console(container, Object.assign(params, {env: Env.TEST}));
+  return new Console(container, Object.assign(params, {
+    env: Env.TEST,
+    // common: {
+    //   excludeProperties: [`__proto__`]
+    // }
+  }));
 };
 
 const div = document.createElement(`div`);
@@ -143,7 +148,7 @@ describe(`Check depth array`, () => {
     cons.log(arr);
     const {objLength, arrLength, fnLength} = getLengths();
     // console.log(`objLength: ${objLength}, arrLength: ${arrLength}, fnLength: ${fnLength}`);
-    assert(objLength === 0 && arrLength === 8 && fnLength === 96);
+    assert(objLength === 0 && arrLength === 8 && fnLength === 97);
   });
   it(`root array should be opened with excluding nested functions`, () => {
     cons = getConsole(div, {
@@ -190,7 +195,7 @@ describe(`Check depth function DIR`, () => {
     cons = getConsole(div, {
       function: {
         expandDepth: 2,
-        minFieldsToExpand: 5
+        minFieldsToExpand: 7
       }
     });
     cons.dir(fn);
