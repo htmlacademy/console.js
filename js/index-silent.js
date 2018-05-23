@@ -2,7 +2,7 @@ import Console from './main';
 import mergeWith from 'lodash.mergewith';
 import {customizer} from './utils';
 
-const CSS_URL = `//htmlacademy.github.io/console.js/0.1.0/css/style.min.css`;
+const CSS_URL = `//htmlacademy.github.io/console.js/0.2.0/css/style.min.css`;
 
 const errors = [];
 const collectErr = function (evt) {
