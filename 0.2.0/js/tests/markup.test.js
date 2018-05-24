@@ -3539,6 +3539,7 @@ class Console {
    */
   extend(consoleObject) {
     consoleObject.log = this.log.bind(this);
+    consoleObject.logHTML = this.logHTML.bind(this);
     consoleObject.info = this.log.bind(this);
 
     consoleObject.error = this.error.bind(this);
