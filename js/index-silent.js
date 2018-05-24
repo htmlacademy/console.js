@@ -1,31 +1,29 @@
+/* eslint no-invalid-this: "off"*/
 import Console from './main';
 import mergeWith from 'lodash.mergewith';
 import {customizer} from './utils';
+import {Mode} from './enums';
 
 const CSS_URL = `//htmlacademy.github.io/console.js/0.2.0/css/style.min.css`;
 
-const errors = [];
-const collectErr = function (evt) {
-  errors.push(evt.error);
-};
-window.addEventListener(`error`, collectErr);
-window.console.warn = collectErr;
-window.console.error = collectErr;
-
 const messages = [];
-const collectLogs = function (...rest) {
-  messages.push(...rest);
+
+const collectErr = function (evt) {
+  messages.push({mode: Mode.ERROR, args: [evt.error]});
 };
 
-const dirs = [];
-const collectDirs = (val) => {
-  dirs.push(val);
+window.addEventListener(`error`, collectErr);
+
+const collectMessages = function (...args) {
+  messages.push({mode: this.mode, args});
 };
 
-window.console.info = collectLogs;
-window.console.log = collectLogs;
-window.console.dir = collectDirs;
-// window.console.debug = collectMsg;
+window.console.info = collectMessages.bind({mode: Mode.LOG});
+window.console.log = collectMessages.bind({mode: Mode.LOG});
+window.console.logHTML = collectMessages.bind({mode: Mode.LOG_HTML});
+window.console.dir = collectMessages.bind({mode: Mode.DIR});
+window.console.warn = collectMessages.bind({mode: Mode.ERROR});
+window.console.error = collectMessages.bind({mode: Mode.ERROR});
 
 const init = function () {
   const div = window.document.createElement(`div`);
@@ -38,15 +36,21 @@ const init = function () {
   window.document.body.appendChild(div);
 
   jsConsole.extend(window.console);
-
-  errors.forEach(function (err) {
-    jsConsole.error(err);
-  });
-  messages.forEach(function (val) {
-    jsConsole.log(val);
-  });
-  dirs.forEach((val) => {
-    jsConsole.dir(val);
+  messages.forEach(({mode, args}) => {
+    switch (mode) {
+      case Mode.LOG:
+        jsConsole.log(...args);
+        break;
+      case Mode.DIR:
+        jsConsole.dir(...args);
+        break;
+      case Mode.LOG_HTML:
+        jsConsole.logHTML(...args);
+        break;
+      case Mode.ERROR:
+        jsConsole.error(...args);
+        break;
+    }
   });
   window.addEventListener(`error`, (evt) => {
     jsConsole.error(evt.error);
