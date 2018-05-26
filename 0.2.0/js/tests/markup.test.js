@@ -2691,9 +2691,11 @@ class ObjectView extends TypeView {
     if (!params.parentView) {
       this.rootView = this;
     }
+    const proto = Object.getPrototypeOf(this._value);
     const stringTag = Object.prototype.toString.call(this._value);
     this._stringTagName = stringTag.substring(8, stringTag.length - 1);
-    this._constructorName = this._value.constructor ? this._value.constructor.name : null;
+    // this._constructorName = this._value.constructor ? this._value.constructor.name : null;
+    this._protoConstructorName = proto && proto.hasOwnProperty(`constructor`) ? proto.constructor.name : `Object`;
   }
 
   get template() {
@@ -2715,10 +2717,10 @@ class ObjectView extends TypeView {
       this._headContentEl.classList.add(headContentClassName);
     }
 
-    if (this._constructorName === `Object` && this._stringTagName !== `Object`) {
+    if (this._stringTagName !== `Object`) {
       this._infoEl.textContent = this._stringTagName;
     } else {
-      this._infoEl.textContent = this._constructorName;
+      this._infoEl.textContent = this._protoConstructorName;
     }
     this._state = stateParams;
   }
@@ -2747,10 +2749,10 @@ class ObjectView extends TypeView {
         if (!bool && (self._mode === Mode.LOG ||
           self._mode === Mode.LOG_HTML ||
           self._mode === Mode.ERROR) && !self._parentView) {
-          self.toggleItalic(bool);
+          self.toggleItalic(true);
         }
         if (bool && self._mode === Mode.ERROR) {
-          self.toggleError(bool);
+          self.toggleError(true);
         }
       },
     };
@@ -2772,7 +2774,7 @@ class ObjectView extends TypeView {
   }
 
   _getHeadPreviewContent() {
-    if (this._stringTagName === `Object` && this._constructorName === `Object`) {
+    if (this._stringTagName === `Object` && this._protoConstructorName === `Object`) {
       return {
         elOrStr: `…`,
         stateParams: {
@@ -2823,7 +2825,7 @@ class ObjectView extends TypeView {
       val = obj.fragment;
       isOversized = obj.isOversized;
       if (this._stringTagName !== `Object` ||
-        this._constructorName !== `Object` ||
+        this._protoConstructorName !== `Object` ||
         this._propKey === `__proto__`) {
         isShowInfo = true;
       }
