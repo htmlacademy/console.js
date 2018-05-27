@@ -13,7 +13,6 @@ export default class ObjectView extends TypeView {
     const proto = Object.getPrototypeOf(this._value);
     const stringTag = Object.prototype.toString.call(this._value);
     this._stringTagName = stringTag.substring(8, stringTag.length - 1);
-    // this._constructorName = this._value.constructor ? this._value.constructor.name : null;
     this._protoConstructorName = proto && proto.hasOwnProperty(`constructor`) ? proto.constructor.name : `Object`;
   }
 

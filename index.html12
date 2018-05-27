@@ -32,7 +32,7 @@
         },
         common: {
           excludeProperties: [`__proto__`],
-          expandDepth: 1,
+          expandDepth: 2,
           maxFieldsInHead: 5,
           minFieldsToExpand: 5, // как в object.maxFieldsInHead
           maxFieldsToExpand: 15

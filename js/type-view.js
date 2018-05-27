@@ -373,20 +373,20 @@ export default class TypeView extends AbstractView {
    * @type {boolean}
    */
   get isAutoExpandNeeded() {
-    if (!this.isAutoExpandNeededProxied) {
-      this.isAutoExpandNeededProxied = false;
+    if (!this._cache.isAutoExpandNeeded) {
+      this._cache.isAutoExpandNeeded = false;
 
       const typeParams = this._console.params[this.rootView.viewType];
 
       if (this._currentDepth > typeParams.expandDepth) {
-        return this.isAutoExpandNeededProxied;
+        return this._cache.isAutoExpandNeeded;
       }
 
       if (this._parentView) {
         if (!typeParams.exclude.includes(this.viewType) &&
         !typeParams.excludeProperties.includes(this._propKey) &&
         this._parentView.isAutoExpandNeeded) {
-          this.isAutoExpandNeededProxied = true;
+          this._cache.isAutoExpandNeeded = true;
         }
       } else {
         let entriesKeysLength = this.contentEntriesKeys.size;
@@ -395,18 +395,18 @@ export default class TypeView extends AbstractView {
         }
         if (typeParams.maxFieldsToExpand >= entriesKeysLength &&
           entriesKeysLength >= typeParams.minFieldsToExpand) {
-          this.isAutoExpandNeededProxied = true;
+          this._cache.isAutoExpandNeeded = true;
         }
       }
     }
-    return this.isAutoExpandNeededProxied;
+    return this._cache.isAutoExpandNeeded;
   }
 
   _additionHeadClickHandler() {}
 
   _headClickHandler(evt) {
     evt.preventDefault();
-    this.toggleArrowBottom();
+    // this.toggleArrowBottom();
     this._state.isContentShowed = !this._state.isContentShowed;
     this._additionHeadClickHandler();
   }
