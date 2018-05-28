@@ -85,6 +85,9 @@ export default class Console {
     paramsObject.showGetters = typeof paramsObject.showGetters === `boolean` ?
       paramsObject.showGetters : true;
 
+    paramsObject.countEntriesWithoutKeys = typeof paramsObject.countEntriesWithoutKeys === `boolean` ?
+      paramsObject.countEntriesWithoutKeys : false;
+
     return paramsObject;
   }
 
