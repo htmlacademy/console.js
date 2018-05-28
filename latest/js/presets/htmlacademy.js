@@ -1,1 +1,1 @@
-!function(){"use strict";var e={function:{nowrapOnLog:!0},common:{excludeProperties:["__proto__"],maxFieldsInHead:5,minFieldsToExpand:5,maxFieldsToExpand:15,expandDepth:1}};Array.isArray(window.jsConsolePresets)?window.jsConsolePresets.push(e):window.jsConsolePresets=[e]}();
+!function(){"use strict";var o={function:{nowrapOnLog:!0},common:{excludeProperties:["__proto__"],maxFieldsInHead:5,minFieldsToExpand:5,maxFieldsToExpand:15}};Array.isArray(window.jsConsolePresets)?window.jsConsolePresets.push(o):window.jsConsolePresets=[o]}();
