@@ -6,8 +6,7 @@ const params = {
     excludeProperties: [`__proto__`],
     maxFieldsInHead: 5,
     minFieldsToExpand: 5,
-    maxFieldsToExpand: 15,
-    expandDepth: 1
+    maxFieldsToExpand: 15
   }
 };
 
