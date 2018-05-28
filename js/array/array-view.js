@@ -14,7 +14,7 @@ export default class ArrayView extends TypeView {
     const proto = Object.getPrototypeOf(this._value);
     const stringTag = Object.prototype.toString.call(this._value);
     this._stringTagName = stringTag.substring(8, stringTag.length - 1);
-    this._protoConstructorName = proto && proto.hasOwnProperty(`constructor`) ? proto.constructor.name : `Object`;
+    this._protoConstructorName = proto && proto.hasOwnProperty(`constructor`) ? proto.constructor.name : `Array`;
   }
 
   get template() {
@@ -32,14 +32,19 @@ export default class ArrayView extends TypeView {
   _afterRender() {
     this._lengthEl = this.el.querySelector(`.length`);
     this.toggleHeadContentBraced();
-    if (this._stringTagName !== `Array`) {
+    if (this._stringTagName !== `Object`) {
       this._infoEl.textContent = this._stringTagName;
     } else {
       this._infoEl.textContent = this._protoConstructorName;
     }
-    this._state = this._getStateParams();
+    this._state = {};
+    this._state.isOpeningDisabled = false;
+    this._state.isShowInfo = this.isShowInfo;
+    this._state.isHeadContentShowed = this.isShowHeadContent;
+    this._state.isShowLength = this.isShowLength;
 
-    if ((this._mode === Mode.LOG || this._mode === Mode.LOG_HTML || this._mode === Mode.ERROR) && !this._parentView) {
+    if ((this._mode === Mode.LOG || this._mode === Mode.LOG_HTML || this._mode === Mode.ERROR) &&
+    !this._parentView) {
       this.toggleItalic(true);
     }
   }
@@ -57,6 +62,23 @@ export default class ArrayView extends TypeView {
       },
       set isShowLength(bool) {
         self.toggleContentLengthShowed(bool);
+      },
+      set isOpened(bool) {
+        if (bool === self._isOpened) {
+          return;
+        }
+
+        self._isOpened = bool;
+        self.toggleArrowBottom(bool);
+        self._state.isContentShowed = bool;
+        if (self._mode === Mode.PROP && self._propKey !== `__proto__`) {
+          self._state.isHeadContentShowed = !bool;
+          self._state.isShowLength = bool || self._value.length > 1;
+          self._state.isShowInfo = self.isShowInfo;
+        }
+      },
+      get isOpened() {
+        return self._isOpened;
       }
     };
   }
@@ -65,46 +87,24 @@ export default class ArrayView extends TypeView {
     return !TypeView.toggleMiddleware(this._lengthEl, `hidden`, !isEnable);
   }
 
-  _additionHeadClickHandler() {
-    if (this._mode === Mode.PROP && this._propKey !== `__proto__`) {
-      this._state.isShowInfo = this._isContentShowed;
-      this._state.isHeadContentShowed = !this._isContentShowed;
-      this._state.isShowLength = this._isContentShowed || this._value.length > 1;
-    }
+  get isShowInfo() {
+    return this._mode === Mode.DIR ||
+      this._mode === Mode.PREVIEW ||
+      (this._mode === Mode.PROP && (this._state.isOpened || this._propKey === `__proto__`)) ||
+      this._stringTagName !== `Array` || this._protoConstructorName !== `Array`;
   }
 
-  _getStateParams() {
-    let isShowInfo = false;
-    let isHeadContentShowed = true;
-    let isShowLength = this._value.length > 1;
-    if (this._mode === Mode.DIR) {
-      isShowInfo = true;
-      isHeadContentShowed = false;
-      isShowLength = true;
-    } else if (this._mode === Mode.PREVIEW) {
-      isShowInfo = true;
-      isHeadContentShowed = false;
-      isShowLength = true;
-    } else if (this._mode === Mode.PROP) {
-      isShowInfo = false;
-      isHeadContentShowed = true;
+  get isShowHeadContent() {
+    return !(this._mode === Mode.DIR ||
+      this._mode === Mode.PREVIEW ||
+      (this._mode === Mode.PROP && this._propKey === `__proto__`));
+  }
 
-      if (this._propKey === `__proto__`) {
-        isShowInfo = true;
-        isHeadContentShowed = false;
-        isShowLength = true;
-      }
-    }
-    if (this._stringTagName !== `Array` ||
-    this._protoConstructorName !== `Array`) {
-      isShowInfo = true;
-    }
-    return {
-      isShowInfo,
-      isHeadContentShowed,
-      isShowLength,
-      isOpeningDisabled: false
-    };
+  get isShowLength() {
+    return this._mode === Mode.DIR ||
+      this._mode === Mode.PREVIEW ||
+      (this._mode === Mode.PROP && this._propKey === `__proto__`) ||
+      this._value.length > 1;
   }
 
   createContent(arr, inHead) {

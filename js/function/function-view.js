@@ -35,11 +35,8 @@ export default class FunctionView extends TypeView {
   }
 
   _afterRender() {
-    const params = {
-      isOpeningDisabled: this._mode !== Mode.DIR && this._mode !== Mode.PROP
-    };
-
-    this._state = params;
+    this._state = {};
+    this._state.isOpeningDisabled = this._mode !== Mode.DIR && this._mode !== Mode.PROP;
 
     if (this._mode === Mode.LOG || this._mode === Mode.LOG_HTML) {
       this._headContentEl.addEventListener(`click`, () => {

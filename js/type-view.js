@@ -67,6 +67,10 @@ export default class TypeView extends AbstractView {
     this._contentEl = this.el.querySelector(`.item__content`);
 
     this._afterRender();
+
+    this._state.isOpened = this._mode !== Mode.PREVIEW &&
+      !this._state.isOpeningDisabled &&
+      this.isAutoExpandNeeded;
   }
 
   get value() {
@@ -136,14 +140,28 @@ export default class TypeView extends AbstractView {
         }
         self.togglePointer(!bool);
         self._addOrRemoveHeadClickHandler(!bool);
-        self._state.isContentShowed = !bool && self.isAutoExpandNeeded;
         self._isOpeningDisabled = bool;
       },
       get isOpeningDisabled() {
         return self._isOpeningDisabled;
       },
-      set isContentShowed(bool) {
+      set isOpened(bool) {
+        if (bool === self._isOpened) {
+          return;
+        }
+
+        self._isOpened = bool;
         self.toggleArrowBottom(bool);
+        self._state.isContentShowed = bool;
+      },
+      get isOpened() {
+        return self._isOpened;
+      },
+      set isContentShowed(bool) {
+        if (bool === self._isContentShowed) {
+          return;
+        }
+        // self.toggleArrowBottom(bool);
         self._isContentShowed = self.toggleContentShowed(bool);
         if (self._isContentShowed && self._contentEl.childElementCount === 0) {
           self._contentEl.appendChild(self.createContent(self._value, false).fragment);
@@ -402,23 +420,19 @@ export default class TypeView extends AbstractView {
     return this._cache.isAutoExpandNeeded;
   }
 
-  _additionHeadClickHandler() {}
-
   _headClickHandler(evt) {
     evt.preventDefault();
-    // this.toggleArrowBottom();
-    this._state.isContentShowed = !this._state.isContentShowed;
-    this._additionHeadClickHandler();
+    this._state.isOpened = !this._state.isOpened;
   }
 
   _addOrRemoveHeadClickHandler(bool) {
-    if (!this.__bindedHeadClickHandler) {
-      this.__bindedHeadClickHandler = this._headClickHandler.bind(this);
+    if (!this._bindedHeadClickHandler) {
+      this._bindedHeadClickHandler = this._headClickHandler.bind(this);
     }
     if (bool) {
-      this._headEl.addEventListener(`click`, this.__bindedHeadClickHandler);
+      this._headEl.addEventListener(`click`, this._bindedHeadClickHandler);
     } else {
-      this._headEl.removeEventListener(`click`, this.__bindedHeadClickHandler);
+      this._headEl.removeEventListener(`click`, this._bindedHeadClickHandler);
     }
   }
 

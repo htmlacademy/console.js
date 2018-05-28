@@ -169,12 +169,14 @@ export default class Console {
           const stringTag = Object.prototype.toString.call(val);
           const stringTagName = stringTag.substring(8, stringTag.length - 1);
 
-          if (Array.isArray(val) ||
-          val instanceof HTMLCollection ||
-          val instanceof NodeList ||
-          val instanceof DOMTokenList ||
-          val instanceof TypedArray ||
-          stringTagName === `Arguments`) {
+          if (stringTagName !== `Object` && (
+            Array.isArray(val) ||
+            val instanceof HTMLCollection ||
+            val instanceof NodeList ||
+            val instanceof DOMTokenList ||
+            val instanceof TypedArray ||
+            stringTagName === `Arguments`)
+          ) {
             view = new ArrayView(params, this);
           } else {
             view = new ObjectView(params, this);
