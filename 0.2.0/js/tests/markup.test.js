@@ -2119,6 +2119,10 @@ class TypeView extends AbstractView {
     this._contentEl = this.el.querySelector(`.item__content`);
 
     this._afterRender();
+
+    this._state.isOpened = this._mode !== Mode.PREVIEW &&
+      !this._state.isOpeningDisabled &&
+      this.isAutoExpandNeeded;
   }
 
   get value() {
@@ -2188,14 +2192,28 @@ class TypeView extends AbstractView {
         }
         self.togglePointer(!bool);
         self._addOrRemoveHeadClickHandler(!bool);
-        self._state.isContentShowed = !bool && self.isAutoExpandNeeded;
         self._isOpeningDisabled = bool;
       },
       get isOpeningDisabled() {
         return self._isOpeningDisabled;
       },
-      set isContentShowed(bool) {
+      set isOpened(bool) {
+        if (bool === self._isOpened) {
+          return;
+        }
+
+        self._isOpened = bool;
         self.toggleArrowBottom(bool);
+        self._state.isContentShowed = bool;
+      },
+      get isOpened() {
+        return self._isOpened;
+      },
+      set isContentShowed(bool) {
+        if (bool === self._isContentShowed) {
+          return;
+        }
+        // self.toggleArrowBottom(bool);
         self._isContentShowed = self.toggleContentShowed(bool);
         if (self._isContentShowed && self._contentEl.childElementCount === 0) {
           self._contentEl.appendChild(self.createContent(self._value, false).fragment);
@@ -2425,20 +2443,20 @@ class TypeView extends AbstractView {
    * @type {boolean}
    */
   get isAutoExpandNeeded() {
-    if (!this.isAutoExpandNeededProxied) {
-      this.isAutoExpandNeededProxied = false;
+    if (!this._cache.isAutoExpandNeeded) {
+      this._cache.isAutoExpandNeeded = false;
 
       const typeParams = this._console.params[this.rootView.viewType];
 
       if (this._currentDepth > typeParams.expandDepth) {
-        return this.isAutoExpandNeededProxied;
+        return this._cache.isAutoExpandNeeded;
       }
 
       if (this._parentView) {
         if (!typeParams.exclude.includes(this.viewType) &&
         !typeParams.excludeProperties.includes(this._propKey) &&
         this._parentView.isAutoExpandNeeded) {
-          this.isAutoExpandNeededProxied = true;
+          this._cache.isAutoExpandNeeded = true;
         }
       } else {
         let entriesKeysLength = this.contentEntriesKeys.size;
@@ -2447,30 +2465,26 @@ class TypeView extends AbstractView {
         }
         if (typeParams.maxFieldsToExpand >= entriesKeysLength &&
           entriesKeysLength >= typeParams.minFieldsToExpand) {
-          this.isAutoExpandNeededProxied = true;
+          this._cache.isAutoExpandNeeded = true;
         }
       }
     }
-    return this.isAutoExpandNeededProxied;
+    return this._cache.isAutoExpandNeeded;
   }
-
-  _additionHeadClickHandler() {}
 
   _headClickHandler(evt) {
     evt.preventDefault();
-    this.toggleArrowBottom();
-    this._state.isContentShowed = !this._state.isContentShowed;
-    this._additionHeadClickHandler();
+    this._state.isOpened = !this._state.isOpened;
   }
 
   _addOrRemoveHeadClickHandler(bool) {
-    if (!this.__bindedHeadClickHandler) {
-      this.__bindedHeadClickHandler = this._headClickHandler.bind(this);
+    if (!this._bindedHeadClickHandler) {
+      this._bindedHeadClickHandler = this._headClickHandler.bind(this);
     }
     if (bool) {
-      this._headEl.addEventListener(`click`, this.__bindedHeadClickHandler);
+      this._headEl.addEventListener(`click`, this._bindedHeadClickHandler);
     } else {
-      this._headEl.removeEventListener(`click`, this.__bindedHeadClickHandler);
+      this._headEl.removeEventListener(`click`, this._bindedHeadClickHandler);
     }
   }
 
@@ -2694,7 +2708,6 @@ class ObjectView extends TypeView {
     const proto = Object.getPrototypeOf(this._value);
     const stringTag = Object.prototype.toString.call(this._value);
     this._stringTagName = stringTag.substring(8, stringTag.length - 1);
-    // this._constructorName = this._value.constructor ? this._value.constructor.name : null;
     this._protoConstructorName = proto && proto.hasOwnProperty(`constructor`) ? proto.constructor.name : `Object`;
   }
 
@@ -2922,9 +2935,10 @@ class ArrayView extends TypeView {
     if (!params.parentView) {
       this.rootView = this;
     }
+    const proto = Object.getPrototypeOf(this._value);
     const stringTag = Object.prototype.toString.call(this._value);
     this._stringTagName = stringTag.substring(8, stringTag.length - 1);
-    this._constructorName = this._value.constructor ? this._value.constructor.name : null;
+    this._protoConstructorName = proto && proto.hasOwnProperty(`constructor`) ? proto.constructor.name : `Array`;
   }
 
   get template() {
@@ -2942,10 +2956,19 @@ class ArrayView extends TypeView {
   _afterRender() {
     this._lengthEl = this.el.querySelector(`.length`);
     this.toggleHeadContentBraced();
-    this._infoEl.textContent = this._stringTagName;
-    this._state = this._getStateParams();
+    if (this._stringTagName !== `Object`) {
+      this._infoEl.textContent = this._stringTagName;
+    } else {
+      this._infoEl.textContent = this._protoConstructorName;
+    }
+    this._state = {};
+    this._state.isOpeningDisabled = false;
+    this._state.isShowInfo = this.isShowInfo;
+    this._state.isHeadContentShowed = this.isShowHeadContent;
+    this._state.isShowLength = this.isShowLength;
 
-    if ((this._mode === Mode.LOG || this._mode === Mode.LOG_HTML || this._mode === Mode.ERROR) && !this._parentView) {
+    if ((this._mode === Mode.LOG || this._mode === Mode.LOG_HTML || this._mode === Mode.ERROR) &&
+    !this._parentView) {
       this.toggleItalic(true);
     }
   }
@@ -2963,6 +2986,23 @@ class ArrayView extends TypeView {
       },
       set isShowLength(bool) {
         self.toggleContentLengthShowed(bool);
+      },
+      set isOpened(bool) {
+        if (bool === self._isOpened) {
+          return;
+        }
+
+        self._isOpened = bool;
+        self.toggleArrowBottom(bool);
+        self._state.isContentShowed = bool;
+        if (self._mode === Mode.PROP && self._propKey !== `__proto__`) {
+          self._state.isHeadContentShowed = !bool;
+          self._state.isShowLength = bool || self._value.length > 1;
+          self._state.isShowInfo = self.isShowInfo;
+        }
+      },
+      get isOpened() {
+        return self._isOpened;
       }
     };
   }
@@ -2971,46 +3011,24 @@ class ArrayView extends TypeView {
     return !TypeView.toggleMiddleware(this._lengthEl, `hidden`, !isEnable);
   }
 
-  _additionHeadClickHandler() {
-    if (this._mode === Mode.PROP && this._propKey !== `__proto__`) {
-      this._state.isShowInfo = this._isContentShowed;
-      this._state.isHeadContentShowed = !this._isContentShowed;
-      this._state.isShowLength = this._isContentShowed || this._value.length > 1;
-    }
+  get isShowInfo() {
+    return this._mode === Mode.DIR ||
+      this._mode === Mode.PREVIEW ||
+      (this._mode === Mode.PROP && (this._state.isOpened || this._propKey === `__proto__`)) ||
+      this._stringTagName !== `Array` || this._protoConstructorName !== `Array`;
   }
 
-  _getStateParams() {
-    let isShowInfo = false;
-    let isHeadContentShowed = true;
-    let isShowLength = this._value.length > 1;
-    if (this._mode === Mode.DIR) {
-      isShowInfo = true;
-      isHeadContentShowed = false;
-      isShowLength = true;
-    } else if (this._mode === Mode.PREVIEW) {
-      isShowInfo = true;
-      isHeadContentShowed = false;
-      isShowLength = true;
-    } else if (this._mode === Mode.PROP) {
-      isShowInfo = false;
-      isHeadContentShowed = true;
+  get isShowHeadContent() {
+    return !(this._mode === Mode.DIR ||
+      this._mode === Mode.PREVIEW ||
+      (this._mode === Mode.PROP && this._propKey === `__proto__`));
+  }
 
-      if (this._propKey === `__proto__`) {
-        isShowInfo = true;
-        isHeadContentShowed = false;
-        isShowLength = true;
-      }
-    }
-    if (this._stringTagName !== `Array` ||
-    this._constructorName !== `Array`) {
-      isShowInfo = true;
-    }
-    return {
-      isShowInfo,
-      isHeadContentShowed,
-      isShowLength,
-      isOpeningDisabled: false
-    };
+  get isShowLength() {
+    return this._mode === Mode.DIR ||
+      this._mode === Mode.PREVIEW ||
+      (this._mode === Mode.PROP && this._propKey === `__proto__`) ||
+      this._value.length > 1;
   }
 
   createContent(arr, inHead) {
@@ -3107,11 +3125,8 @@ class FunctionView extends TypeView {
   }
 
   _afterRender() {
-    const params = {
-      isOpeningDisabled: this._mode !== Mode.DIR && this._mode !== Mode.PROP
-    };
-
-    this._state = params;
+    this._state = {};
+    this._state.isOpeningDisabled = this._mode !== Mode.DIR && this._mode !== Mode.PROP;
 
     if (this._mode === Mode.LOG || this._mode === Mode.LOG_HTML) {
       this._headContentEl.addEventListener(`click`, () => {
@@ -3497,12 +3512,14 @@ class Console {
           const stringTag = Object.prototype.toString.call(val);
           const stringTagName = stringTag.substring(8, stringTag.length - 1);
 
-          if (Array.isArray(val) ||
-          val instanceof HTMLCollection ||
-          val instanceof NodeList ||
-          val instanceof DOMTokenList ||
-          val instanceof TypedArray ||
-          stringTagName === `Arguments`) {
+          if (stringTagName !== `Object` && (
+            Array.isArray(val) ||
+            val instanceof HTMLCollection ||
+            val instanceof NodeList ||
+            val instanceof DOMTokenList ||
+            val instanceof TypedArray ||
+            stringTagName === `Arguments`)
+          ) {
             view = new ArrayView(params, this);
           } else {
             view = new ObjectView(params, this);
