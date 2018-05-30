@@ -3,6 +3,14 @@
 import TypeView from '../type-view';
 import {Mode, ViewType} from '../enums';
 
+const checkObjectisPrototype = (obj) => {
+  return obj && obj.hasOwnProperty(`constructor`) &&
+    typeof obj.constructor === `function` &&
+    obj.constructor.hasOwnProperty(`prototype`) &&
+    typeof obj.constructor.prototype === `object` &&
+    obj.constructor.prototype === obj;
+};
+
 export default class ObjectView extends TypeView {
   constructor(params, cons) {
     super(params, cons);
@@ -41,6 +49,12 @@ export default class ObjectView extends TypeView {
       this._infoEl.textContent = this._protoConstructorName;
     }
     this._state = stateParams;
+    this._state.isShowInfo = this.isShowInfo;
+    this._state.isBraced = this.isShowBraces;
+    this._state.isHeadContentShowed = this.isShowHeadContent;
+    this._state.isOpeningDisabled = this.isDisableOpening;
+    this._state.isItalicEnabled = this.isEnableItalic;
+    this._state.isErrorEnabled = this.isEnableError;
   }
 
   _getStateDescriptorsObject() {
@@ -63,17 +77,139 @@ export default class ObjectView extends TypeView {
       set isBraced(bool) {
         self.toggleHeadContentBraced(bool);
       },
-      set isStringified(bool) {
-        if (!bool && (self._mode === Mode.LOG ||
-          self._mode === Mode.LOG_HTML ||
-          self._mode === Mode.ERROR) && !self._parentView) {
-          self.toggleItalic(true);
-        }
-        if (bool && self._mode === Mode.ERROR) {
-          self.toggleError(true);
-        }
+      set isErrorEnabled(bool) {
+        self._isErrorEnabled = self.toggleError(bool);
       },
+      get isErrorEnabled() {
+        return self._isErrorEnabled;
+      }
+      // set isStringified(bool) {
+      //   if (!bool && (self._mode === Mode.LOG ||
+      //     self._mode === Mode.LOG_HTML ||
+      //     self._mode === Mode.ERROR) && !self._parentView) {
+      //     self.toggleItalic(true);
+      //   }
+      //   if (bool && self._mode === Mode.ERROR) {
+      //     self.toggleError(true);
+      //   }
+      // },
     };
+  }
+
+  get isShowInfo() {
+    if (this._mode === Mode.PREVIEW &&
+      this._stringTagName === `Object` &&
+      this._protoConstructorName === `Object`) {
+      return false;
+    }
+
+    const objectIsInstance = this._value instanceof Node ||
+      this._value instanceof Error ||
+      this._value instanceof Date ||
+      this._value instanceof RegExp;
+
+    if (objectIsInstance && !checkObjectisPrototype(this._value)) {
+      return false;
+    }
+
+    if (this._mode === Mode.DIR) {
+      return true;
+    }
+
+    return !(this._stringTagName === `Object` &&
+      this._protoConstructorName === `Object` &&
+      this._propKey !== `__proto__`);
+  }
+
+  get isShowBraces() {
+    if (this._mode === Mode.DIR) {
+      return false;
+    }
+
+    if (this._mode === Mode.PREVIEW) {
+      return this._stringTagName === `Object` &&
+        this._protoConstructorName === `Object`;
+    }
+
+    const objectIsInstance = this._value instanceof Node ||
+      this._value instanceof Error ||
+      this._value instanceof Date ||
+      this._value instanceof RegExp;
+
+    if (objectIsInstance && !checkObjectisPrototype(this._value)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  get isShowHeadContent() {
+    if (this._mode === Mode.PREVIEW &&
+      this._stringTagName === `Object` &&
+      this._protoConstructorName === `Object`) {
+      return true;
+    }
+
+    if (this._mode !== Mode.DIR && this._mode !== Mode.PREVIEW) {
+      return this._propKey !== `__proto__`;
+    }
+
+    const objectIsInstance = this._value instanceof Error ||
+      this._value instanceof Date ||
+      this._value instanceof RegExp;
+
+    if (objectIsInstance && !checkObjectisPrototype(this._value)) {
+      return true;
+    }
+    return false;
+  }
+
+  get isDisableOpening() {
+    if (this._mode === Mode.PREVIEW) {
+      return true;
+    }
+
+    if (this._mode === Mode.DIR) {
+      return false;
+    }
+
+    const objectIsInstance = this._value instanceof Error ||
+      this._value instanceof Date ||
+      this._value instanceof RegExp;
+
+    if (objectIsInstance && !checkObjectisPrototype(this._value)) {
+      return true;
+    }
+    return false;
+  }
+
+  get isEnableItalic() {
+    if (this._mode === Mode.LOG ||
+    this._mode === Mode.LOG_HTML ||
+    this._mode === Mode.ERROR) {
+      const objectIsInstance = this._value instanceof Node ||
+        this._value instanceof Error ||
+        this._value instanceof Date;
+
+      if (!objectIsInstance && !checkObjectisPrototype(this._value)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  get isEnableError() {
+    if (this._mode !== Mode.ERROR) {
+      return false;
+    }
+    const objectIsInstance = this._value instanceof Error ||
+      this._value instanceof Date;
+
+    return objectIsInstance && !checkObjectisPrototype(this._value);
+  }
+
+  toggleError(isEnable) {
+    return TypeView.toggleMiddleware(this.el, `error`, isEnable);
   }
 
   _getHeadContent() {
@@ -96,9 +232,9 @@ export default class ObjectView extends TypeView {
       return {
         elOrStr: `…`,
         stateParams: {
-          isShowInfo: false,
-          isHeadContentShowed: true,
-          isBraced: true
+          // isShowInfo: false,
+          // isHeadContentShowed: true,
+          // isBraced: true
         }
       };
     }
@@ -132,6 +268,7 @@ export default class ObjectView extends TypeView {
     } else if (this._value instanceof Date) {
       val = this._value.toString();
       isStringified = true;
+      isOpeningDisabled = true;
       isBraced = false;
     } else if (this._value instanceof RegExp) {
       val = `/${this._value.source}/${this._value.flags}`;
@@ -152,10 +289,10 @@ export default class ObjectView extends TypeView {
       elOrStr: val,
       headContentClassName,
       stateParams: {
-        isShowInfo,
-        isHeadContentShowed: this._propKey !== `__proto__`,
-        isBraced,
-        isOpeningDisabled,
+        // isShowInfo,
+        // isHeadContentShowed: this._propKey !== `__proto__`,
+        // isBraced,
+        // isOpeningDisabled,
         isOversized,
         isStringified
       }
@@ -193,10 +330,10 @@ export default class ObjectView extends TypeView {
     return {
       elOrStr: val,
       stateParams: {
-        isShowInfo,
-        isHeadContentShowed,
-        isBraced,
-        isOpeningDisabled: false,
+        // isShowInfo,
+        // isHeadContentShowed,
+        // isBraced,
+        // isOpeningDisabled: false,
       }
     };
   }

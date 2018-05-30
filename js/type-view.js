@@ -135,7 +135,10 @@ export default class TypeView extends AbstractView {
         self.toggleHeadContentShowed(bool);
       },
       set isOpeningDisabled(bool) {
-        if (self._mode === Mode.PREVIEW || self._isOpeningDisabled === bool) {
+        if (!bool && self._mode === Mode.PREVIEW) {
+          throw new Error(`Enabling opening object in preview mode is forbidden`);
+        }
+        if (self._isOpeningDisabled === bool) {
           return;
         }
         self.togglePointer(!bool);
@@ -173,6 +176,18 @@ export default class TypeView extends AbstractView {
       set isOversized(bool) {
         self.toggleHeadContentOversized(bool);
       },
+      set isHeadContentLimited(bool) {
+
+      },
+      get isHeadContentLimited() {
+
+      },
+      set isItalicEnabled(bool) {
+        self._isItalicEnabled = self.toggleItalic(bool);
+      },
+      get isItalicEnabled() {
+        return self._isItalicEnabled;
+      }
     };
   }
 
@@ -194,10 +209,6 @@ export default class TypeView extends AbstractView {
 
   toggleContentShowed(isEnable) {
     return !TypeView.toggleMiddleware(this._contentEl, `hidden`, !isEnable);
-  }
-
-  toggleError(isEnable) {
-    return TypeView.toggleMiddleware(this.el, Mode.ERROR, isEnable);
   }
 
   toggleItalic(isEnable) {
@@ -426,12 +437,12 @@ export default class TypeView extends AbstractView {
   }
 
   _addOrRemoveHeadClickHandler(bool) {
-    if (!this._bindedHeadClickHandler) {
-      this._bindedHeadClickHandler = this._headClickHandler.bind(this);
-    }
     if (bool) {
+      if (!this._bindedHeadClickHandler) {
+        this._bindedHeadClickHandler = this._headClickHandler.bind(this);
+      }
       this._headEl.addEventListener(`click`, this._bindedHeadClickHandler);
-    } else {
+    } else if (this._bindedHeadClickHandler) {
       this._headEl.removeEventListener(`click`, this._bindedHeadClickHandler);
     }
   }

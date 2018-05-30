@@ -36,13 +36,17 @@ export default class FunctionView extends TypeView {
 
   _afterRender() {
     this._state = {};
-    this._state.isOpeningDisabled = this._mode !== Mode.DIR && this._mode !== Mode.PROP;
+    this._state.isOpeningDisabled = this.isDisableOpening;
 
-    if (this._mode === Mode.LOG || this._mode === Mode.LOG_HTML) {
+    if (this._mode === Mode.LOG || this._mode === Mode.LOG_HTML || this._mode === Mode.ERROR) {
       this._headContentEl.addEventListener(`click`, () => {
         this._headContentEl.classList.toggle(`nowrap`);
       });
     }
+  }
+
+  get isDisableOpening() {
+    return this._mode !== Mode.DIR && this._mode !== Mode.PROP;
   }
 
   _getInfo() {
