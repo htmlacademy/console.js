@@ -18,6 +18,7 @@ export default class ObjectView extends TypeView {
     if (!params.parentView) {
       this.rootView = this;
     }
+
     const proto = Object.getPrototypeOf(this._value);
     const stringTag = Object.prototype.toString.call(this._value);
     this._stringTagName = stringTag.substring(8, stringTag.length - 1);
@@ -36,30 +37,32 @@ export default class ObjectView extends TypeView {
   }
 
   _afterRender() {
-    const {elOrStr, stateParams, headContentClassName} = this._getHeadContent();
-    // this._headContent = elOrStr;
-
-    if (headContentClassName) {
-      this._headContentEl.classList.add(headContentClassName);
+    if (this.headContentClassName) {
+      this._headContentEl.classList.add(this.headContentClassName);
     }
 
-    if (this._value[Symbol.toStringTag]) {
-      this._infoEl.textContent = this._stringTagName;
-    } else {
-      this._infoEl.textContent = this._protoConstructorName;
-    }
-    this._state = stateParams;
+    this._state = {};
     this._state.isShowInfo = this.isShowInfo;
     this._state.isBraced = this.isShowBraces;
     this._state.isHeadContentShowed = this.isShowHeadContent;
     this._state.isOpeningDisabled = this.isDisableOpening;
     this._state.isItalicEnabled = this.isEnableItalic;
     this._state.isErrorEnabled = this.isEnableError;
+    this._state.isOversized = this.isEnableOversized;
   }
 
   _getStateDescriptorsObject() {
     const self = this;
     return {
+      set isShowInfo(bool) {
+        if (bool && !self._infoEl.textContent) {
+          self._infoEl.textContent = self.headInfo;
+        }
+        self._isShowInfo = self.toggleInfoShowed(bool);
+      },
+      get isShowInfo() {
+        return self._isShowInfo;
+      },
       set isHeadContentShowed(bool) {
         if (bool && !self._headContentEl.innerHTML) {
           if (self.headContent instanceof HTMLElement ||
@@ -69,7 +72,10 @@ export default class ObjectView extends TypeView {
             self._headContentEl.innerHTML = self.headContent;
           }
         }
-        self.toggleHeadContentShowed(bool);
+        self._isHeadContentShowed = self.toggleHeadContentShowed(bool);
+      },
+      get isHeadContentShowed() {
+        return self._isHeadContentShowed;
       },
       set isErrorEnabled(bool) {
         self._isErrorEnabled = self.toggleError(bool);
@@ -192,6 +198,17 @@ export default class ObjectView extends TypeView {
     return objectIsInstance && !checkObjectisPrototype(this._value);
   }
 
+  set isEnableOversized(bool) {
+    this._isEnableOversized = bool;
+  }
+
+  get isEnableOversized() {
+    if (!this._isEnableOversized) {
+      this.isEnableOversized = false;
+    }
+    return this._isEnableOversized;
+  }
+
   toggleError(isEnable) {
     return TypeView.toggleMiddleware(this.el, `error`, isEnable);
   }
@@ -218,7 +235,11 @@ export default class ObjectView extends TypeView {
           return this._value.nodeName;
         }
       } else if (this._value instanceof Error) {
-        return `${this._value.name}: ${this._value.message}`;
+        let str = this._value.name;
+        if (this._value.message) {
+          str += `: ${this._value.message}`;
+        }
+        return str;
       } else if (this._value instanceof Date) {
         return this._value.toString();
       } else if (this._value instanceof RegExp) {
@@ -229,127 +250,24 @@ export default class ObjectView extends TypeView {
         return this._console.createTypedView(this._value.toString(), Mode.PREVIEW, this.nextNestingLevel, this).el;
       }
     }
-    return this.createContent(this._value, true).fragment;
+    const obj = this.createContent(this._value, true);
+    this._isEnableOversized = obj.isOversized;
+    return obj.fragment;
   }
 
-  _getHeadContent() {
-    let obj;
-    if (this._mode === Mode.DIR) {
-      obj = this._getHeadDirContent();
-    } else if (this._mode === Mode.LOG ||
-      this._mode === Mode.LOG_HTML ||
-      this._mode === Mode.PROP ||
-      this._mode === Mode.ERROR) {
-      obj = this._getHeadLogContent();
-    } else if (this._mode === Mode.PREVIEW) {
-      obj = this._getHeadPreviewContent();
-    }
-    return obj;
-  }
-
-  _getHeadPreviewContent() {
-    if (this._stringTagName === `Object` && this._protoConstructorName === `Object`) {
-      return {
-        elOrStr: `…`,
-        stateParams: {
-          // isShowInfo: false,
-          // isHeadContentShowed: true,
-          // isBraced: true
-        }
-      };
-    }
-    return this._getHeadDirContent();
-  }
-
-  _getHeadLogContent() {
-    let val;
-    let isShowInfo = false;
-    let isBraced = true;
-    let isOpeningDisabled = false;
-    let isOversized = false;
-    let isStringified = false;
-    let headContentClassName;
-
-    if (this._value instanceof Node && !this._value.hasOwnProperty(`constructor`)) {
-      return this._getHeadDirContent();
-    // } else if (this._value instanceof Error) {
-    //   isBraced = false;
-    //   val = `<pre>${this._value.stack}</pre>`;
-    //   isOpeningDisabled = true;
-    //   isStringified = true;
-    } else if (this._value instanceof Number) {
-      const view = this._console.createTypedView(Number.parseInt(this._value, 10), Mode.PREVIEW, this.nextNestingLevel, this);
-      val = view.el;
-      isShowInfo = true;
-    } else if (this._value instanceof String) {
-      const view = this._console.createTypedView(this._value.toString(), Mode.PREVIEW, this.nextNestingLevel, this);
-      val = view.el;
-      isShowInfo = true;
-    } else if (this._value instanceof Date) {
-      val = this._value.toString();
-      isStringified = true;
-      isOpeningDisabled = true;
-      isBraced = false;
-    } else if (this._value instanceof RegExp) {
-      val = `/${this._value.source}/${this._value.flags}`;
-      headContentClassName = `regexp`;
-      isOpeningDisabled = true;
-      isBraced = false;
+  get headInfo() {
+    if (this._value[Symbol.toStringTag]) {
+      return this._stringTagName;
     } else {
-      const obj = this.createContent(this._value, true);
-      val = obj.fragment;
-      isOversized = obj.isOversized;
-      if (this._stringTagName !== `Object` ||
-        this._protoConstructorName !== `Object` ||
-        this._propKey === `__proto__`) {
-        isShowInfo = true;
-      }
+      return this._protoConstructorName;
     }
-    return {
-      elOrStr: val,
-      headContentClassName,
-      stateParams: {
-        // isShowInfo,
-        // isHeadContentShowed: this._propKey !== `__proto__`,
-        // isBraced,
-        // isOpeningDisabled,
-        isOversized,
-        isStringified
-      }
-    };
   }
 
-  _getHeadDirContent() {
-    let val;
-    let isShowInfo = false;
-    let isHeadContentShowed = true;
-    let isBraced = false;
-    if (this._value instanceof Node && !this._value.hasOwnProperty(`constructor`)) {
-      if (this._value instanceof HTMLElement) {
-        let str = this._value.tagName.toLowerCase();
-        if (this._value.id) {
-          str += `#${this._value.id}`;
-        }
-        if (this._value.classList.length) {
-          str += `.` + Array.prototype.join.call(this._value.classList, `.`);
-        }
-        val = str;
-      } else {
-        val = this._value.nodeName;
-      }
-    } else if (this._value instanceof Date) {
-      val = this._value.toString();
-    } else if (this._value instanceof RegExp) {
-      val = `/${this._value.source}/${this._value.flags}`;
-    } else if (this._value instanceof Error) {
-      val = this._value.toString();
-    } else {
-      isShowInfo = true;
-      isHeadContentShowed = false;
+  get headContentClassName() {
+    if (this._value instanceof RegExp) {
+      return `regexp`;
     }
-    return {
-      elOrStr: val
-    };
+    return null;
   }
 
   createContent(obj, inHead) {
