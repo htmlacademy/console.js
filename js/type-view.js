@@ -148,13 +148,15 @@ export default class TypeView extends AbstractView {
       get isOpeningDisabled() {
         return self._isOpeningDisabled;
       },
+      set isBraced(bool) {
+        self.toggleHeadContentBraced(bool);
+      },
       set isOpened(bool) {
         if (bool === self._isOpened) {
           return;
         }
 
-        self._isOpened = bool;
-        self.toggleArrowBottom(bool);
+        self._isOpened = self.toggleArrowBottom(bool);
         self._state.isContentShowed = bool;
       },
       get isOpened() {
