@@ -220,7 +220,7 @@ export default class ObjectView extends TypeView {
       return `…`;
     }
 
-    if (!this._value.hasOwnProperty(`constructor`)) {
+    if (!Object.prototype.hasOwnProperty.call(this._value, `constructor`)) {
       if (this._value instanceof Node) {
         if (this._value instanceof HTMLElement) {
           let str = this._value.tagName.toLowerCase();
