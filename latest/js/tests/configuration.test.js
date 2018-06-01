@@ -2142,7 +2142,7 @@ class TypeView extends AbstractView {
    * @type {{}}
    * @param {{}} params — object with values which will be assigned throught setters
    */
-  set _state(params) {
+  get _state() {
     if (!this._viewState) {
       this._viewState = {};
       Object.defineProperties(
@@ -2155,14 +2155,6 @@ class TypeView extends AbstractView {
       );
       Object.seal(this._viewState);
     }
-    for (let key in params) {
-      if (this._viewState.hasOwnProperty(key)) {
-        this._viewState[key] = params[key];
-      }
-    }
-  }
-
-  get _state() {
     return this._viewState;
   }
 
@@ -2187,7 +2179,10 @@ class TypeView extends AbstractView {
         self.toggleHeadContentShowed(bool);
       },
       set isOpeningDisabled(bool) {
-        if (self._mode === Mode.PREVIEW || self._isOpeningDisabled === bool) {
+        if (!bool && self._mode === Mode.PREVIEW) {
+          throw new Error(`Enabling opening object in preview mode is forbidden`);
+        }
+        if (self._isOpeningDisabled === bool) {
           return;
         }
         self.togglePointer(!bool);
@@ -2197,13 +2192,15 @@ class TypeView extends AbstractView {
       get isOpeningDisabled() {
         return self._isOpeningDisabled;
       },
+      set isBraced(bool) {
+        self.toggleHeadContentBraced(bool);
+      },
       set isOpened(bool) {
         if (bool === self._isOpened) {
           return;
         }
 
-        self._isOpened = bool;
-        self.toggleArrowBottom(bool);
+        self._isOpened = self.toggleArrowBottom(bool);
         self._state.isContentShowed = bool;
       },
       get isOpened() {
@@ -2225,6 +2222,18 @@ class TypeView extends AbstractView {
       set isOversized(bool) {
         self.toggleHeadContentOversized(bool);
       },
+      set isHeadContentLimited(bool) {
+
+      },
+      get isHeadContentLimited() {
+
+      },
+      set isItalicEnabled(bool) {
+        self._isItalicEnabled = self.toggleItalic(bool);
+      },
+      get isItalicEnabled() {
+        return self._isItalicEnabled;
+      }
     };
   }
 
@@ -2246,10 +2255,6 @@ class TypeView extends AbstractView {
 
   toggleContentShowed(isEnable) {
     return !TypeView.toggleMiddleware(this._contentEl, `hidden`, !isEnable);
-  }
-
-  toggleError(isEnable) {
-    return TypeView.toggleMiddleware(this.el, Mode.ERROR, isEnable);
   }
 
   toggleItalic(isEnable) {
@@ -2478,12 +2483,12 @@ class TypeView extends AbstractView {
   }
 
   _addOrRemoveHeadClickHandler(bool) {
-    if (!this._bindedHeadClickHandler) {
-      this._bindedHeadClickHandler = this._headClickHandler.bind(this);
-    }
     if (bool) {
+      if (!this._bindedHeadClickHandler) {
+        this._bindedHeadClickHandler = this._headClickHandler.bind(this);
+      }
       this._headEl.addEventListener(`click`, this._bindedHeadClickHandler);
-    } else {
+    } else if (this._bindedHeadClickHandler) {
       this._headEl.removeEventListener(`click`, this._bindedHeadClickHandler);
     }
   }
@@ -2698,6 +2703,14 @@ ${withoutKey ? `` : `<span class="entry-container__key ${isGrey ? `grey` : ``}">
 
 /* eslint guard-for-in: "off"*/
 
+const checkObjectisPrototype = (obj) => {
+  return obj && obj.hasOwnProperty(`constructor`) &&
+    typeof obj.constructor === `function` &&
+    obj.constructor.hasOwnProperty(`prototype`) &&
+    typeof obj.constructor.prototype === `object` &&
+    obj.constructor.prototype === obj;
+};
+
 class ObjectView extends TypeView {
   constructor(params, cons) {
     super(params, cons);
@@ -2705,6 +2718,7 @@ class ObjectView extends TypeView {
     if (!params.parentView) {
       this.rootView = this;
     }
+
     const proto = Object.getPrototypeOf(this._value);
     const stringTag = Object.prototype.toString.call(this._value);
     this._stringTagName = stringTag.substring(8, stringTag.length - 1);
@@ -2723,177 +2737,236 @@ class ObjectView extends TypeView {
   }
 
   _afterRender() {
-    const {elOrStr, stateParams, headContentClassName} = this._getHeadContent();
-    this._headContent = elOrStr;
-
-    if (headContentClassName) {
-      this._headContentEl.classList.add(headContentClassName);
+    if (this.headContentClassName) {
+      this._headContentEl.classList.add(this.headContentClassName);
     }
 
-    if (this._stringTagName !== `Object`) {
-      this._infoEl.textContent = this._stringTagName;
-    } else {
-      this._infoEl.textContent = this._protoConstructorName;
-    }
-    this._state = stateParams;
+    this._state.isShowInfo = this.isShowInfo;
+    this._state.isBraced = this.isShowBraces;
+    this._state.isHeadContentShowed = this.isShowHeadContent;
+    this._state.isOpeningDisabled = this.isDisableOpening;
+    this._state.isItalicEnabled = this.isEnableItalic;
+    this._state.isErrorEnabled = this.isEnableError;
+    this._state.isOversized = this.isEnableOversized;
   }
 
   _getStateDescriptorsObject() {
     const self = this;
     return {
       set isShowInfo(bool) {
-        self.toggleInfoShowed(bool);
+        if (bool && !self._infoEl.textContent) {
+          self._infoEl.textContent = self.headInfo;
+        }
+        self._isShowInfo = self.toggleInfoShowed(bool);
+      },
+      get isShowInfo() {
+        return self._isShowInfo;
       },
       set isHeadContentShowed(bool) {
         if (bool && !self._headContentEl.innerHTML) {
-          if (self._headContent instanceof HTMLElement ||
-            self._headContent instanceof DocumentFragment) {
-            self._headContentEl.appendChild(self._headContent);
+          if (self.headContent instanceof HTMLElement ||
+            self.headContent instanceof DocumentFragment) {
+            self._headContentEl.appendChild(self.headContent);
           } else {
-            self._headContentEl.innerHTML = self._headContent;
+            self._headContentEl.innerHTML = self.headContent;
           }
         }
-        self.toggleHeadContentShowed(bool);
+        self._isHeadContentShowed = self.toggleHeadContentShowed(bool);
       },
-      set isBraced(bool) {
-        self.toggleHeadContentBraced(bool);
+      get isHeadContentShowed() {
+        return self._isHeadContentShowed;
       },
-      set isStringified(bool) {
-        if (!bool && (self._mode === Mode.LOG ||
-          self._mode === Mode.LOG_HTML ||
-          self._mode === Mode.ERROR) && !self._parentView) {
-          self.toggleItalic(true);
-        }
-        if (bool && self._mode === Mode.ERROR) {
-          self.toggleError(true);
-        }
+      set isErrorEnabled(bool) {
+        self._isErrorEnabled = self.toggleError(bool);
       },
+      get isErrorEnabled() {
+        return self._isErrorEnabled;
+      }
     };
   }
 
-  _getHeadContent() {
-    let obj;
+  get isShowInfo() {
+    if (this._mode === Mode.PREVIEW &&
+      this._stringTagName === `Object` &&
+      this._protoConstructorName === `Object`) {
+      return false;
+    }
+
+    const objectIsInstance = this._value instanceof Node ||
+      this._value instanceof Error ||
+      this._value instanceof Date ||
+      this._value instanceof RegExp;
+
+    if (objectIsInstance && !checkObjectisPrototype(this._value)) {
+      return false;
+    }
+
     if (this._mode === Mode.DIR) {
-      obj = this._getHeadDirContent();
-    } else if (this._mode === Mode.LOG ||
-      this._mode === Mode.LOG_HTML ||
-      this._mode === Mode.PROP ||
-      this._mode === Mode.ERROR) {
-      obj = this._getHeadLogContent();
-    } else if (this._mode === Mode.PREVIEW) {
-      obj = this._getHeadPreviewContent();
+      return true;
     }
-    return obj;
+
+    return this._stringTagName !== `Object` ||
+      this._protoConstructorName !== `Object` ||
+      this._propKey === `__proto__`;
   }
 
-  _getHeadPreviewContent() {
-    if (this._stringTagName === `Object` && this._protoConstructorName === `Object`) {
-      return {
-        elOrStr: `…`,
-        stateParams: {
-          isShowInfo: false,
-          isHeadContentShowed: true,
-          isBraced: true
+  get isShowBraces() {
+    if (this._mode === Mode.DIR) {
+      return false;
+    }
+
+    if (this._mode === Mode.PREVIEW) {
+      return this._stringTagName === `Object` &&
+        this._protoConstructorName === `Object`;
+    }
+
+    const objectIsInstance = this._value instanceof Node ||
+      this._value instanceof Error ||
+      this._value instanceof Date ||
+      this._value instanceof RegExp;
+
+    if (objectIsInstance && !checkObjectisPrototype(this._value)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  get isShowHeadContent() {
+    if (this._mode === Mode.PREVIEW &&
+      this._stringTagName === `Object` &&
+      this._protoConstructorName === `Object`) {
+      return true;
+    }
+
+    if (this._mode !== Mode.DIR && this._mode !== Mode.PREVIEW) {
+      return this._propKey !== `__proto__`;
+    }
+
+    const objectIsInstance = this._value instanceof Error ||
+      this._value instanceof Date ||
+      this._value instanceof RegExp;
+
+    if (objectIsInstance && !checkObjectisPrototype(this._value)) {
+      return true;
+    }
+    return false;
+  }
+
+  get isDisableOpening() {
+    if (this._mode === Mode.PREVIEW) {
+      return true;
+    }
+
+    if (this._mode === Mode.DIR) {
+      return false;
+    }
+
+    const objectIsInstance = this._value instanceof Error ||
+      this._value instanceof Date ||
+      this._value instanceof RegExp;
+
+    if (objectIsInstance && !checkObjectisPrototype(this._value)) {
+      return true;
+    }
+    return false;
+  }
+
+  get isEnableItalic() {
+    if (this._mode === Mode.LOG ||
+    this._mode === Mode.LOG_HTML ||
+    this._mode === Mode.ERROR) {
+      const objectIsInstance = this._value instanceof Node ||
+        this._value instanceof Error ||
+        this._value instanceof Date;
+
+      if (!objectIsInstance && !checkObjectisPrototype(this._value)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  get isEnableError() {
+    if (this._mode !== Mode.ERROR) {
+      return false;
+    }
+    const objectIsInstance = this._value instanceof Error ||
+      this._value instanceof Date;
+
+    return objectIsInstance && !checkObjectisPrototype(this._value);
+  }
+
+  set isEnableOversized(bool) {
+    this._isEnableOversized = bool;
+  }
+
+  get isEnableOversized() {
+    if (!this._isEnableOversized) {
+      this.isEnableOversized = false;
+    }
+    return this._isEnableOversized;
+  }
+
+  toggleError(isEnable) {
+    return TypeView.toggleMiddleware(this.el, `error`, isEnable);
+  }
+
+  get headContent() {
+    if (this._mode === Mode.PREVIEW &&
+    this._stringTagName === `Object` &&
+    this._protoConstructorName === `Object`) {
+      return `…`;
+    }
+
+    if (!Object.prototype.hasOwnProperty.call(this._value, `constructor`)) {
+      if (this._value instanceof Node) {
+        if (this._value instanceof HTMLElement) {
+          let str = this._value.tagName.toLowerCase();
+          if (this._value.id) {
+            str += `#${this._value.id}`;
+          }
+          if (this._value.classList.length) {
+            str += `.` + Array.prototype.join.call(this._value.classList, `.`);
+          }
+          return str;
+        } else {
+          return this._value.nodeName;
         }
-      };
+      } else if (this._value instanceof Error) {
+        let str = this._value.name;
+        if (this._value.message) {
+          str += `: ${this._value.message}`;
+        }
+        return str;
+      } else if (this._value instanceof Date) {
+        return this._value.toString();
+      } else if (this._value instanceof RegExp) {
+        return `/${this._value.source}/${this._value.flags}`;
+      } else if (this._value instanceof Number) {
+        return this._console.createTypedView(Number.parseInt(this._value, 10), Mode.PREVIEW, this.nextNestingLevel, this).el;
+      } else if (this._value instanceof String) {
+        return this._console.createTypedView(this._value.toString(), Mode.PREVIEW, this.nextNestingLevel, this).el;
+      }
     }
-    return this._getHeadDirContent();
+    const obj = this.createContent(this._value, true);
+    this._isEnableOversized = obj.isOversized;
+    return obj.fragment;
   }
 
-  _getHeadLogContent() {
-    let val;
-    let isShowInfo = false;
-    let isBraced = true;
-    let isOpeningDisabled = false;
-    let isOversized = false;
-    let isStringified = false;
-    let headContentClassName;
-
-    if (this._value instanceof Node && !this._value.hasOwnProperty(`constructor`)) {
-      return this._getHeadDirContent();
-    } else if (this._value instanceof Error) {
-      isBraced = false;
-      val = `<pre>${this._value.stack}</pre>`;
-      isOpeningDisabled = true;
-      isStringified = true;
-    } else if (this._value instanceof Number) {
-      const view = this._console.createTypedView(Number.parseInt(this._value, 10), Mode.PREVIEW, this.nextNestingLevel, this);
-      val = view.el;
-      isShowInfo = true;
-    } else if (this._value instanceof String) {
-      const view = this._console.createTypedView(this._value.toString(), Mode.PREVIEW, this.nextNestingLevel, this);
-      val = view.el;
-      isShowInfo = true;
-    } else if (this._value instanceof Date) {
-      val = this._value.toString();
-      isStringified = true;
-      isBraced = false;
-    } else if (this._value instanceof RegExp) {
-      val = `/${this._value.source}/${this._value.flags}`;
-      headContentClassName = `regexp`;
-      isOpeningDisabled = true;
-      isBraced = false;
+  get headInfo() {
+    if (this._value[Symbol.toStringTag]) {
+      return this._stringTagName;
     } else {
-      const obj = this.createContent(this._value, true);
-      val = obj.fragment;
-      isOversized = obj.isOversized;
-      if (this._stringTagName !== `Object` ||
-        this._protoConstructorName !== `Object` ||
-        this._propKey === `__proto__`) {
-        isShowInfo = true;
-      }
+      return this._protoConstructorName;
     }
-    return {
-      elOrStr: val,
-      headContentClassName,
-      stateParams: {
-        isShowInfo,
-        isHeadContentShowed: this._propKey !== `__proto__`,
-        isBraced,
-        isOpeningDisabled,
-        isOversized,
-        isStringified
-      }
-    };
   }
 
-  _getHeadDirContent() {
-    let val;
-    let isShowInfo = false;
-    let isHeadContentShowed = true;
-    let isBraced = false;
-    if (this._value instanceof Node && !this._value.hasOwnProperty(`constructor`)) {
-      if (this._value instanceof HTMLElement) {
-        let str = this._value.tagName.toLowerCase();
-        if (this._value.id) {
-          str += `#${this._value.id}`;
-        }
-        if (this._value.classList.length) {
-          str += `.` + Array.prototype.join.call(this._value.classList, `.`);
-        }
-        val = str;
-      } else {
-        val = this._value.nodeName;
-      }
-    } else if (this._value instanceof Date) {
-      val = this._value.toString();
-    } else if (this._value instanceof RegExp) {
-      val = `/${this._value.source}/${this._value.flags}`;
-    } else if (this._value instanceof Error) {
-      val = this._value.toString();
-    } else {
-      isShowInfo = true;
-      isHeadContentShowed = false;
+  get headContentClassName() {
+    if (this._value instanceof RegExp) {
+      return `regexp`;
     }
-    return {
-      elOrStr: val,
-      stateParams: {
-        isShowInfo,
-        isHeadContentShowed,
-        isBraced,
-        isOpeningDisabled: false,
-      }
-    };
+    return null;
   }
 
   createContent(obj, inHead) {
@@ -2955,14 +3028,14 @@ class ArrayView extends TypeView {
 
   _afterRender() {
     this._lengthEl = this.el.querySelector(`.length`);
-    this.toggleHeadContentBraced();
     if (this._stringTagName !== `Object`) {
       this._infoEl.textContent = this._stringTagName;
     } else {
       this._infoEl.textContent = this._protoConstructorName;
     }
-    this._state = {};
-    this._state.isOpeningDisabled = false;
+
+    this._state.isBraced = true;
+    this._state.isOpeningDisabled = this._mode === Mode.PREVIEW;
     this._state.isShowInfo = this.isShowInfo;
     this._state.isHeadContentShowed = this.isShowHeadContent;
     this._state.isShowLength = this.isShowLength;
@@ -3125,14 +3198,17 @@ class FunctionView extends TypeView {
   }
 
   _afterRender() {
-    this._state = {};
-    this._state.isOpeningDisabled = this._mode !== Mode.DIR && this._mode !== Mode.PROP;
+    this._state.isOpeningDisabled = this.isDisableOpening;
 
-    if (this._mode === Mode.LOG || this._mode === Mode.LOG_HTML) {
+    if (this._mode === Mode.LOG || this._mode === Mode.LOG_HTML || this._mode === Mode.ERROR) {
       this._headContentEl.addEventListener(`click`, () => {
         this._headContentEl.classList.toggle(`nowrap`);
       });
     }
+  }
+
+  get isDisableOpening() {
+    return this._mode !== Mode.DIR && this._mode !== Mode.PROP;
   }
 
   _getInfo() {
