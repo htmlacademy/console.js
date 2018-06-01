@@ -90,7 +90,7 @@ export default class TypeView extends AbstractView {
    * @type {{}}
    * @param {{}} params — object with values which will be assigned throught setters
    */
-  set _state(params) {
+  get _state() {
     if (!this._viewState) {
       this._viewState = {};
       Object.defineProperties(
@@ -103,14 +103,6 @@ export default class TypeView extends AbstractView {
       );
       Object.seal(this._viewState);
     }
-    for (let key in params) {
-      if (this._viewState.hasOwnProperty(key)) {
-        this._viewState[key] = params[key];
-      }
-    }
-  }
-
-  get _state() {
     return this._viewState;
   }
 

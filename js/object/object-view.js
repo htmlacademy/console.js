@@ -41,7 +41,6 @@ export default class ObjectView extends TypeView {
       this._headContentEl.classList.add(this.headContentClassName);
     }
 
-    this._state = {};
     this._state.isShowInfo = this.isShowInfo;
     this._state.isBraced = this.isShowBraces;
     this._state.isHeadContentShowed = this.isShowHeadContent;

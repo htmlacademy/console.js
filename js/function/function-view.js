@@ -35,7 +35,6 @@ export default class FunctionView extends TypeView {
   }
 
   _afterRender() {
-    this._state = {};
     this._state.isOpeningDisabled = this.isDisableOpening;
 
     if (this._mode === Mode.LOG || this._mode === Mode.LOG_HTML || this._mode === Mode.ERROR) {

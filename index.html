@@ -27,19 +27,15 @@
         };
       };
       const jsConsole = new Console(document.querySelector(`.console`), {
-        // array: {
-        //   countEntriesWithoutKeys: true
-        // },
-        // common: {
-        //   excludeProperties: [`__proto__`],
-        //   expandDepth: 2,
-        //   maxFieldsInHead: 5,
-        //   minFieldsToExpand: 5, // как в object.maxFieldsInHead
-        //   maxFieldsToExpand: 15
-        // }
-        object: {
-          expandDepth: 5,
-          exclude: [`function`]
+        array: {
+          countEntriesWithoutKeys: true
+        },
+        common: {
+          excludeProperties: [`__proto__`],
+          expandDepth: 2,
+          maxFieldsInHead: 5,
+          minFieldsToExpand: 5, // как в object.maxFieldsInHead
+          maxFieldsToExpand: 15
         }
       });
       const obj = {};

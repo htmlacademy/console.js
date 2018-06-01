@@ -36,7 +36,7 @@ export default class ArrayView extends TypeView {
     } else {
       this._infoEl.textContent = this._protoConstructorName;
     }
-    this._state = {};
+
     this._state.isBraced = true;
     this._state.isOpeningDisabled = this._mode === Mode.PREVIEW;
     this._state.isShowInfo = this.isShowInfo;
