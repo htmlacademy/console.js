@@ -7,7 +7,7 @@ rm -rf ./console.js-gh-pages/$PACKAGE_VERSION
 cp -r ./build ./console.js-gh-pages/$PACKAGE_VERSION
 rm -rf ./console.js-gh-pages/latest
 cp -r ./build ./console.js-gh-pages/latest
-#cp -r ./build/. ./console.js-gh-pages/
+cp -r ./build/. ./console.js-gh-pages/
 gh-pages -d ./console.js-gh-pages/
 rm -rf ./console.js-gh-pages
 rm -rf ./gh-pages.zip
