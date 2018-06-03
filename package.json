@@ -1,6 +1,6 @@
 {
   "name": "console.js",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Inbrowser Demo Console",
   "author": "nikolayemrikh",
   "scripts": {
@@ -10,7 +10,7 @@
     "test": "gulp test && npm run eslint",
     "test-watch": "gulp test-watch",
     "build:examples": "gulp examples",
-    "deploy": "sh ./deploy.sh"
+    "deploy": "gulp build && sh ./deploy.sh"
   },
   "devDependencies": {
     "autoprefixer": "^6.7.7",

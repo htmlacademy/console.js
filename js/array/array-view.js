@@ -3,6 +3,7 @@ import {getElement} from '../utils';
 import {Mode, ViewType} from '../enums';
 
 const EMPTY = `empty`;
+const MULTIPLY_SIGN = `&times;`;
 
 export default class ArrayView extends TypeView {
   constructor(params, cons) {
@@ -112,28 +113,45 @@ export default class ArrayView extends TypeView {
     const maxFieldsInHead = this._console.params[this.viewType].maxFieldsInHead;
     const mode = inHead ? Mode.PREVIEW : Mode.PROP;
 
-    for (let i = 0, l = arr.length; i < l; i++) {
-      if (inHead && addedKeysCounter === maxFieldsInHead) {
+    const countEntriesWithoutKeys = this._console.params[this.viewType].countEntriesWithoutKeys;
+
+    let emptyCount = 0;
+    let i = arr.length;
+    const entryElsReversed = [];
+    do {
+      if (inHead && countEntriesWithoutKeys && addedKeysCounter === maxFieldsInHead) {
         isOversized = true;
         break;
       }
-      const key = i.toString();
-      let isIncrementCounter = this._console.params[this.viewType].countEntriesWithoutKeys;
-      let entryEl = null;
-      if (entriesKeys.has(key)) {
-        entryEl = this._createTypedEntryEl({obj: arr, key: i, mode, withoutKey: inHead, notCheckDescriptors: true});
-        entriesKeys.delete(key);
-      } else if (inHead) {
-        entryEl = this._createEntryEl({key: i, el: getElement(`<span class="grey">${EMPTY}</span>`), withoutKey: true});
-      } else {
-        isIncrementCounter = false;
-      }
+      const j = i - 1;
+      const key = j.toString();
 
+      const hasKey = j !== -1 && entriesKeys.has(key);
+      if (j === -1 || hasKey) {
+        if (emptyCount !== 0) {
+          entryElsReversed.push(this._createEntryEl({key, el: getElement(`<span class="grey">${EMPTY}${emptyCount > 1 ? ` ${MULTIPLY_SIGN} ${emptyCount}` : ``}</span>`), withoutKey: true}));
+          emptyCount = 0;
+          if (inHead && countEntriesWithoutKeys) {
+            addedKeysCounter++;
+          }
+        }
+
+        if (hasKey) {
+          entryElsReversed.push(this._createTypedEntryEl({obj: arr, key, mode, withoutKey: inHead, notCheckDescriptors: true}));
+          entriesKeys.delete(key);
+          if (inHead && countEntriesWithoutKeys) {
+            addedKeysCounter++;
+          }
+        }
+      } else if (inHead && !hasKey) {
+        emptyCount++;
+      }
+    } while (i--);
+
+    let j = entryElsReversed.length;
+    while (j--) {
+      const entryEl = entryElsReversed[j];
       TypeView.appendEntryElIntoFragment(entryEl, fragment);
-
-      if (isIncrementCounter) {
-        addedKeysCounter++;
-      }
     }
 
     for (let key of entriesKeys) {
