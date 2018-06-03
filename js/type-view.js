@@ -121,7 +121,16 @@ export default class TypeView extends AbstractView {
     const self = this;
     return {
       set isShowInfo(bool) {
-        self.toggleInfoShowed(bool);
+        if (!self._infoEl) {
+          return;
+        }
+        if (bool && !self._infoEl.textContent) {
+          self._infoEl.textContent = self.info;
+        }
+        self._isShowInfo = self.toggleInfoShowed(bool);
+      },
+      get isShowInfo() {
+        return self._isShowInfo;
       },
       set isHeadContentShowed(bool) {
         self.toggleHeadContentShowed(bool);
@@ -169,12 +178,6 @@ export default class TypeView extends AbstractView {
       },
       set isOversized(bool) {
         self.toggleHeadContentOversized(bool);
-      },
-      set isHeadContentLimited(bool) {
-
-      },
-      get isHeadContentLimited() {
-
       },
       set isItalicEnabled(bool) {
         self._isItalicEnabled = self.toggleItalic(bool);
@@ -425,6 +428,14 @@ export default class TypeView extends AbstractView {
     return this._cache.isAutoExpandNeeded;
   }
 
+  get info() {
+    if (this._value[Symbol.toStringTag]) {
+      return this._stringTagName;
+    } else {
+      return this._protoConstructorName;
+    }
+  }
+
   _headClickHandler(evt) {
     evt.preventDefault();
     this._state.isOpened = !this._state.isOpened;
@@ -537,11 +548,11 @@ ${withoutKey ? `` : `<span class="entry-container__key ${isGrey ? `grey` : ``}">
       isGrey = true;
     }
     // if obj is __proto__ or prototype property and has property descriptor with getter for the key
-    const isProtoChainCall = this._propKey === `__proto__` &&
+    const isProtoChainGetterCall = this._propKey === `__proto__` &&
       Object.prototype.hasOwnProperty.call(this._allPropertyDescriptorsWithGetters, key);
     const getViewEl = () => {
       let val;
-      if (isProtoChainCall) {
+      if (isProtoChainGetterCall) {
         val = this._allPropertyDescriptorsWithGetters[key].get.call(this._firstProtoContainingObject);
       } else {
         val = key === `__proto__` ? Object.getPrototypeOf(obj) : obj[key];
@@ -553,14 +564,19 @@ ${withoutKey ? `` : `<span class="entry-container__key ${isGrey ? `grey` : ``}">
       if (notCheckDescriptors) {
         el = getViewEl();
       } else {
-        const descriptors = this._allPropertyDescriptorsWithGetters;
-        if (!isProtoChainCall && (
-          !Object.prototype.hasOwnProperty.call(descriptors, key) ||
-          isNativeFunction(descriptors[key].get) ||
-          !descriptors[key].get ||
-          key === `__proto__`)
-        ) {
-          el = getViewEl();
+        const descriptorsWithGetters = this._allPropertyDescriptorsWithGetters;
+        // if not __proto__ property invoked
+        if (!isProtoChainGetterCall) {
+          // if it's not a getter or it's a __proto__
+          if (!Object.prototype.hasOwnProperty.call(descriptorsWithGetters, key) || key === `__proto__`) {
+            el = getViewEl();
+          // if it's a native getter
+          } else if (isNativeFunction(descriptorsWithGetters[key].get)) {
+            if (mode === Mode.PREVIEW && canReturnNull) {
+              return null;
+            }
+            el = getViewEl();
+          }
         }
       }
     } catch (err) {

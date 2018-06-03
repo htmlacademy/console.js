@@ -31,11 +31,6 @@ export default class ArrayView extends TypeView {
 
   _afterRender() {
     this._lengthEl = this.el.querySelector(`.length`);
-    if (this._stringTagName !== `Object`) {
-      this._infoEl.textContent = this._stringTagName;
-    } else {
-      this._infoEl.textContent = this._protoConstructorName;
-    }
 
     this._state.isBraced = true;
     this._state.isOpeningDisabled = this._mode === Mode.PREVIEW;

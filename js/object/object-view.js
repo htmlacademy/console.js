@@ -53,15 +53,6 @@ export default class ObjectView extends TypeView {
   _getStateDescriptorsObject() {
     const self = this;
     return {
-      set isShowInfo(bool) {
-        if (bool && !self._infoEl.textContent) {
-          self._infoEl.textContent = self.headInfo;
-        }
-        self._isShowInfo = self.toggleInfoShowed(bool);
-      },
-      get isShowInfo() {
-        return self._isShowInfo;
-      },
       set isHeadContentShowed(bool) {
         if (bool && !self._headContentEl.innerHTML) {
           if (self.headContent instanceof HTMLElement ||
@@ -158,7 +149,7 @@ export default class ObjectView extends TypeView {
       return true;
     }
 
-    if (this._mode === Mode.DIR) {
+    if (this._mode === Mode.DIR || this._mode === Mode.PROP) {
       return false;
     }
 
@@ -243,10 +234,6 @@ export default class ObjectView extends TypeView {
         return this._value.toString();
       } else if (this._value instanceof RegExp) {
         return `/${this._value.source}/${this._value.flags}`;
-      } else if (this._value instanceof Number) {
-        return this._console.createTypedView(Number.parseInt(this._value, 10), Mode.PREVIEW, this.nextNestingLevel, this).el;
-      } else if (this._value instanceof String) {
-        return this._console.createTypedView(this._value.toString(), Mode.PREVIEW, this.nextNestingLevel, this).el;
       }
     }
     const obj = this.createContent(this._value, true);
@@ -254,16 +241,8 @@ export default class ObjectView extends TypeView {
     return obj.fragment;
   }
 
-  get headInfo() {
-    if (this._value[Symbol.toStringTag]) {
-      return this._stringTagName;
-    } else {
-      return this._protoConstructorName;
-    }
-  }
-
   get headContentClassName() {
-    if (this._value instanceof RegExp) {
+    if (this._value instanceof RegExp && this._mode !== Mode.DIR) {
       return `regexp`;
     }
     return null;
@@ -277,6 +256,30 @@ export default class ObjectView extends TypeView {
     const maxFieldsInHead = this._console.params[this.viewType].maxFieldsInHead;
     const mode = inHead ? Mode.PREVIEW : Mode.PROP;
     entriesKeys.delete(`__proto__`); // Object may not have prototype
+
+    // if object has PrimtiveValue property (only Number and String)
+    if ((obj instanceof String || obj instanceof Number) &&
+    !Object.prototype.hasOwnProperty.call(this._value, `constructor`)) {
+      if (obj instanceof String) {
+        const el = this._console.createTypedView(this._value.toString(), mode, this.nextNestingLevel, this).el;
+        TypeView.appendEntryElIntoFragment(
+            this._createEntryEl({key: `[[PrimtiveValue]]`, el, withoutKey: inHead, isGrey: true}),
+            fragment
+        );
+        if (inHead && obj.length) {
+          for (let i = 0; i < obj.length; i++) {
+            entriesKeys.delete(i.toString());
+          }
+          entriesKeys.delete(`length`);
+        }
+      } else if (obj instanceof Number) {
+        const el = this._console.createTypedView(Number.parseInt(this._value, 10), mode, this.nextNestingLevel, this).el;
+        TypeView.appendEntryElIntoFragment(
+            this._createEntryEl({key: `[[PrimtiveValue]]`, el, withoutKey: inHead, isGrey: true}),
+            fragment
+        );
+      }
+    }
 
     for (let key of entriesKeys) {
       if (inHead && addedKeysCounter === maxFieldsInHead) {
