@@ -2173,7 +2173,16 @@ class TypeView extends AbstractView {
     const self = this;
     return {
       set isShowInfo(bool) {
-        self.toggleInfoShowed(bool);
+        if (!self._infoEl) {
+          return;
+        }
+        if (bool && !self._infoEl.textContent) {
+          self._infoEl.textContent = self.info;
+        }
+        self._isShowInfo = self.toggleInfoShowed(bool);
+      },
+      get isShowInfo() {
+        return self._isShowInfo;
       },
       set isHeadContentShowed(bool) {
         self.toggleHeadContentShowed(bool);
@@ -2221,12 +2230,6 @@ class TypeView extends AbstractView {
       },
       set isOversized(bool) {
         self.toggleHeadContentOversized(bool);
-      },
-      set isHeadContentLimited(bool) {
-
-      },
-      get isHeadContentLimited() {
-
       },
       set isItalicEnabled(bool) {
         self._isItalicEnabled = self.toggleItalic(bool);
@@ -2477,6 +2480,14 @@ class TypeView extends AbstractView {
     return this._cache.isAutoExpandNeeded;
   }
 
+  get info() {
+    if (this._value[Symbol.toStringTag]) {
+      return this._stringTagName;
+    } else {
+      return this._protoConstructorName;
+    }
+  }
+
   _headClickHandler(evt) {
     evt.preventDefault();
     this._state.isOpened = !this._state.isOpened;
@@ -2589,11 +2600,11 @@ ${withoutKey ? `` : `<span class="entry-container__key ${isGrey ? `grey` : ``}">
       isGrey = true;
     }
     // if obj is __proto__ or prototype property and has property descriptor with getter for the key
-    const isProtoChainCall = this._propKey === `__proto__` &&
+    const isProtoChainGetterCall = this._propKey === `__proto__` &&
       Object.prototype.hasOwnProperty.call(this._allPropertyDescriptorsWithGetters, key);
     const getViewEl = () => {
       let val;
-      if (isProtoChainCall) {
+      if (isProtoChainGetterCall) {
         val = this._allPropertyDescriptorsWithGetters[key].get.call(this._firstProtoContainingObject);
       } else {
         val = key === `__proto__` ? Object.getPrototypeOf(obj) : obj[key];
@@ -2605,14 +2616,19 @@ ${withoutKey ? `` : `<span class="entry-container__key ${isGrey ? `grey` : ``}">
       if (notCheckDescriptors) {
         el = getViewEl();
       } else {
-        const descriptors = this._allPropertyDescriptorsWithGetters;
-        if (!isProtoChainCall && (
-          !Object.prototype.hasOwnProperty.call(descriptors, key) ||
-          isNativeFunction(descriptors[key].get) ||
-          !descriptors[key].get ||
-          key === `__proto__`)
-        ) {
-          el = getViewEl();
+        const descriptorsWithGetters = this._allPropertyDescriptorsWithGetters;
+        // if not __proto__ property invoked
+        if (!isProtoChainGetterCall) {
+          // if it's not a getter or it's a __proto__
+          if (!Object.prototype.hasOwnProperty.call(descriptorsWithGetters, key) || key === `__proto__`) {
+            el = getViewEl();
+          // if it's a native getter
+          } else if (isNativeFunction(descriptorsWithGetters[key].get)) {
+            if (mode === Mode.PREVIEW && canReturnNull) {
+              return null;
+            }
+            el = getViewEl();
+          }
         }
       }
     } catch (err) {
@@ -2753,15 +2769,6 @@ class ObjectView extends TypeView {
   _getStateDescriptorsObject() {
     const self = this;
     return {
-      set isShowInfo(bool) {
-        if (bool && !self._infoEl.textContent) {
-          self._infoEl.textContent = self.headInfo;
-        }
-        self._isShowInfo = self.toggleInfoShowed(bool);
-      },
-      get isShowInfo() {
-        return self._isShowInfo;
-      },
       set isHeadContentShowed(bool) {
         if (bool && !self._headContentEl.innerHTML) {
           if (self.headContent instanceof HTMLElement ||
@@ -2858,7 +2865,7 @@ class ObjectView extends TypeView {
       return true;
     }
 
-    if (this._mode === Mode.DIR) {
+    if (this._mode === Mode.DIR || this._mode === Mode.PROP) {
       return false;
     }
 
@@ -2943,10 +2950,6 @@ class ObjectView extends TypeView {
         return this._value.toString();
       } else if (this._value instanceof RegExp) {
         return `/${this._value.source}/${this._value.flags}`;
-      } else if (this._value instanceof Number) {
-        return this._console.createTypedView(Number.parseInt(this._value, 10), Mode.PREVIEW, this.nextNestingLevel, this).el;
-      } else if (this._value instanceof String) {
-        return this._console.createTypedView(this._value.toString(), Mode.PREVIEW, this.nextNestingLevel, this).el;
       }
     }
     const obj = this.createContent(this._value, true);
@@ -2954,16 +2957,8 @@ class ObjectView extends TypeView {
     return obj.fragment;
   }
 
-  get headInfo() {
-    if (this._value[Symbol.toStringTag]) {
-      return this._stringTagName;
-    } else {
-      return this._protoConstructorName;
-    }
-  }
-
   get headContentClassName() {
-    if (this._value instanceof RegExp) {
+    if (this._value instanceof RegExp && this._mode !== Mode.DIR) {
       return `regexp`;
     }
     return null;
@@ -2977,6 +2972,30 @@ class ObjectView extends TypeView {
     const maxFieldsInHead = this._console.params[this.viewType].maxFieldsInHead;
     const mode = inHead ? Mode.PREVIEW : Mode.PROP;
     entriesKeys.delete(`__proto__`); // Object may not have prototype
+
+    // if object has PrimtiveValue property (only Number and String)
+    if ((obj instanceof String || obj instanceof Number) &&
+    !Object.prototype.hasOwnProperty.call(this._value, `constructor`)) {
+      if (obj instanceof String) {
+        const el = this._console.createTypedView(this._value.toString(), mode, this.nextNestingLevel, this).el;
+        TypeView.appendEntryElIntoFragment(
+            this._createEntryEl({key: `[[PrimtiveValue]]`, el, withoutKey: inHead, isGrey: true}),
+            fragment
+        );
+        if (inHead && obj.length) {
+          for (let i = 0; i < obj.length; i++) {
+            entriesKeys.delete(i.toString());
+          }
+          entriesKeys.delete(`length`);
+        }
+      } else if (obj instanceof Number) {
+        const el = this._console.createTypedView(Number.parseInt(this._value, 10), mode, this.nextNestingLevel, this).el;
+        TypeView.appendEntryElIntoFragment(
+            this._createEntryEl({key: `[[PrimtiveValue]]`, el, withoutKey: inHead, isGrey: true}),
+            fragment
+        );
+      }
+    }
 
     for (let key of entriesKeys) {
       if (inHead && addedKeysCounter === maxFieldsInHead) {
@@ -3028,11 +3047,6 @@ class ArrayView extends TypeView {
 
   _afterRender() {
     this._lengthEl = this.el.querySelector(`.length`);
-    if (this._stringTagName !== `Object`) {
-      this._infoEl.textContent = this._stringTagName;
-    } else {
-      this._infoEl.textContent = this._protoConstructorName;
-    }
 
     this._state.isBraced = true;
     this._state.isOpeningDisabled = this._mode === Mode.PREVIEW;

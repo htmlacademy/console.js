@@ -1,0 +1,1 @@
+!function(){"use strict";var o={function:{nowrapOnLog:!0},common:{excludeProperties:["__proto__"],maxFieldsInHead:5,minFieldsToExpand:5,maxFieldsToExpand:15}};Array.isArray(window.jsConsolePresets)?window.jsConsolePresets.push(o):window.jsConsolePresets=[o]}();
