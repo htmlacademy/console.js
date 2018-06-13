@@ -117,46 +117,43 @@ export default class ArrayView extends TypeView {
     const countEntriesWithoutKeys = this._console.params[this.viewType].countEntriesWithoutKeys;
 
     let emptyCount = 0;
-    let i = arr.length;
-    const entryElsReversed = [];
-    do {
+    for (let i = 0, l = arr.length; i < l; i++) {
       if (inHead && countEntriesWithoutKeys && addedKeysCounter === maxFieldsInHead) {
         isOversized = true;
         break;
       }
-      const j = i - 1;
-      const key = j.toString();
-
-      const hasKey = j !== -1 && entriesKeys.has(key);
-      if (j === -1 || hasKey) {
-        if (emptyCount !== 0) {
-          entryElsReversed.push(this._createEntryEl({key, el: getElement(`<span class="grey">${EMPTY}${emptyCount > 1 ? ` ${MULTIPLY_SIGN} ${emptyCount}` : ``}</span>`), withoutKey: true}));
-          emptyCount = 0;
-          if (inHead && countEntriesWithoutKeys) {
-            addedKeysCounter++;
-          }
-        }
-
-        if (hasKey) {
-          if (this._propKey === `[[Entries]]` && this._parentView.value instanceof Map) {
-            const pair = arr[j];
-            entryElsReversed.push(MapSetView.prototype.createMapEntryEl.call(this, {key, entryKey: pair[0], entryValue: pair[1], mode}));
-          }
-          entryElsReversed.push(this._createTypedEntryEl({obj: arr, key, mode, withoutKey: inHead, notCheckDescriptors: true}));
-          entriesKeys.delete(key);
-          if (inHead && countEntriesWithoutKeys) {
-            addedKeysCounter++;
-          }
-        }
-      } else if (inHead && !hasKey) {
+      const key = i.toString();
+      const hasKey = entriesKeys.has(key);
+      if (inHead && !hasKey) {
         emptyCount++;
       }
-    } while (i--);
-
-    let j = entryElsReversed.length;
-    while (j--) {
-      const entryEl = entryElsReversed[j];
-      TypeView.appendEntryElIntoFragment(entryEl, fragment);
+      if (inHead && emptyCount !== 0 && (hasKey || i === l - 1)) {
+        TypeView.appendEntryElIntoFragment(
+            this._createEntryEl({key, el: getElement(`<span class="grey">${EMPTY}${emptyCount > 1 ? ` ${MULTIPLY_SIGN} ${emptyCount}` : ``}</span>`), withoutKey: true}),
+            fragment
+        );
+        if (inHead && countEntriesWithoutKeys) {
+          addedKeysCounter++;
+        }
+        emptyCount = 0;
+      }
+      if (hasKey) {
+        if (this._propKey === `[[Entries]]` && this._parentView.value instanceof Map) {
+          const pair = arr[i];
+          TypeView.appendEntryElIntoFragment(
+              MapSetView.prototype.createMapEntryEl.call(this, {key, entryKey: pair[0], entryValue: pair[1], mode}),
+              fragment
+          );
+        }
+        TypeView.appendEntryElIntoFragment(
+            this._createTypedEntryEl({obj: arr, key, mode, withoutKey: inHead, notCheckDescriptors: true}),
+            fragment
+        );
+        entriesKeys.delete(key);
+        if (inHead && countEntriesWithoutKeys) {
+          addedKeysCounter++;
+        }
+      }
     }
 
     for (let key of entriesKeys) {
