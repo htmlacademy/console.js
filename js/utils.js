@@ -10,3 +10,11 @@ export const customizer = (objValue, srcValue) => {
   }
   return void 0;
 };
+
+export const checkObjectisPrototype = (obj) => {
+  return obj && obj.hasOwnProperty(`constructor`) &&
+    typeof obj.constructor === `function` &&
+    obj.constructor.hasOwnProperty(`prototype`) &&
+    typeof obj.constructor.prototype === `object` &&
+    obj.constructor.prototype === obj;
+};

@@ -2,14 +2,7 @@
 /* eslint no-empty: "off"*/
 import TypeView from '../type-view';
 import {Mode, ViewType} from '../enums';
-
-const checkObjectisPrototype = (obj) => {
-  return obj && obj.hasOwnProperty(`constructor`) &&
-    typeof obj.constructor === `function` &&
-    obj.constructor.hasOwnProperty(`prototype`) &&
-    typeof obj.constructor.prototype === `object` &&
-    obj.constructor.prototype === obj;
-};
+import {checkObjectisPrototype} from '../utils';
 
 export default class ObjectView extends TypeView {
   constructor(params, cons) {
@@ -50,7 +43,7 @@ export default class ObjectView extends TypeView {
     this._state.isOversized = this.isEnableOversized;
   }
 
-  _getStateDescriptorsObject() {
+  _getStateDescriptors() {
     const self = this;
     return {
       set isHeadContentShowed(bool) {
@@ -251,15 +244,12 @@ export default class ObjectView extends TypeView {
   createContent(obj, inHead) {
     const fragment = document.createDocumentFragment();
     const entriesKeys = inHead ? this.headContentEntriesKeys : this.contentEntriesKeys;
-    let isOversized = false;
-    let addedKeysCounter = 0;
-    const maxFieldsInHead = this._console.params[this.viewType].maxFieldsInHead;
     const mode = inHead ? Mode.PREVIEW : Mode.PROP;
     entriesKeys.delete(`__proto__`); // Object may not have prototype
 
     // if object has PrimtiveValue property (only Number and String)
     if ((obj instanceof String || obj instanceof Number) &&
-    !Object.prototype.hasOwnProperty.call(this._value, `constructor`)) {
+    !checkObjectisPrototype(this._value)) {
       if (obj instanceof String) {
         const el = this._console.createTypedView(this._value.toString(), mode, this.nextNestingLevel, this).el;
         TypeView.appendEntryElIntoFragment(
@@ -281,6 +271,9 @@ export default class ObjectView extends TypeView {
       }
     }
 
+    const maxFieldsInHead = this._console.params[this.viewType].maxFieldsInHead;
+    let isOversized = false;
+    let addedKeysCounter = 0;
     for (let key of entriesKeys) {
       if (inHead && addedKeysCounter === maxFieldsInHead) {
         isOversized = true;

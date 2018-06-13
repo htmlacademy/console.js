@@ -1,4 +1,5 @@
 import TypeView from '../type-view';
+import MapSetView from '../object/map-set-view';
 import {getElement} from '../utils';
 import {Mode, ViewType} from '../enums';
 
@@ -45,7 +46,7 @@ export default class ArrayView extends TypeView {
     }
   }
 
-  _getStateDescriptorsObject() {
+  _getStateDescriptors() {
     const self = this;
     return {
       set isHeadContentShowed(bool) {
@@ -137,6 +138,10 @@ export default class ArrayView extends TypeView {
         }
 
         if (hasKey) {
+          if (this._propKey === `[[Entries]]` && this._parentView.value instanceof Map) {
+            const pair = arr[j];
+            entryElsReversed.push(MapSetView.prototype.createMapEntryEl.call(this, {key, entryKey: pair[0], entryValue: pair[1], mode}));
+          }
           entryElsReversed.push(this._createTypedEntryEl({obj: arr, key, mode, withoutKey: inHead, notCheckDescriptors: true}));
           entriesKeys.delete(key);
           if (inHead && countEntriesWithoutKeys) {

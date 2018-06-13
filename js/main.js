@@ -1,9 +1,11 @@
+/* eslint no-empty: "off"*/
 import mergeWith from 'lodash.mergewith';
 import ObjectView from './object/object-view';
+import MapSetView from './object/map-set-view';
 import ArrayView from './array/array-view';
 import FunctionView from './function/function-view';
 import PrimitiveView from './primitive/primitive-view';
-import {getElement, customizer} from './utils';
+import {getElement, customizer, checkObjectisPrototype} from './utils';
 import {Mode, ViewType} from './enums';
 
 const DEFAULT_MAX_FIELDS_IN_HEAD = 5;
@@ -162,38 +164,38 @@ export default class Console {
 
   createTypedView(val, mode, depth, parentView, propKey) {
     const params = {val, mode, depth, parentView, type: typeof val, propKey};
-    let view;
     switch (params.type) {
       case `function`:
-        view = new FunctionView(params, this);
-        break;
+        return new FunctionView(params, this);
       case `object`:
         if (val !== null) {
           const stringTag = Object.prototype.toString.call(val);
           const stringTagName = stringTag.substring(8, stringTag.length - 1);
 
-          if (stringTagName !== `Object` && (
-            Array.isArray(val) ||
-            val instanceof HTMLCollection ||
-            val instanceof NodeList ||
-            val instanceof DOMTokenList ||
-            val instanceof TypedArray ||
-            stringTagName === `Arguments`)
-          ) {
-            view = new ArrayView(params, this);
-          } else {
-            view = new ObjectView(params, this);
+          try {
+            // Проверить ф-ией checkObjectisPrototype из ObjectView
+            if (stringTagName !== `Object` && (
+              Array.isArray(val) ||
+              val instanceof HTMLCollection ||
+              val instanceof NodeList ||
+              val instanceof DOMTokenList ||
+              val instanceof TypedArray ||
+              stringTagName === `Arguments`) &&
+              Number.isInteger(val.length)
+            ) {
+              return new ArrayView(params, this);
+            }
+          } catch (err) {}
+          if (val instanceof Map || val instanceof Set && !checkObjectisPrototype(val)) {
+            return new MapSetView(params, this);
           }
+          return new ObjectView(params, this);
         } else {
-          view = new PrimitiveView(params, this);
+          return new PrimitiveView(params, this);
         }
-        break;
       default:
-        view = new PrimitiveView(params, this);
-        break;
+        return new PrimitiveView(params, this);
     }
-    // this._views.set(view.el, view);
-    return view;
   }
 
   _getRowEl(entries, mode) {

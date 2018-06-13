@@ -61,6 +61,7 @@ export default class TypeView extends AbstractView {
     if (!this.rootView) {
       throw new Error(`this.rootView must be specified`);
     }
+
     this._headEl = this.el.querySelector(`.head`);
     this._headContentEl = this.el.querySelector(`.head__content`);
     this._infoEl = this.el.querySelector(`.info`);
@@ -95,11 +96,11 @@ export default class TypeView extends AbstractView {
       this._viewState = {};
       Object.defineProperties(
           this._viewState,
-          Object.getOwnPropertyDescriptors(this._getStateCommonDescriptorsObject())
+          Object.getOwnPropertyDescriptors(this._getStateCommonDescriptors())
       );
       Object.defineProperties(
           this._viewState,
-          Object.getOwnPropertyDescriptors(this._getStateDescriptorsObject())
+          Object.getOwnPropertyDescriptors(this._getStateDescriptors())
       );
       Object.seal(this._viewState);
     }
@@ -110,14 +111,14 @@ export default class TypeView extends AbstractView {
    * @abstract
    * @return {{}} if not overriden return object without descriptors
    */
-  _getStateDescriptorsObject() {
+  _getStateDescriptors() {
     return {};
   }
 
   /**
    * @return {{}} — object that contains descriptors only
    */
-  _getStateCommonDescriptorsObject() {
+  _getStateCommonDescriptors() {
     const self = this;
     return {
       set isShowInfo(bool) {
@@ -218,6 +219,13 @@ export default class TypeView extends AbstractView {
 
   toggleArrowBottom(isEnable) {
     return TypeView.toggleMiddleware(this._headEl, `item__head--arrow-bottom`, isEnable);
+  }
+
+  get depth() {
+    if (!this._cache.depth) {
+      this._cache.depth = this._parentView ? this._parentView.depth + 1 : 1;
+    }
+    return this._cache.depth;
   }
 
   get nextNestingLevel() {
@@ -430,6 +438,8 @@ export default class TypeView extends AbstractView {
 
   get info() {
     if (this._value[Symbol.toStringTag]) {
+      return this._value[Symbol.toStringTag];
+    } else if (this._stringTagName !== `Object`) {
       return this._stringTagName;
     } else {
       return this._protoConstructorName;
