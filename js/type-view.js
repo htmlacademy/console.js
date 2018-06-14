@@ -336,7 +336,6 @@ export default class TypeView extends AbstractView {
   get _firstProtoContainingObject() {
     if (this._cache.firstProtoContainingObject === void 0) {
       if (this._propKey === `__proto__`) {
-        // console.log(this._value, this._propKey, this.parentView);
         this._cache.firstProtoContainingObject = getFirstProtoContainingObject(this._parentView);
       } else {
         this._cache.firstProtoContainingObject = null;
@@ -586,8 +585,10 @@ ${withoutKey ? `` : `<span class="entry-container__key ${isGrey ? `grey` : ``}">
           if (!Object.prototype.hasOwnProperty.call(descriptorsWithGetters, key) || key === `__proto__`) {
             el = getViewEl();
           // if it's a native getter
-          } else if (isNativeFunction(descriptorsWithGetters[key].get)) {
-            if (mode === Mode.PREVIEW && canReturnNull) {
+          } else {
+            const descriptorWithGetter = descriptorsWithGetters[key];
+            if (mode === Mode.PREVIEW && canReturnNull &&
+            isNativeFunction(descriptorWithGetter.get) && !descriptorWithGetter.enumerable) {
               return null;
             }
             el = getViewEl();

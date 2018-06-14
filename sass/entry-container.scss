@@ -1,0 +1,77 @@
+.entry-container {
+  $parent: &;
+
+  &__entry {
+    display: inline-block;
+  }
+
+  &--head {
+    white-space: normal;
+    #{$parent}__entry:not(:last-child) {
+      margin-right: 5px;
+      &::after {
+        content: ",";
+        white-space: pre;
+      }
+    }
+  }
+
+  &--braced {
+    &#{$parent}--object {
+      &::before {
+        content: '{';
+      }
+
+      &::after {
+        content: '}';
+      }
+
+      &#{$parent}--oversize {
+        #{$parent}__entry:last-child {
+          margin-right: 5px;
+          &::after {
+            content: ",";
+            white-space: pre;
+          }
+        }
+        &::after {
+          content: '…}';
+        }
+      }
+    }
+
+    &#{$parent}--array {
+      &::before {
+        content: '[';
+      }
+
+      &::after {
+        content: ']';
+      }
+
+      &#{$parent}--oversize {
+        #{$parent}__entry:last-child {
+          margin-right: 5px;
+          &::after {
+            content: ",";
+            white-space: pre;
+          }
+        }
+        &::after {
+          content: '…]';
+        }
+      }
+    }
+  }
+
+  &__value-container {
+    &--underscore:hover {
+      text-decoration: underline;
+    }
+  }
+
+  &__key::after {
+    content: ": ";
+    white-space: pre;
+  }
+}

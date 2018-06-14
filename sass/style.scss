@@ -118,87 +118,6 @@ block__elem--mod — element's modifier
   }
 }
 
-.entry-container {
-  $parent: &;
-  // &__entry {
-  //   display: flex;
-  //   flex-direction: row;
-  // }
-  &--head {
-    white-space: normal;
-    #{$parent}__entry {
-      display: inline-block;
-
-      &:not(:last-child) {
-        margin-right: 5px;
-        &::after {
-          content: ",";
-          white-space: pre;
-        }
-      }
-    }
-  }
-
-  &--braced {
-    &#{$parent}--object {
-      &::before {
-        content: '{';
-      }
-
-      &::after {
-        content: '}';
-      }
-
-      &#{$parent}--oversize {
-        #{$parent}__entry:last-child {
-          margin-right: 5px;
-          &::after {
-            content: ",";
-            white-space: pre;
-          }
-        }
-        &::after {
-          content: '…}';
-        }
-      }
-    }
-
-    &#{$parent}--array {
-      &::before {
-        content: '[';
-      }
-
-      &::after {
-        content: ']';
-      }
-
-      &#{$parent}--oversize {
-        #{$parent}__entry:last-child {
-          margin-right: 5px;
-          &::after {
-            content: ",";
-            white-space: pre;
-          }
-        }
-        &::after {
-          content: '…]';
-        }
-      }
-    }
-  }
-
-  &__value-container {
-    &--underscore:hover {
-      text-decoration: underline;
-    }
-  }
-
-  &__key::after {
-    content: ": ";
-    white-space: pre;
-  }
-}
-
 .head {
   &__content,
   &__length,
@@ -304,3 +223,6 @@ block__elem--mod — element's modifier
 
   border: 5px solid #ffd20d;
 }
+
+
+@import "entry-container";
