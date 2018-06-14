@@ -2556,15 +2556,15 @@ var TypeView = function (_AbstractView) {
           el = getViewEl();
         } else {
           var descriptorsWithGetters = this._allPropertyDescriptorsWithGetters;
+          var descriptorWithGetter = descriptorsWithGetters[key];
           // if not __proto__ property invoked
           if (!isProtoChainGetterCall) {
             // if it's not a getter or it's a __proto__
             if (!Object.prototype.hasOwnProperty.call(descriptorsWithGetters, key) || key === '__proto__') {
               el = getViewEl();
               // if it's a native getter
-            } else {
-              var descriptorWithGetter = descriptorsWithGetters[key];
-              if (mode === Mode.PREVIEW && canReturnNull && isNativeFunction(descriptorWithGetter.get) && !descriptorWithGetter.enumerable) {
+            } else if (isNativeFunction(descriptorWithGetter.get)) {
+              if (mode === Mode.PREVIEW && canReturnNull && !descriptorWithGetter.enumerable) {
                 return null;
               }
               el = getViewEl();
