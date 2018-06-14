@@ -16,9 +16,9 @@ export default class MapEntryView extends TypeView {
     return `\
 <div class="console__item item item--${this.viewType}">\
   <div class="head item__head">\
-    <div class="head__content map-pair hidden">\
-      <span class="map-pair__key"></span> => <span class="map-pair__value"></span>\
-    </div>\
+    <div class="head__content entry-container entry-container--${this.viewType} map-pair hidden"><!--
+    --><span class="map-pair__key"></span> => <span class="map-pair__value"></span><!--
+ --></div>\
   </div>\
   <div class="item__content entry-container entry-container--${this.viewType} hidden"></div>\
 </div>`;
