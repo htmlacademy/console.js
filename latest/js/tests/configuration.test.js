@@ -1986,6 +1986,14 @@ const customizer = (objValue, srcValue) => {
   return void 0;
 };
 
+const checkObjectisPrototype = (obj) => {
+  return obj && obj.hasOwnProperty(`constructor`) &&
+    typeof obj.constructor === `function` &&
+    obj.constructor.hasOwnProperty(`prototype`) &&
+    typeof obj.constructor.prototype === `object` &&
+    obj.constructor.prototype === obj;
+};
+
 class AbstractView {
   constructor() {}
 
@@ -2113,6 +2121,7 @@ class TypeView extends AbstractView {
     if (!this.rootView) {
       throw new Error(`this.rootView must be specified`);
     }
+
     this._headEl = this.el.querySelector(`.head`);
     this._headContentEl = this.el.querySelector(`.head__content`);
     this._infoEl = this.el.querySelector(`.info`);
@@ -2147,11 +2156,11 @@ class TypeView extends AbstractView {
       this._viewState = {};
       Object.defineProperties(
           this._viewState,
-          Object.getOwnPropertyDescriptors(this._getStateCommonDescriptorsObject())
+          Object.getOwnPropertyDescriptors(this._getStateCommonDescriptors())
       );
       Object.defineProperties(
           this._viewState,
-          Object.getOwnPropertyDescriptors(this._getStateDescriptorsObject())
+          Object.getOwnPropertyDescriptors(this._getStateDescriptors())
       );
       Object.seal(this._viewState);
     }
@@ -2162,14 +2171,14 @@ class TypeView extends AbstractView {
    * @abstract
    * @return {{}} if not overriden return object without descriptors
    */
-  _getStateDescriptorsObject() {
+  _getStateDescriptors() {
     return {};
   }
 
   /**
    * @return {{}} — object that contains descriptors only
    */
-  _getStateCommonDescriptorsObject() {
+  _getStateCommonDescriptors() {
     const self = this;
     return {
       set isShowInfo(bool) {
@@ -2270,6 +2279,13 @@ class TypeView extends AbstractView {
 
   toggleArrowBottom(isEnable) {
     return TypeView.toggleMiddleware(this._headEl, `item__head--arrow-bottom`, isEnable);
+  }
+
+  get depth() {
+    if (!this._cache.depth) {
+      this._cache.depth = this._parentView ? this._parentView.depth + 1 : 1;
+    }
+    return this._cache.depth;
   }
 
   get nextNestingLevel() {
@@ -2380,7 +2396,6 @@ class TypeView extends AbstractView {
   get _firstProtoContainingObject() {
     if (this._cache.firstProtoContainingObject === void 0) {
       if (this._propKey === `__proto__`) {
-        // console.log(this._value, this._propKey, this.parentView);
         this._cache.firstProtoContainingObject = getFirstProtoContainingObject(this._parentView);
       } else {
         this._cache.firstProtoContainingObject = null;
@@ -2448,6 +2463,7 @@ class TypeView extends AbstractView {
 
   /**
    * Check if autoexpand needed
+   * Setter for force
    * @type {boolean}
    */
   get isAutoExpandNeeded() {
@@ -2480,8 +2496,14 @@ class TypeView extends AbstractView {
     return this._cache.isAutoExpandNeeded;
   }
 
+  set isAutoExpandNeeded(bool) {
+    this._cache.isAutoExpandNeeded = bool;
+  }
+
   get info() {
     if (this._value[Symbol.toStringTag]) {
+      return this._value[Symbol.toStringTag];
+    } else if (this._stringTagName !== `Object`) {
       return this._stringTagName;
     } else {
       return this._protoConstructorName;
@@ -2623,8 +2645,10 @@ ${withoutKey ? `` : `<span class="entry-container__key ${isGrey ? `grey` : ``}">
           if (!Object.prototype.hasOwnProperty.call(descriptorsWithGetters, key) || key === `__proto__`) {
             el = getViewEl();
           // if it's a native getter
-          } else if (isNativeFunction(descriptorsWithGetters[key].get)) {
-            if (mode === Mode.PREVIEW && canReturnNull) {
+          } else {
+            const descriptorWithGetter = descriptorsWithGetters[key];
+            if (mode === Mode.PREVIEW && canReturnNull &&
+            isNativeFunction(descriptorWithGetter.get) && !descriptorWithGetter.enumerable) {
               return null;
             }
             el = getViewEl();
@@ -2719,14 +2743,6 @@ ${withoutKey ? `` : `<span class="entry-container__key ${isGrey ? `grey` : ``}">
 
 /* eslint guard-for-in: "off"*/
 
-const checkObjectisPrototype = (obj) => {
-  return obj && obj.hasOwnProperty(`constructor`) &&
-    typeof obj.constructor === `function` &&
-    obj.constructor.hasOwnProperty(`prototype`) &&
-    typeof obj.constructor.prototype === `object` &&
-    obj.constructor.prototype === obj;
-};
-
 class ObjectView extends TypeView {
   constructor(params, cons) {
     super(params, cons);
@@ -2766,7 +2782,7 @@ class ObjectView extends TypeView {
     this._state.isOversized = this.isEnableOversized;
   }
 
-  _getStateDescriptorsObject() {
+  _getStateDescriptors() {
     const self = this;
     return {
       set isHeadContentShowed(bool) {
@@ -2967,15 +2983,12 @@ class ObjectView extends TypeView {
   createContent(obj, inHead) {
     const fragment = document.createDocumentFragment();
     const entriesKeys = inHead ? this.headContentEntriesKeys : this.contentEntriesKeys;
-    let isOversized = false;
-    let addedKeysCounter = 0;
-    const maxFieldsInHead = this._console.params[this.viewType].maxFieldsInHead;
     const mode = inHead ? Mode.PREVIEW : Mode.PROP;
     entriesKeys.delete(`__proto__`); // Object may not have prototype
 
     // if object has PrimtiveValue property (only Number and String)
     if ((obj instanceof String || obj instanceof Number) &&
-    !Object.prototype.hasOwnProperty.call(this._value, `constructor`)) {
+    !checkObjectisPrototype(this._value)) {
       if (obj instanceof String) {
         const el = this._console.createTypedView(this._value.toString(), mode, this.nextNestingLevel, this).el;
         TypeView.appendEntryElIntoFragment(
@@ -2997,6 +3010,9 @@ class ObjectView extends TypeView {
       }
     }
 
+    const maxFieldsInHead = this._console.params[this.viewType].maxFieldsInHead;
+    let isOversized = false;
+    let addedKeysCounter = 0;
     for (let key of entriesKeys) {
       if (inHead && addedKeysCounter === maxFieldsInHead) {
         isOversized = true;
@@ -3011,6 +3027,133 @@ class ObjectView extends TypeView {
     if (!inHead && Object.getPrototypeOf(obj) !== null) {
       TypeView.appendEntryElIntoFragment(
           this._createTypedEntryEl({obj, key: `__proto__`, mode, notCheckDescriptors: true}),
+          fragment
+      );
+    }
+    return {fragment, isOversized};
+  }
+}
+
+class MapEntryView extends TypeView {
+  constructor(params, cons) {
+    super(params, cons);
+    this.viewType = ViewType.OBJECT;
+    if (!params.parentView) {
+      this.rootView = this;
+    }
+
+    this._pairKey = this._value[0];
+    this._pairValue = this._value[1];
+  }
+  get template() {
+    return `\
+<div class="console__item item item--${this.viewType}">\
+  <div class="head item__head">\
+    <div class="head__content entry-container entry-container--${this.viewType} map-pair hidden"><!--
+    --><span class="map-pair__key"></span> => <span class="map-pair__value"></span><!--
+ --></div>\
+  </div>\
+  <div class="item__content entry-container entry-container--${this.viewType} hidden"></div>\
+</div>`;
+  }
+
+  _afterRender() {
+    this._pairKeyEl = this._headContentEl.querySelector(`.map-pair__key`);
+    this._pairValueEl = this._headContentEl.querySelector(`.map-pair__value`);
+    this._state.isBraced = this._mode !== Mode.PREVIEW;
+    this._state.isHeadContentShowed = true;
+    this._state.isOpeningDisabled = this._mode === Mode.PREVIEW;
+    this._state.isOpened = this._mode !== Mode.PREVIEW;
+  }
+
+  _getStateDescriptors() {
+    const self = this;
+    return {
+      set isHeadContentShowed(bool) {
+        if (bool && !self._pairKeyEl.innerHTML && !self._pairValueEl.innerHTML) {
+          const keyEl = self._console.createTypedView(self._pairKey, self._mode, self.nextNestingLevel, self, self._propKey).el;
+          const valueEl = self._console.createTypedView(self._pairValue, self._mode, self.nextNestingLevel, self, self._propKey).el;
+
+          self._pairKeyEl.appendChild(keyEl);
+          self._pairValueEl.appendChild(valueEl);
+        }
+        self._isHeadContentShowed = self.toggleHeadContentShowed(bool);
+      },
+      get isHeadContentShowed() {
+        return self._isHeadContentShowed;
+      },
+      set isErrorEnabled(bool) {
+        self._isErrorEnabled = self.toggleError(bool);
+      },
+      get isErrorEnabled() {
+        return self._isErrorEnabled;
+      }
+    };
+  }
+
+  createContent() {
+    const fragment = document.createDocumentFragment();
+
+    const keyEl = this._console.createTypedView(this._pairKey, this._mode, this.nextNestingLevel, this, this._propKey).el;
+    const valueEl = this._console.createTypedView(this._pairValue, this._mode, this.nextNestingLevel, this, this._propKey).el;
+
+    TypeView.appendEntryElIntoFragment(
+        this._createEntryEl({key: `key`, el: keyEl, withoutKey: false}),
+        fragment
+    );
+    TypeView.appendEntryElIntoFragment(
+        this._createEntryEl({key: `value`, el: valueEl, withoutKey: false}),
+        fragment
+    );
+
+    return {fragment};
+  }
+}
+
+class MapSetView extends ObjectView {
+  constructor(params, cons) {
+    super(params, cons);
+  }
+
+  createContent(obj, inHead) {
+    const mode = inHead ? Mode.PREVIEW : Mode.PROP;
+    let fragment;
+    let isOversized = false;
+    if (!inHead) {
+      const contentObj = ObjectView.prototype.createContent.apply(this, [obj, inHead]);
+      fragment = contentObj.fragment;
+      isOversized = contentObj.isOversized;
+    } else {
+      fragment = document.createDocumentFragment();
+    }
+
+    const maxFieldsInHead = this._console.params[this.viewType].maxFieldsInHead;
+    // entries() for Map, values() for Set
+    const entriesIterator = obj[Symbol.iterator]();
+    const entriesArr = [...entriesIterator];
+    if (inHead) {
+      for (let i = 0, l = entriesArr.length; i < l; i++) {
+        if (i === maxFieldsInHead) {
+          isOversized = true;
+          break;
+        }
+        const entry = entriesArr[i];
+        let entryEl;
+        if (this._value instanceof Map) {
+          const el = new MapEntryView({val: entry, mode, depth: this.nextNestingLevel, parentView: this, propKey: this._propKey}, this._console).el;
+          entryEl = this._createEntryEl({key: i, el, withoutKey: true});
+        }
+        if (this.value instanceof Set) {
+          entryEl = this._createTypedEntryEl({obj: entriesArr, key: i, mode, withoutKey: true, notCheckDescriptors: true});
+        }
+        TypeView.appendEntryElIntoFragment(entryEl, fragment);
+      }
+    } else {
+      const entriesList = entriesArr;
+      Object.setPrototypeOf(entriesList, null);
+      const entriesArrEl = this._console.createTypedView(entriesList, Mode.PROP, this.nextNestingLevel, this, `[[Entries]]`).el;
+      TypeView.appendEntryElIntoFragment(
+          this._createEntryEl({key: `[[Entries]]`, el: entriesArrEl, withoutKey: false}),
           fragment
       );
     }
@@ -3061,7 +3204,7 @@ class ArrayView extends TypeView {
     }
   }
 
-  _getStateDescriptorsObject() {
+  _getStateDescriptors() {
     const self = this;
     return {
       set isHeadContentShowed(bool) {
@@ -3132,42 +3275,46 @@ class ArrayView extends TypeView {
     const countEntriesWithoutKeys = this._console.params[this.viewType].countEntriesWithoutKeys;
 
     let emptyCount = 0;
-    let i = arr.length;
-    const entryElsReversed = [];
-    do {
+    for (let i = 0, l = arr.length; i < l; i++) {
       if (inHead && countEntriesWithoutKeys && addedKeysCounter === maxFieldsInHead) {
         isOversized = true;
         break;
       }
-      const j = i - 1;
-      const key = j.toString();
-
-      const hasKey = j !== -1 && entriesKeys.has(key);
-      if (j === -1 || hasKey) {
-        if (emptyCount !== 0) {
-          entryElsReversed.push(this._createEntryEl({key, el: getElement(`<span class="grey">${EMPTY}${emptyCount > 1 ? ` ${MULTIPLY_SIGN} ${emptyCount}` : ``}</span>`), withoutKey: true}));
-          emptyCount = 0;
-          if (inHead && countEntriesWithoutKeys) {
-            addedKeysCounter++;
-          }
-        }
-
-        if (hasKey) {
-          entryElsReversed.push(this._createTypedEntryEl({obj: arr, key, mode, withoutKey: inHead, notCheckDescriptors: true}));
-          entriesKeys.delete(key);
-          if (inHead && countEntriesWithoutKeys) {
-            addedKeysCounter++;
-          }
-        }
-      } else if (inHead && !hasKey) {
+      const key = i.toString();
+      const hasKey = entriesKeys.has(key);
+      if (inHead && !hasKey) {
         emptyCount++;
       }
-    } while (i--);
-
-    let j = entryElsReversed.length;
-    while (j--) {
-      const entryEl = entryElsReversed[j];
-      TypeView.appendEntryElIntoFragment(entryEl, fragment);
+      if (inHead && emptyCount !== 0 && (hasKey || i === l - 1)) {
+        TypeView.appendEntryElIntoFragment(
+            this._createEntryEl({key, el: getElement(`<span class="grey">${EMPTY}${emptyCount > 1 ? ` ${MULTIPLY_SIGN} ${emptyCount}` : ``}</span>`), withoutKey: true}),
+            fragment
+        );
+        if (inHead && countEntriesWithoutKeys) {
+          addedKeysCounter++;
+        }
+        emptyCount = 0;
+      }
+      if (hasKey) {
+        if (this._propKey === `[[Entries]]` && this._parentView.value instanceof Map) {
+          const pair = arr[i];
+          const el = new MapEntryView({val: pair, mode, depth: this.nextNestingLevel, parentView: this, propKey: this._propKey}, this._console).el;
+          this.isAutoExpandNeeded = true;
+          TypeView.appendEntryElIntoFragment(
+              this._createEntryEl({key, el, withoutKey: inHead}),
+              fragment
+          );
+        } else {
+          TypeView.appendEntryElIntoFragment(
+              this._createTypedEntryEl({obj: arr, key, mode, withoutKey: inHead, notCheckDescriptors: true}),
+              fragment
+          );
+        }
+        entriesKeys.delete(key);
+        if (inHead && countEntriesWithoutKeys) {
+          addedKeysCounter++;
+        }
+      }
     }
 
     for (let key of entriesKeys) {
@@ -3186,10 +3333,12 @@ class ArrayView extends TypeView {
           this._createTypedEntryEl({obj: arr, key: `length`, mode, notCheckDescriptors: true}),
           fragment
       );
-      TypeView.appendEntryElIntoFragment(
-          this._createTypedEntryEl({obj: arr, key: `__proto__`, mode, notCheckDescriptors: true}),
-          fragment
-      );
+      if (Object.getPrototypeOf(arr) !== null) {
+        TypeView.appendEntryElIntoFragment(
+            this._createTypedEntryEl({obj: arr, key: `__proto__`, mode, notCheckDescriptors: true}),
+            fragment
+        );
+      }
     }
     return {fragment, isOversized};
   }
@@ -3457,6 +3606,8 @@ class PrimitiveView extends TypeView {
   }
 }
 
+/* eslint no-empty: "off"*/
+
 const DEFAULT_MAX_FIELDS_IN_HEAD = 5;
 
 const TypedArray = Object.getPrototypeOf(Int8Array);
@@ -3613,38 +3764,38 @@ class Console {
 
   createTypedView(val, mode, depth, parentView, propKey) {
     const params = {val, mode, depth, parentView, type: typeof val, propKey};
-    let view;
     switch (params.type) {
       case `function`:
-        view = new FunctionView(params, this);
-        break;
+        return new FunctionView(params, this);
       case `object`:
         if (val !== null) {
           const stringTag = Object.prototype.toString.call(val);
           const stringTagName = stringTag.substring(8, stringTag.length - 1);
 
-          if (stringTagName !== `Object` && (
-            Array.isArray(val) ||
-            val instanceof HTMLCollection ||
-            val instanceof NodeList ||
-            val instanceof DOMTokenList ||
-            val instanceof TypedArray ||
-            stringTagName === `Arguments`)
-          ) {
-            view = new ArrayView(params, this);
-          } else {
-            view = new ObjectView(params, this);
+          try {
+            // Проверить ф-ией checkObjectisPrototype из ObjectView
+            if (stringTagName !== `Object` && (
+              Array.isArray(val) ||
+              val instanceof HTMLCollection ||
+              val instanceof NodeList ||
+              val instanceof DOMTokenList ||
+              val instanceof TypedArray ||
+              stringTagName === `Arguments`) &&
+              Number.isInteger(val.length)
+            ) {
+              return new ArrayView(params, this);
+            }
+          } catch (err) {}
+          if (val instanceof Map || val instanceof Set && !checkObjectisPrototype(val)) {
+            return new MapSetView(params, this);
           }
+          return new ObjectView(params, this);
         } else {
-          view = new PrimitiveView(params, this);
+          return new PrimitiveView(params, this);
         }
-        break;
       default:
-        view = new PrimitiveView(params, this);
-        break;
+        return new PrimitiveView(params, this);
     }
-    // this._views.set(view.el, view);
-    return view;
   }
 
   _getRowEl(entries, mode) {
