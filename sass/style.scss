@@ -104,6 +104,20 @@ block__elem--mod — element's modifier
   &--primitive {}
 }
 
+.map-pair {
+  display: inline-block;
+
+  &--braced {
+    &::before {
+      content: '{';
+    }
+
+    &::after {
+      content: '}';
+    }
+  }
+}
+
 .entry-container {
   $parent: &;
   // &__entry {

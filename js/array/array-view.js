@@ -1,5 +1,5 @@
 import TypeView from '../type-view';
-import MapSetView from '../object/map-set-view';
+import MapEntryView from '../object/map-entry-view';
 import {getElement} from '../utils';
 import {Mode, ViewType} from '../enums';
 
@@ -140,15 +140,18 @@ export default class ArrayView extends TypeView {
       if (hasKey) {
         if (this._propKey === `[[Entries]]` && this._parentView.value instanceof Map) {
           const pair = arr[i];
+          const el = new MapEntryView({val: pair, mode, depth: this.nextNestingLevel, parentView: this, propKey: this._propKey}, this._console).el;
+          this.isAutoExpandNeeded = true;
           TypeView.appendEntryElIntoFragment(
-              MapSetView.prototype.createMapEntryEl.call(this, {key, entryKey: pair[0], entryValue: pair[1], mode}),
+              this._createEntryEl({key, el, withoutKey: inHead}),
+              fragment
+          );
+        } else {
+          TypeView.appendEntryElIntoFragment(
+              this._createTypedEntryEl({obj: arr, key, mode, withoutKey: inHead, notCheckDescriptors: true}),
               fragment
           );
         }
-        TypeView.appendEntryElIntoFragment(
-            this._createTypedEntryEl({obj: arr, key, mode, withoutKey: inHead, notCheckDescriptors: true}),
-            fragment
-        );
         entriesKeys.delete(key);
         if (inHead && countEntriesWithoutKeys) {
           addedKeysCounter++;
@@ -172,10 +175,12 @@ export default class ArrayView extends TypeView {
           this._createTypedEntryEl({obj: arr, key: `length`, mode, notCheckDescriptors: true}),
           fragment
       );
-      TypeView.appendEntryElIntoFragment(
-          this._createTypedEntryEl({obj: arr, key: `__proto__`, mode, notCheckDescriptors: true}),
-          fragment
-      );
+      if (Object.getPrototypeOf(arr) !== null) {
+        TypeView.appendEntryElIntoFragment(
+            this._createTypedEntryEl({obj: arr, key: `__proto__`, mode, notCheckDescriptors: true}),
+            fragment
+        );
+      }
     }
     return {fragment, isOversized};
   }

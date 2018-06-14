@@ -404,6 +404,7 @@ export default class TypeView extends AbstractView {
 
   /**
    * Check if autoexpand needed
+   * Setter for force
    * @type {boolean}
    */
   get isAutoExpandNeeded() {
@@ -434,6 +435,10 @@ export default class TypeView extends AbstractView {
       }
     }
     return this._cache.isAutoExpandNeeded;
+  }
+
+  set isAutoExpandNeeded(bool) {
+    this._cache.isAutoExpandNeeded = bool;
   }
 
   get info() {
