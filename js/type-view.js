@@ -31,6 +31,24 @@ const getFirstProtoContainingObject = (typeView) => {
   return typeView.value;
 };
 
+// /**
+//  * @param {MouseEvent} evt
+//  * @this HTMLElement
+//  */
+// const insertEl = function (evt) {
+//   evt.preventDefault();
+//   this.textContent = ``;
+//   this.classList.remove(`entry-container__value-container--underscore`);
+//   let viewEl;
+//   try {
+//     viewEl = getViewEl();
+//     this.appendChild(viewEl);
+//   } catch (err) {
+//     this.textContent = `[Exception: ${err.stack}]`;
+//   }
+//   this.removeEventListener(`click`, insertEl);
+// };
+
 export default class TypeView extends AbstractView {
   constructor(params, cons) {
     super();
@@ -525,7 +543,6 @@ ${withoutKey ? `` : `<span class="entry-container__key ${isGrey ? `grey` : ``}">
       valueContEl.textContent = `(...)`;
       valueContEl.classList.add(`entry-container__value-container--underscore`);
       const insertEl = (evt) => {
-        evt.preventDefault();
         valueContEl.textContent = ``;
         valueContEl.classList.remove(`entry-container__value-container--underscore`);
         let viewEl;
