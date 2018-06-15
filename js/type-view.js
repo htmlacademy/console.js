@@ -524,7 +524,8 @@ ${withoutKey ? `` : `<span class="entry-container__key ${isGrey ? `grey` : ``}">
     } else {
       valueContEl.textContent = `(...)`;
       valueContEl.classList.add(`entry-container__value-container--underscore`);
-      const insertEl = () => {
+      const insertEl = (evt) => {
+        evt.preventDefault();
         valueContEl.textContent = ``;
         valueContEl.classList.remove(`entry-container__value-container--underscore`);
         let viewEl;

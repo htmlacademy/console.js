@@ -173,16 +173,17 @@ export default class Console {
           const stringTagName = stringTag.substring(8, stringTag.length - 1);
 
           try {
-            // Проверить ф-ией checkObjectisPrototype из ObjectView
             if (stringTagName !== `Object` && (
-              Array.isArray(val) ||
-              val instanceof HTMLCollection ||
-              val instanceof NodeList ||
-              val instanceof DOMTokenList ||
-              val instanceof TypedArray ||
-              stringTagName === `Arguments`) &&
-              Number.isInteger(val.length)
-            ) {
+              Array.isArray(val) || (
+                !checkObjectisPrototype(val) && (
+                  val instanceof HTMLCollection ||
+                  val instanceof NodeList ||
+                  val instanceof DOMTokenList ||
+                  val instanceof TypedArray ||
+                  stringTagName === `Arguments`
+                )
+              )
+            )) {
               return new ArrayView(params, this);
             }
           } catch (err) {}
