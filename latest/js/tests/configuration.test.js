@@ -2584,7 +2584,8 @@ ${withoutKey ? `` : `<span class="entry-container__key ${isGrey ? `grey` : ``}">
     } else {
       valueContEl.textContent = `(...)`;
       valueContEl.classList.add(`entry-container__value-container--underscore`);
-      const insertEl = () => {
+      const insertEl = (evt) => {
+        evt.preventDefault();
         valueContEl.textContent = ``;
         valueContEl.classList.remove(`entry-container__value-container--underscore`);
         let viewEl;
@@ -3772,16 +3773,17 @@ class Console {
           const stringTagName = stringTag.substring(8, stringTag.length - 1);
 
           try {
-            // Проверить ф-ией checkObjectisPrototype из ObjectView
             if (stringTagName !== `Object` && (
-              Array.isArray(val) ||
-              val instanceof HTMLCollection ||
-              val instanceof NodeList ||
-              val instanceof DOMTokenList ||
-              val instanceof TypedArray ||
-              stringTagName === `Arguments`) &&
-              Number.isInteger(val.length)
-            ) {
+              Array.isArray(val) || (
+                !checkObjectisPrototype(val) && (
+                  val instanceof HTMLCollection ||
+                  val instanceof NodeList ||
+                  val instanceof DOMTokenList ||
+                  val instanceof TypedArray ||
+                  stringTagName === `Arguments`
+                )
+              )
+            )) {
               return new ArrayView(params, this);
             }
           } catch (err) {}
