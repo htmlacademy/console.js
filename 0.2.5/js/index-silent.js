@@ -2165,6 +2165,24 @@ var getFirstProtoContainingObject = function getFirstProtoContainingObject(typeV
   return typeView.value;
 };
 
+// /**
+//  * @param {MouseEvent} evt
+//  * @this HTMLElement
+//  */
+// const insertEl = function (evt) {
+//   evt.preventDefault();
+//   this.textContent = ``;
+//   this.classList.remove(`entry-container__value-container--underscore`);
+//   let viewEl;
+//   try {
+//     viewEl = getViewEl();
+//     this.appendChild(viewEl);
+//   } catch (err) {
+//     this.textContent = `[Exception: ${err.stack}]`;
+//   }
+//   this.removeEventListener(`click`, insertEl);
+// };
+
 var TypeView = function (_AbstractView) {
   inherits(TypeView, _AbstractView);
 
@@ -2493,7 +2511,6 @@ var TypeView = function (_AbstractView) {
         valueContEl.textContent = '(...)';
         valueContEl.classList.add('entry-container__value-container--underscore');
         var insertEl = function insertEl(evt) {
-          evt.preventDefault();
           valueContEl.textContent = '';
           valueContEl.classList.remove('entry-container__value-container--underscore');
           var viewEl = void 0;
