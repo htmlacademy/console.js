@@ -1987,7 +1987,7 @@ var customizer = function customizer(objValue, srcValue) {
 };
 
 var checkObjectisPrototype = function checkObjectisPrototype(obj) {
-  return obj && obj.hasOwnProperty("constructor") && typeof obj.constructor === "function" && obj.constructor.hasOwnProperty("prototype") && typeof obj.constructor.prototype === "object" && obj.constructor.prototype === obj;
+  return obj && Object.prototype.hasOwnProperty.call(obj, "constructor") && typeof obj.constructor === "function" && Object.prototype.hasOwnProperty.call(obj.constructor, "prototype") && typeof obj.constructor.prototype === "object" && obj.constructor.prototype === obj;
 };
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
@@ -2141,9 +2141,6 @@ var Env = {
 
 /* eslint no-empty: "off"*/
 
-// var a = {};
-// Object.getPrototypeOf(Object.getOwnPropertyDescriptors(a.__proto__)) === Object.getOwnPropertyDescriptors(a.__proto__).__proto__
-
 var isNativeFunction = function isNativeFunction(fn) {
   return (/{\s*\[native code\]\s*}/g.test(fn)
   );
@@ -2164,24 +2161,6 @@ var getFirstProtoContainingObject = function getFirstProtoContainingObject(typeV
   }
   return typeView.value;
 };
-
-// /**
-//  * @param {MouseEvent} evt
-//  * @this HTMLElement
-//  */
-// const insertEl = function (evt) {
-//   evt.preventDefault();
-//   this.textContent = ``;
-//   this.classList.remove(`entry-container__value-container--underscore`);
-//   let viewEl;
-//   try {
-//     viewEl = getViewEl();
-//     this.appendChild(viewEl);
-//   } catch (err) {
-//     this.textContent = `[Exception: ${err.stack}]`;
-//   }
-//   this.removeEventListener(`click`, insertEl);
-// };
 
 var TypeView = function (_AbstractView) {
   inherits(TypeView, _AbstractView);
@@ -2510,7 +2489,7 @@ var TypeView = function (_AbstractView) {
       } else {
         valueContEl.textContent = '(...)';
         valueContEl.classList.add('entry-container__value-container--underscore');
-        var insertEl = function insertEl(evt) {
+        var insertEl = function insertEl() {
           valueContEl.textContent = '';
           valueContEl.classList.remove('entry-container__value-container--underscore');
           var viewEl = void 0;
@@ -2590,6 +2569,7 @@ var TypeView = function (_AbstractView) {
           }
         }
       } catch (err) {
+        // console.log(err);
         if (canReturnNull) {
           return null;
         }
@@ -2602,6 +2582,29 @@ var TypeView = function (_AbstractView) {
      * @param {DocumentFragment} fragment
      */
 
+  }, {
+    key: 'protoConstructorName',
+    get: function get$$1() {
+      if (!this._cache.protoConstructorName) {
+        var proto = Object.getPrototypeOf(this._value);
+        this._cache.protoConstructorName = proto && proto.hasOwnProperty('constructor') ? proto.constructor.name : 'Object';
+      }
+      return this._cache.protoConstructorName;
+    }
+  }, {
+    key: 'stringTagName',
+    get: function get$$1() {
+      if (!this._cache.stringTagName) {
+        var stringTag = Object.prototype.toString.call(this._value);
+        this._cache.stringTagName = stringTag.substring(8, stringTag.length - 1);
+      }
+      return this._cache.stringTagName;
+    },
+    set: function set$$1(val) {
+      if (!this._cache.stringTagName) {
+        this._cache.stringTagName = val;
+      }
+    }
   }, {
     key: 'value',
     get: function get$$1() {
@@ -2827,10 +2830,10 @@ var TypeView = function (_AbstractView) {
     get: function get$$1() {
       if (this._value[Symbol.toStringTag]) {
         return this._value[Symbol.toStringTag];
-      } else if (this._stringTagName !== 'Object') {
-        return this._stringTagName;
+      } else if (this.stringTagName !== 'Object') {
+        return this.stringTagName;
       } else {
-        return this._protoConstructorName;
+        return this.protoConstructorName;
       }
     }
   }], [{
@@ -2897,7 +2900,7 @@ var TypeView = function (_AbstractView) {
         if (anum && bnum) {
           diff = chunka - chunkb;
           if (diff === 0 && chunka.length !== chunkb.length) {
-            if (!+chunka && !+chunkb) {
+            if (!(chunka | 0) && !(chunkb | 0)) {
               return chunka.length - chunkb.length;
             } else {
               return chunkb.length - chunka.length;
@@ -2929,11 +2932,6 @@ var ObjectView = function (_TypeView) {
     if (!params.parentView) {
       _this.rootView = _this;
     }
-
-    var proto = Object.getPrototypeOf(_this._value);
-    var stringTag = Object.prototype.toString.call(_this._value);
-    _this._stringTagName = stringTag.substring(8, stringTag.length - 1);
-    _this._protoConstructorName = proto && proto.hasOwnProperty('constructor') ? proto.constructor.name : 'Object';
     return _this;
   }
 
@@ -3003,7 +3001,7 @@ var ObjectView = function (_TypeView) {
             entriesKeys.delete('length');
           }
         } else if (obj instanceof Number) {
-          var _el = this._console.createTypedView(Number.parseInt(this._value, 10), mode, this.nextNestingLevel, this).el;
+          var _el = this._console.createTypedView(this._value * 1, mode, this.nextNestingLevel, this).el;
           TypeView.appendEntryElIntoFragment(this._createEntryEl({ key: '[[PrimtiveValue]]', el: _el, withoutKey: inHead, isGrey: true }), fragment);
         }
       }
@@ -3057,7 +3055,7 @@ var ObjectView = function (_TypeView) {
   }, {
     key: 'isShowInfo',
     get: function get$$1() {
-      if (this._mode === Mode.PREVIEW && this._stringTagName === 'Object' && this._protoConstructorName === 'Object') {
+      if (this._mode === Mode.PREVIEW && this.stringTagName === 'Object' && this.protoConstructorName === 'Object') {
         return false;
       }
 
@@ -3071,7 +3069,7 @@ var ObjectView = function (_TypeView) {
         return true;
       }
 
-      return this._stringTagName !== 'Object' || this._protoConstructorName !== 'Object' || this._propKey === '__proto__';
+      return this.stringTagName !== 'Object' || this.protoConstructorName !== 'Object' || this._propKey === '__proto__';
     }
   }, {
     key: 'isShowBraces',
@@ -3081,7 +3079,7 @@ var ObjectView = function (_TypeView) {
       }
 
       if (this._mode === Mode.PREVIEW) {
-        return this._stringTagName === 'Object' && this._protoConstructorName === 'Object';
+        return this.stringTagName === 'Object' && this.protoConstructorName === 'Object';
       }
 
       var objectIsInstance = this._value instanceof Node || this._value instanceof Error || this._value instanceof Date || this._value instanceof RegExp;
@@ -3095,7 +3093,7 @@ var ObjectView = function (_TypeView) {
   }, {
     key: 'isShowHeadContent',
     get: function get$$1() {
-      if (this._mode === Mode.PREVIEW && this._stringTagName === 'Object' && this._protoConstructorName === 'Object') {
+      if (this._mode === Mode.PREVIEW && this.stringTagName === 'Object' && this.protoConstructorName === 'Object') {
         return true;
       }
 
@@ -3164,7 +3162,7 @@ var ObjectView = function (_TypeView) {
   }, {
     key: 'headContent',
     get: function get$$1() {
-      if (this._mode === Mode.PREVIEW && this._stringTagName === 'Object' && this._protoConstructorName === 'Object') {
+      if (this._mode === Mode.PREVIEW && this.stringTagName === 'Object' && this.protoConstructorName === 'Object') {
         return '\u2026';
       }
 
@@ -3356,10 +3354,6 @@ var ArrayView = function (_TypeView) {
     if (!params.parentView) {
       _this.rootView = _this;
     }
-    var proto = Object.getPrototypeOf(_this._value);
-    var stringTag = Object.prototype.toString.call(_this._value);
-    _this._stringTagName = stringTag.substring(8, stringTag.length - 1);
-    _this._protoConstructorName = proto && proto.hasOwnProperty('constructor') ? proto.constructor.name : 'Array';
     return _this;
   }
 
@@ -3513,9 +3507,20 @@ var ArrayView = function (_TypeView) {
       return '<div class="console__item item item--' + this.viewType + '">  <div class="head item__head">    <span class="info head__info hidden"></span>    <span class="length head__length hidden">' + this._value.length + '</span>    <div class="head__content entry-container entry-container--head entry-container--' + this.viewType + ' hidden"></div>  </div>  <div class="item__content entry-container entry-container--' + this.viewType + ' hidden"></div></div>';
     }
   }, {
+    key: 'info',
+    get: function get$$1() {
+      if (this._value[Symbol.toStringTag]) {
+        return this._value[Symbol.toStringTag];
+      } else if (this.stringTagName !== 'Object' && (this.stringTagName !== 'Array' || this._value === Array.prototype)) {
+        return this.stringTagName;
+      } else {
+        return this.protoConstructorName;
+      }
+    }
+  }, {
     key: 'isShowInfo',
     get: function get$$1() {
-      return this._mode === Mode.DIR || this._mode === Mode.PREVIEW || this._mode === Mode.PROP && (this._state.isOpened || this._propKey === '__proto__') || this._stringTagName !== 'Array' || this._protoConstructorName !== 'Array';
+      return this._mode === Mode.DIR || this._mode === Mode.PREVIEW || this._mode === Mode.PROP && (this._state.isOpened || this._propKey === '__proto__') || this.stringTagName !== 'Array' || this.protoConstructorName !== 'Array';
     }
   }, {
     key: 'isShowHeadContent',
@@ -4023,18 +4028,20 @@ var Console = function () {
           return new FunctionView(params, this);
         case 'object':
           if (val !== null) {
+            var view = void 0;
             var stringTag = Object.prototype.toString.call(val);
             var stringTagName = stringTag.substring(8, stringTag.length - 1);
 
-            try {
-              if (stringTagName !== 'Object' && (Array.isArray(val) || !checkObjectisPrototype(val) && (val instanceof HTMLCollection || val instanceof NodeList || val instanceof DOMTokenList || val instanceof TypedArray || stringTagName === 'Arguments'))) {
-                return new ArrayView(params, this);
-              }
-            } catch (err) {}
-            if (val instanceof Map || val instanceof Set && !checkObjectisPrototype(val)) {
-              return new MapSetView(params, this);
+            var objectIsPrototype = checkObjectisPrototype(val);
+            if (stringTagName !== 'Object' && (Array.isArray(val) || !objectIsPrototype && (val instanceof HTMLCollection || val instanceof NodeList || val instanceof DOMTokenList || val instanceof TypedArray || stringTagName === 'Arguments'))) {
+              view = new ArrayView(params, this);
+            } else if (!objectIsPrototype && (val instanceof Map || val instanceof Set)) {
+              view = new MapSetView(params, this);
+            } else {
+              view = new ObjectView(params, this);
             }
-            return new ObjectView(params, this);
+            view.stringTagName = stringTagName;
+            return view;
           } else {
             return new PrimitiveView(params, this);
           }

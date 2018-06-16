@@ -1987,9 +1987,9 @@ const customizer = (objValue, srcValue) => {
 };
 
 const checkObjectisPrototype = (obj) => {
-  return obj && obj.hasOwnProperty(`constructor`) &&
+  return obj && Object.prototype.hasOwnProperty.call(obj, `constructor`) &&
     typeof obj.constructor === `function` &&
-    obj.constructor.hasOwnProperty(`prototype`) &&
+    Object.prototype.hasOwnProperty.call(obj.constructor, `prototype`) &&
     typeof obj.constructor.prototype === `object` &&
     obj.constructor.prototype === obj;
 };
@@ -2064,9 +2064,6 @@ const Env = {
 
 /* eslint no-empty: "off"*/
 
-// var a = {};
-// Object.getPrototypeOf(Object.getOwnPropertyDescriptors(a.__proto__)) === Object.getOwnPropertyDescriptors(a.__proto__).__proto__
-
 const isNativeFunction = (fn) => {
   return /{\s*\[native code\]\s*}/g.test(fn);
 };
@@ -2090,24 +2087,6 @@ const getFirstProtoContainingObject = (typeView) => {
   }
   return typeView.value;
 };
-
-// /**
-//  * @param {MouseEvent} evt
-//  * @this HTMLElement
-//  */
-// const insertEl = function (evt) {
-//   evt.preventDefault();
-//   this.textContent = ``;
-//   this.classList.remove(`entry-container__value-container--underscore`);
-//   let viewEl;
-//   try {
-//     viewEl = getViewEl();
-//     this.appendChild(viewEl);
-//   } catch (err) {
-//     this.textContent = `[Exception: ${err.stack}]`;
-//   }
-//   this.removeEventListener(`click`, insertEl);
-// };
 
 class TypeView extends AbstractView {
   constructor(params, cons) {
@@ -2150,6 +2129,29 @@ class TypeView extends AbstractView {
     this._state.isOpened = this._mode !== Mode.PREVIEW &&
       !this._state.isOpeningDisabled &&
       this.isAutoExpandNeeded;
+  }
+
+  get protoConstructorName() {
+    if (!this._cache.protoConstructorName) {
+      const proto = Object.getPrototypeOf(this._value);
+      this._cache.protoConstructorName = proto && proto.hasOwnProperty(`constructor`) ?
+        proto.constructor.name : `Object`;
+    }
+    return this._cache.protoConstructorName;
+  }
+
+  get stringTagName() {
+    if (!this._cache.stringTagName) {
+      const stringTag = Object.prototype.toString.call(this._value);
+      this._cache.stringTagName = stringTag.substring(8, stringTag.length - 1);
+    }
+    return this._cache.stringTagName;
+  }
+
+  set stringTagName(val) {
+    if (!this._cache.stringTagName) {
+      this._cache.stringTagName = val;
+    }
   }
 
   get value() {
@@ -2521,10 +2523,10 @@ class TypeView extends AbstractView {
   get info() {
     if (this._value[Symbol.toStringTag]) {
       return this._value[Symbol.toStringTag];
-    } else if (this._stringTagName !== `Object`) {
-      return this._stringTagName;
+    } else if (this.stringTagName !== `Object`) {
+      return this.stringTagName;
     } else {
-      return this._protoConstructorName;
+      return this.protoConstructorName;
     }
   }
 
@@ -2602,7 +2604,7 @@ ${withoutKey ? `` : `<span class="entry-container__key ${isGrey ? `grey` : ``}">
     } else {
       valueContEl.textContent = `(...)`;
       valueContEl.classList.add(`entry-container__value-container--underscore`);
-      const insertEl = (evt) => {
+      const insertEl = () => {
         valueContEl.textContent = ``;
         valueContEl.classList.remove(`entry-container__value-container--underscore`);
         let viewEl;
@@ -2673,6 +2675,7 @@ ${withoutKey ? `` : `<span class="entry-container__key ${isGrey ? `grey` : ``}">
         }
       }
     } catch (err) {
+      // console.log(err);
       if (canReturnNull) {
         return null;
       }
@@ -2742,7 +2745,7 @@ ${withoutKey ? `` : `<span class="entry-container__key ${isGrey ? `grey` : ``}">
       if (anum && bnum) {
         diff = chunka - chunkb;
         if (diff === 0 && chunka.length !== chunkb.length) {
-          if (!+chunka && !+chunkb) {
+          if (!(chunka | 0) && !(chunkb | 0)) {
             return chunka.length - chunkb.length;
           } else {
             return chunkb.length - chunka.length;
@@ -2767,11 +2770,6 @@ class ObjectView extends TypeView {
     if (!params.parentView) {
       this.rootView = this;
     }
-
-    const proto = Object.getPrototypeOf(this._value);
-    const stringTag = Object.prototype.toString.call(this._value);
-    this._stringTagName = stringTag.substring(8, stringTag.length - 1);
-    this._protoConstructorName = proto && proto.hasOwnProperty(`constructor`) ? proto.constructor.name : `Object`;
   }
 
   get template() {
@@ -2827,8 +2825,8 @@ class ObjectView extends TypeView {
 
   get isShowInfo() {
     if (this._mode === Mode.PREVIEW &&
-      this._stringTagName === `Object` &&
-      this._protoConstructorName === `Object`) {
+      this.stringTagName === `Object` &&
+      this.protoConstructorName === `Object`) {
       return false;
     }
 
@@ -2845,8 +2843,8 @@ class ObjectView extends TypeView {
       return true;
     }
 
-    return this._stringTagName !== `Object` ||
-      this._protoConstructorName !== `Object` ||
+    return this.stringTagName !== `Object` ||
+      this.protoConstructorName !== `Object` ||
       this._propKey === `__proto__`;
   }
 
@@ -2856,8 +2854,8 @@ class ObjectView extends TypeView {
     }
 
     if (this._mode === Mode.PREVIEW) {
-      return this._stringTagName === `Object` &&
-        this._protoConstructorName === `Object`;
+      return this.stringTagName === `Object` &&
+        this.protoConstructorName === `Object`;
     }
 
     const objectIsInstance = this._value instanceof Node ||
@@ -2874,8 +2872,8 @@ class ObjectView extends TypeView {
 
   get isShowHeadContent() {
     if (this._mode === Mode.PREVIEW &&
-      this._stringTagName === `Object` &&
-      this._protoConstructorName === `Object`) {
+      this.stringTagName === `Object` &&
+      this.protoConstructorName === `Object`) {
       return true;
     }
 
@@ -2954,8 +2952,8 @@ class ObjectView extends TypeView {
 
   get headContent() {
     if (this._mode === Mode.PREVIEW &&
-    this._stringTagName === `Object` &&
-    this._protoConstructorName === `Object`) {
+    this.stringTagName === `Object` &&
+    this.protoConstructorName === `Object`) {
       return `…`;
     }
 
@@ -3019,7 +3017,7 @@ class ObjectView extends TypeView {
           entriesKeys.delete(`length`);
         }
       } else if (obj instanceof Number) {
-        const el = this._console.createTypedView(Number.parseInt(this._value, 10), mode, this.nextNestingLevel, this).el;
+        const el = this._console.createTypedView(this._value * 1, mode, this.nextNestingLevel, this).el;
         TypeView.appendEntryElIntoFragment(
             this._createEntryEl({key: `[[PrimtiveValue]]`, el, withoutKey: inHead, isGrey: true}),
             fragment
@@ -3188,10 +3186,6 @@ class ArrayView extends TypeView {
     if (!params.parentView) {
       this.rootView = this;
     }
-    const proto = Object.getPrototypeOf(this._value);
-    const stringTag = Object.prototype.toString.call(this._value);
-    this._stringTagName = stringTag.substring(8, stringTag.length - 1);
-    this._protoConstructorName = proto && proto.hasOwnProperty(`constructor`) ? proto.constructor.name : `Array`;
   }
 
   get template() {
@@ -3259,11 +3253,22 @@ class ArrayView extends TypeView {
     return !TypeView.toggleMiddleware(this._lengthEl, `hidden`, !isEnable);
   }
 
+  get info() {
+    if (this._value[Symbol.toStringTag]) {
+      return this._value[Symbol.toStringTag];
+    } else if (this.stringTagName !== `Object` &&
+    (this.stringTagName !== `Array` || this._value === Array.prototype)) {
+      return this.stringTagName;
+    } else {
+      return this.protoConstructorName;
+    }
+  }
+
   get isShowInfo() {
     return this._mode === Mode.DIR ||
       this._mode === Mode.PREVIEW ||
       (this._mode === Mode.PROP && (this._state.isOpened || this._propKey === `__proto__`)) ||
-      this._stringTagName !== `Array` || this._protoConstructorName !== `Array`;
+      this.stringTagName !== `Array` || this.protoConstructorName !== `Array`;
   }
 
   get isShowHeadContent() {
@@ -3786,28 +3791,30 @@ class Console {
         return new FunctionView(params, this);
       case `object`:
         if (val !== null) {
+          let view;
           const stringTag = Object.prototype.toString.call(val);
           const stringTagName = stringTag.substring(8, stringTag.length - 1);
 
-          try {
-            if (stringTagName !== `Object` && (
-              Array.isArray(val) || (
-                !checkObjectisPrototype(val) && (
-                  val instanceof HTMLCollection ||
-                  val instanceof NodeList ||
-                  val instanceof DOMTokenList ||
-                  val instanceof TypedArray ||
-                  stringTagName === `Arguments`
-                )
+          const objectIsPrototype = checkObjectisPrototype(val);
+          if (stringTagName !== `Object` && (
+            Array.isArray(val) || (
+              !objectIsPrototype && (
+                val instanceof HTMLCollection ||
+                val instanceof NodeList ||
+                val instanceof DOMTokenList ||
+                val instanceof TypedArray ||
+                stringTagName === `Arguments`
               )
-            )) {
-              return new ArrayView(params, this);
-            }
-          } catch (err) {}
-          if (val instanceof Map || val instanceof Set && !checkObjectisPrototype(val)) {
-            return new MapSetView(params, this);
+            )
+          )) {
+            view = new ArrayView(params, this);
+          } else if (!objectIsPrototype && (val instanceof Map || val instanceof Set)) {
+            view = new MapSetView(params, this);
+          } else {
+            view = new ObjectView(params, this);
           }
-          return new ObjectView(params, this);
+          view.stringTagName = stringTagName;
+          return view;
         } else {
           return new PrimitiveView(params, this);
         }
