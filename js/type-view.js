@@ -4,9 +4,6 @@ import AbstractView from './abstract-view';
 import {getElement} from './utils';
 import {Mode, Env} from './enums';
 
-// var a = {};
-// Object.getPrototypeOf(Object.getOwnPropertyDescriptors(a.__proto__)) === Object.getOwnPropertyDescriptors(a.__proto__).__proto__
-
 const isNativeFunction = (fn) => {
   return /{\s*\[native code\]\s*}/g.test(fn);
 };
@@ -30,24 +27,6 @@ const getFirstProtoContainingObject = (typeView) => {
   }
   return typeView.value;
 };
-
-// /**
-//  * @param {MouseEvent} evt
-//  * @this HTMLElement
-//  */
-// const insertEl = function (evt) {
-//   evt.preventDefault();
-//   this.textContent = ``;
-//   this.classList.remove(`entry-container__value-container--underscore`);
-//   let viewEl;
-//   try {
-//     viewEl = getViewEl();
-//     this.appendChild(viewEl);
-//   } catch (err) {
-//     this.textContent = `[Exception: ${err.stack}]`;
-//   }
-//   this.removeEventListener(`click`, insertEl);
-// };
 
 export default class TypeView extends AbstractView {
   constructor(params, cons) {
@@ -90,6 +69,29 @@ export default class TypeView extends AbstractView {
     this._state.isOpened = this._mode !== Mode.PREVIEW &&
       !this._state.isOpeningDisabled &&
       this.isAutoExpandNeeded;
+  }
+
+  get protoConstructorName() {
+    if (!this._cache.protoConstructorName) {
+      const proto = Object.getPrototypeOf(this._value);
+      this._cache.protoConstructorName = proto && proto.hasOwnProperty(`constructor`) ?
+        proto.constructor.name : `Object`;
+    }
+    return this._cache.protoConstructorName;
+  }
+
+  get stringTagName() {
+    if (!this._cache.stringTagName) {
+      const stringTag = Object.prototype.toString.call(this._value);
+      this._cache.stringTagName = stringTag.substring(8, stringTag.length - 1);
+    }
+    return this._cache.stringTagName;
+  }
+
+  set stringTagName(val) {
+    if (!this._cache.stringTagName) {
+      this._cache.stringTagName = val;
+    }
   }
 
   get value() {
@@ -461,10 +463,10 @@ export default class TypeView extends AbstractView {
   get info() {
     if (this._value[Symbol.toStringTag]) {
       return this._value[Symbol.toStringTag];
-    } else if (this._stringTagName !== `Object`) {
-      return this._stringTagName;
+    } else if (this.stringTagName !== `Object`) {
+      return this.stringTagName;
     } else {
-      return this._protoConstructorName;
+      return this.protoConstructorName;
     }
   }
 
@@ -542,7 +544,7 @@ ${withoutKey ? `` : `<span class="entry-container__key ${isGrey ? `grey` : ``}">
     } else {
       valueContEl.textContent = `(...)`;
       valueContEl.classList.add(`entry-container__value-container--underscore`);
-      const insertEl = (evt) => {
+      const insertEl = () => {
         valueContEl.textContent = ``;
         valueContEl.classList.remove(`entry-container__value-container--underscore`);
         let viewEl;
@@ -613,6 +615,7 @@ ${withoutKey ? `` : `<span class="entry-container__key ${isGrey ? `grey` : ``}">
         }
       }
     } catch (err) {
+      // console.log(err);
       if (canReturnNull) {
         return null;
       }
@@ -682,7 +685,7 @@ ${withoutKey ? `` : `<span class="entry-container__key ${isGrey ? `grey` : ``}">
       if (anum && bnum) {
         diff = chunka - chunkb;
         if (diff === 0 && chunka.length !== chunkb.length) {
-          if (!+chunka && !+chunkb) {
+          if (!(chunka | 0) && !(chunkb | 0)) {
             return chunka.length - chunkb.length;
           } else {
             return chunkb.length - chunka.length;

@@ -13,10 +13,6 @@ export default class ArrayView extends TypeView {
     if (!params.parentView) {
       this.rootView = this;
     }
-    const proto = Object.getPrototypeOf(this._value);
-    const stringTag = Object.prototype.toString.call(this._value);
-    this._stringTagName = stringTag.substring(8, stringTag.length - 1);
-    this._protoConstructorName = proto && proto.hasOwnProperty(`constructor`) ? proto.constructor.name : `Array`;
   }
 
   get template() {
@@ -84,11 +80,22 @@ export default class ArrayView extends TypeView {
     return !TypeView.toggleMiddleware(this._lengthEl, `hidden`, !isEnable);
   }
 
+  get info() {
+    if (this._value[Symbol.toStringTag]) {
+      return this._value[Symbol.toStringTag];
+    } else if (this.stringTagName !== `Object` &&
+    (this.stringTagName !== `Array` || this._value === Array.prototype)) {
+      return this.stringTagName;
+    } else {
+      return this.protoConstructorName;
+    }
+  }
+
   get isShowInfo() {
     return this._mode === Mode.DIR ||
       this._mode === Mode.PREVIEW ||
       (this._mode === Mode.PROP && (this._state.isOpened || this._propKey === `__proto__`)) ||
-      this._stringTagName !== `Array` || this._protoConstructorName !== `Array`;
+      this.stringTagName !== `Array` || this.protoConstructorName !== `Array`;
   }
 
   get isShowHeadContent() {

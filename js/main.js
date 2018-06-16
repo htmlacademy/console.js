@@ -169,28 +169,30 @@ export default class Console {
         return new FunctionView(params, this);
       case `object`:
         if (val !== null) {
+          let view;
           const stringTag = Object.prototype.toString.call(val);
           const stringTagName = stringTag.substring(8, stringTag.length - 1);
 
-          try {
-            if (stringTagName !== `Object` && (
-              Array.isArray(val) || (
-                !checkObjectisPrototype(val) && (
-                  val instanceof HTMLCollection ||
-                  val instanceof NodeList ||
-                  val instanceof DOMTokenList ||
-                  val instanceof TypedArray ||
-                  stringTagName === `Arguments`
-                )
+          const objectIsPrototype = checkObjectisPrototype(val);
+          if (stringTagName !== `Object` && (
+            Array.isArray(val) || (
+              !objectIsPrototype && (
+                val instanceof HTMLCollection ||
+                val instanceof NodeList ||
+                val instanceof DOMTokenList ||
+                val instanceof TypedArray ||
+                stringTagName === `Arguments`
               )
-            )) {
-              return new ArrayView(params, this);
-            }
-          } catch (err) {}
-          if (val instanceof Map || val instanceof Set && !checkObjectisPrototype(val)) {
-            return new MapSetView(params, this);
+            )
+          )) {
+            view = new ArrayView(params, this);
+          } else if (!objectIsPrototype && (val instanceof Map || val instanceof Set)) {
+            view = new MapSetView(params, this);
+          } else {
+            view = new ObjectView(params, this);
           }
-          return new ObjectView(params, this);
+          view.stringTagName = stringTagName;
+          return view;
         } else {
           return new PrimitiveView(params, this);
         }

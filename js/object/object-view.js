@@ -11,11 +11,6 @@ export default class ObjectView extends TypeView {
     if (!params.parentView) {
       this.rootView = this;
     }
-
-    const proto = Object.getPrototypeOf(this._value);
-    const stringTag = Object.prototype.toString.call(this._value);
-    this._stringTagName = stringTag.substring(8, stringTag.length - 1);
-    this._protoConstructorName = proto && proto.hasOwnProperty(`constructor`) ? proto.constructor.name : `Object`;
   }
 
   get template() {
@@ -71,8 +66,8 @@ export default class ObjectView extends TypeView {
 
   get isShowInfo() {
     if (this._mode === Mode.PREVIEW &&
-      this._stringTagName === `Object` &&
-      this._protoConstructorName === `Object`) {
+      this.stringTagName === `Object` &&
+      this.protoConstructorName === `Object`) {
       return false;
     }
 
@@ -89,8 +84,8 @@ export default class ObjectView extends TypeView {
       return true;
     }
 
-    return this._stringTagName !== `Object` ||
-      this._protoConstructorName !== `Object` ||
+    return this.stringTagName !== `Object` ||
+      this.protoConstructorName !== `Object` ||
       this._propKey === `__proto__`;
   }
 
@@ -100,8 +95,8 @@ export default class ObjectView extends TypeView {
     }
 
     if (this._mode === Mode.PREVIEW) {
-      return this._stringTagName === `Object` &&
-        this._protoConstructorName === `Object`;
+      return this.stringTagName === `Object` &&
+        this.protoConstructorName === `Object`;
     }
 
     const objectIsInstance = this._value instanceof Node ||
@@ -118,8 +113,8 @@ export default class ObjectView extends TypeView {
 
   get isShowHeadContent() {
     if (this._mode === Mode.PREVIEW &&
-      this._stringTagName === `Object` &&
-      this._protoConstructorName === `Object`) {
+      this.stringTagName === `Object` &&
+      this.protoConstructorName === `Object`) {
       return true;
     }
 
@@ -198,8 +193,8 @@ export default class ObjectView extends TypeView {
 
   get headContent() {
     if (this._mode === Mode.PREVIEW &&
-    this._stringTagName === `Object` &&
-    this._protoConstructorName === `Object`) {
+    this.stringTagName === `Object` &&
+    this.protoConstructorName === `Object`) {
       return `…`;
     }
 
@@ -263,7 +258,7 @@ export default class ObjectView extends TypeView {
           entriesKeys.delete(`length`);
         }
       } else if (obj instanceof Number) {
-        const el = this._console.createTypedView(Number.parseInt(this._value, 10), mode, this.nextNestingLevel, this).el;
+        const el = this._console.createTypedView(this._value * 1, mode, this.nextNestingLevel, this).el;
         TypeView.appendEntryElIntoFragment(
             this._createEntryEl({key: `[[PrimtiveValue]]`, el, withoutKey: inHead, isGrey: true}),
             fragment
