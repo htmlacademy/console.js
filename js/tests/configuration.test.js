@@ -1,4 +1,4 @@
-import Console from "../main";
+import Console from "../console";
 import {ViewType, Env} from "../enums";
 
 const obj = {};

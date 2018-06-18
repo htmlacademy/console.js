@@ -4,6 +4,18 @@
     <meta charset="UTF-8">
     <title>console.js</title>
     <link href="css/style.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 99%;
+        box-sizing: content-box;
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+        -webkit-tap-highlight-color: transparent;
+      }
+    </style>
   </head>
   <body>
     <div class="console"></div>

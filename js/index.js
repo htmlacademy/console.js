@@ -1,3 +1,3 @@
-import Console from './main';
+import Console from './console';
 
 window.Console = Console;

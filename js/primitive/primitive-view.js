@@ -1,5 +1,6 @@
 import TypeView from '../type-view';
 import {Mode, ViewType} from '../enums';
+import {escapeHTML} from '../utils';
 
 export default class PrimitiveView extends TypeView {
   constructor(params, cons) {
@@ -17,7 +18,7 @@ export default class PrimitiveView extends TypeView {
       }
 
       if (this._parentView ? this._parentView.mode !== Mode.LOG_HTML : this._mode !== Mode.LOG_HTML) {
-        value = this.escapeHtml(value);
+        value = escapeHTML(value);
       }
     }
     switch (type) {
@@ -66,14 +67,5 @@ export default class PrimitiveView extends TypeView {
         this.el.classList.toggle(`nowrap`);
       });
     }
-  }
-
-  escapeHtml(unsafe) {
-    return unsafe
-        .replace(/&/g, `&amp;`)
-        .replace(/</g, `&lt;`)
-        .replace(/>/g, `&gt;`)
-        .replace(/"/g, `&quot;`)
-        .replace(/'/g, `&#039;`);
   }
 }

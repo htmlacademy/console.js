@@ -4,23 +4,53 @@
     <meta charset="UTF-8">
     <title>console.js</title>
     <link href="css/style.css" rel="stylesheet">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <style>
       html,
       body {
         margin: 0;
         padding: 0;
-        height: 99%;
-        box-sizing: content-box;
         -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
         -webkit-tap-highlight-color: transparent;
+      }
+
+      .console-prompt {
+        display: flex;
+        padding: 8px;
+        border-top: 1px solid #eeeeee;
+        box-sizing: border-box;
+        font-size: 0.8em;
+        font-family: monospace, monospace;
+      }
+
+      .console-prompt::before {
+        content: ">";
+        width: 10px;
+        height: 14px;
+        margin: 0 5px 0 5px;
+        display: inline-block;
+        background-repeat: no-repeat;
+        background-size: contain;
+        vertical-align: baseline;
+      }
+
+      .console-prompt__input {
+        width: 100%;
+        outline: none;
+        cursor: text;
+      }
+
+      .console-prompt__input:not(:focus)::before {
+        content: "write code here";
+        color: gray;
       }
     </style>
   </head>
   <body>
     <div class="console-container"></div>
-    <div class="prompt-container"></div>
-    <script src="js/index-prompt.js"></script>
+    <div class="console-prompt">
+      <div class="console-prompt__input" contenteditable="true"></div>
+    </div>
     <script src="js/index.js"></script>
 
     <script>
@@ -53,7 +83,6 @@
         },
         stickTo: `bottom`
       });
-      const prompt = new Prompt(document.querySelector(`.prompt-container`), jsConsole);
       const obj = {};
       const arr = [obj];
       const fn = (bar = 123) => {

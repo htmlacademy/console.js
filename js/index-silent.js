@@ -1,5 +1,5 @@
 /* eslint no-invalid-this: "off"*/
-import Console from './main';
+import Console from './console';
 import mergeWith from 'lodash.mergewith';
 import {customizer} from './utils';
 import {Mode} from './enums';
@@ -58,6 +58,8 @@ const init = function () {
 };
 
 window.addEventListener(`DOMContentLoaded`, () => {
+  document.body.style.margin = 0;
+  document.body.style.padding = 0;
   const link = window.document.createElement(`link`);
   link.rel = `stylesheet`;
   link.href = CSS_URL;

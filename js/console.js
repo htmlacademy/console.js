@@ -5,8 +5,8 @@ import MapSetView from './object/map-set-view';
 import ArrayView from './array/array-view';
 import FunctionView from './function/function-view';
 import PrimitiveView from './primitive/primitive-view';
-import {getElement, customizer, checkObjectisPrototype} from './utils';
-import {Mode, ViewType} from './enums';
+import {getElement, customizer, checkObjectisPrototype, checkEnumContainsValue} from './utils';
+import {Mode, ViewType, Env} from './enums';
 
 const DEFAULT_MAX_FIELDS_IN_HEAD = 5;
 
@@ -32,45 +32,59 @@ export default class Console {
     } else if (!(container instanceof HTMLElement)) {
       throw new TypeError(`HTML element must be passed as container`);
     }
-    this._views = new Map();
-    this._container = container;
+
+    this._el = document.createElement(`div`);
+    this._el.classList.add(`console`);
+    container.appendChild(this._el);
+
     this.params = {
-      object: this._parseParams(ViewType.OBJECT, mergeWith({}, params.common, params.object, customizer)),
-      array: this._parseParams(ViewType.ARRAY, mergeWith({}, params.common, params.array, customizer)),
-      function: this._parseParams(ViewType.FUNCTION, mergeWith({}, params.common, params.function, customizer)),
-      env: params.env
+      object: this._parseViewParams(ViewType.OBJECT, mergeWith({}, params.common, params.object, customizer)),
+      array: this._parseViewParams(ViewType.ARRAY, mergeWith({}, params.common, params.array, customizer)),
+      function: this._parseViewParams(ViewType.FUNCTION, mergeWith({}, params.common, params.function, customizer))
     };
+
+    Object.assign(this.params, this._parseConsoleParams(params));
   }
 
-  _parseParams(viewType, paramsObject = {}) {
+  _parseConsoleParams(params) {
+    const parsedParams = {};
+
+    if (checkEnumContainsValue(Env, params.env)) {
+      parsedParams.env = params.env;
+    }
+
+    return parsedParams;
+  }
+
+  _parseViewParams(viewType, params = {}) {
     // Set this._expandDepth and this._minFieldsToExpand only if expandDepth provided and > 0
 
-    paramsObject.expandDepth = (
-      typeof paramsObject.expandDepth === `number` &&
-      paramsObject.expandDepth > 0
-    ) ? paramsObject.expandDepth : 0;
+    params.expandDepth = (
+      typeof params.expandDepth === `number` &&
+      params.expandDepth > 0
+    ) ? params.expandDepth : 0;
 
 
-    paramsObject.minFieldsToExpand = (
-      typeof paramsObject.minFieldsToExpand === `number` &&
-      paramsObject.minFieldsToExpand > 0
-    ) ? paramsObject.minFieldsToExpand : 0;
+    params.minFieldsToExpand = (
+      typeof params.minFieldsToExpand === `number` &&
+      params.minFieldsToExpand > 0
+    ) ? params.minFieldsToExpand : 0;
 
-    paramsObject.maxFieldsToExpand = (
-      typeof paramsObject.maxFieldsToExpand === `number` &&
-      paramsObject.maxFieldsToExpand > 0
-    ) ? paramsObject.maxFieldsToExpand : Number.POSITIVE_INFINITY;
+    params.maxFieldsToExpand = (
+      typeof params.maxFieldsToExpand === `number` &&
+      params.maxFieldsToExpand > 0
+    ) ? params.maxFieldsToExpand : Number.POSITIVE_INFINITY;
 
-    paramsObject.maxFieldsInHead = (
-      typeof paramsObject.maxFieldsInHead === `number` &&
-      paramsObject.maxFieldsInHead > 0
-    ) ? paramsObject.maxFieldsInHead : DEFAULT_MAX_FIELDS_IN_HEAD;
+    params.maxFieldsInHead = (
+      typeof params.maxFieldsInHead === `number` &&
+      params.maxFieldsInHead > 0
+    ) ? params.maxFieldsInHead : DEFAULT_MAX_FIELDS_IN_HEAD;
 
-    if (!Array.isArray(paramsObject.excludeProperties)) {
-      paramsObject.excludeProperties = [];
+    if (!Array.isArray(params.excludeProperties)) {
+      params.excludeProperties = [];
     }
-    if (!Array.isArray(paramsObject.exclude)) {
-      paramsObject.exclude = [];
+    if (!Array.isArray(params.exclude)) {
+      params.exclude = [];
     } else {
       const availableTypes = [];
       for (let key in ViewType) {
@@ -79,18 +93,18 @@ export default class Console {
           availableTypes.push(type);
         }
       }
-      if (!paramsObject.exclude.every((type) => availableTypes.includes(type))) {
+      if (!params.exclude.every((type) => availableTypes.includes(type))) {
         throw new Error(`Provided type to exclude is not in available types`);
       }
     }
 
-    paramsObject.showGetters = typeof paramsObject.showGetters === `boolean` ?
-      paramsObject.showGetters : true;
+    params.showGetters = typeof params.showGetters === `boolean` ?
+      params.showGetters : true;
 
-    paramsObject.countEntriesWithoutKeys = typeof paramsObject.countEntriesWithoutKeys === `boolean` ?
-      paramsObject.countEntriesWithoutKeys : false;
+    params.countEntriesWithoutKeys = typeof params.countEntriesWithoutKeys === `boolean` ?
+      params.countEntriesWithoutKeys : false;
 
-    return paramsObject;
+    return params;
   }
 
   /**
@@ -122,12 +136,12 @@ export default class Console {
    * Push rest of arguments into container
    */
   log(...rest) {
-    this._container.appendChild(this._getRowEl(rest, Mode.LOG));
+    this._el.appendChild(this._getRowEl(rest, Mode.LOG));
     this.onlog();
   }
 
   logHTML(...rest) {
-    this._container.appendChild(this._getRowEl(rest, Mode.LOG_HTML));
+    this._el.appendChild(this._getRowEl(rest, Mode.LOG_HTML));
     this.onlogHTML();
   }
 
@@ -139,7 +153,7 @@ export default class Console {
   error(val) {
     const el = getElement(`<div class="console__row console__row--error"></div>`);
     el.appendChild(this.createTypedView(val, Mode.ERROR).el);
-    this._container.appendChild(el);
+    this._el.appendChild(el);
     this.onerror();
   }
 
@@ -151,7 +165,7 @@ export default class Console {
   dir(val) {
     const el = getElement(`<div class="console__row"></div>`);
     el.appendChild(this.createTypedView(val, Mode.DIR).el);
-    this._container.appendChild(el);
+    this._el.appendChild(el);
     this.ondir();
   }
 
@@ -159,7 +173,7 @@ export default class Console {
    * Clean container
    */
   clean() {
-    this._container.innerHTML = ``;
+    this._el.innerHTML = ``;
   }
 
   createTypedView(val, mode, depth, parentView, propKey) {
@@ -213,7 +227,7 @@ export default class Console {
    * get innerHTML of container
    */
   get sourceLog() {
-    return this._container.innerHTML;
+    return this._el.innerHTML;
   }
 
   /**

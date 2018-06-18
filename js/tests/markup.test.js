@@ -1,7 +1,7 @@
 /* eslint no-undefined: 0 */
 
 // import FunctionView from '../function/function-view';
-import Console from '../main';
+import Console from '../console';
 import {Mode} from '../enums';
 
 // declare consts here

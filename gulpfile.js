@@ -47,7 +47,7 @@ gulp.task(`style`, () => {
 });
 
 gulp.task(`build-scripts`, () => {
-  return gulp.src([`js/index.js`, `js/index-silent.js`])
+  return gulp.src([`js/index.js`, `js/index-silent.js`, `js/index-prompt.js`])
       .pipe(debug({title: `debug`}))
       .pipe(plumber())
       .pipe(sourcemaps.init())
