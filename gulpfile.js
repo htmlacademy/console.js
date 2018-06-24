@@ -23,7 +23,7 @@ const debug = require(`gulp-debug`);
 const KarmaServer = require(`karma`).Server;
 
 gulp.task(`style`, () => {
-  return gulp.src(`sass/**/*.{css,scss,sass}`)
+  return gulp.src([`sass/**/*.{css,scss,sass}`, `node_modules/prismjs/themes/**/*.{css,scss,sass}`])
       .pipe(plumber())
       .pipe(sass())
       .pipe(concat(`style.css`))
@@ -47,7 +47,7 @@ gulp.task(`style`, () => {
 });
 
 gulp.task(`build-scripts`, () => {
-  return gulp.src([`js/index.js`, `js/index-silent.js`, `js/index-prompt.js`])
+  return gulp.src([`js/index.js`, `js/index-silent.js`])
       .pipe(debug({title: `debug`}))
       .pipe(plumber())
       .pipe(sourcemaps.init())
@@ -62,6 +62,33 @@ gulp.task(`build-scripts`, () => {
               [`env`, {modules: false}]
             ],
             plugins: [`external-helpers`]
+          })
+        ]
+      }, `iife`))
+      // .pipe(uglify())
+      .pipe(sourcemaps.write(``))
+      .pipe(gulp.dest(`build/js`));
+});
+
+gulp.task(`build-prompt`, () => {
+  return gulp.src([`js/index-prompt.js`])
+      .pipe(debug({title: `debug`}))
+      .pipe(plumber())
+      .pipe(sourcemaps.init())
+      .pipe(rollup({
+        plugins: [
+          nodeResolve(),
+          commonjs(),
+          babel({
+            babelrc: false,
+            exclude: [`node_modules/**`, `js/tests/**`],
+            presets: [
+              [`env`, {modules: false}]
+            ],
+            plugins: [`external-helpers`, [`prismjs`, {
+              "languages": [`javascript`, `css`, `markup`],
+              "plugins": [`line-numbers`]
+            }]]
           })
         ]
       }, `iife`))
@@ -134,7 +161,7 @@ gulp.task(`copy-html`, () => {
       .pipe(server.stream());
 });
 
-gulp.task(`copy`, gulp.series(`copy-html`, `build-scripts`, `build-js-presets`, `build-tests`, `style`, () => {
+gulp.task(`copy`, gulp.series(`copy-html`, `build-scripts`, `build-prompt`, `build-js-presets`, `build-tests`, `style`, () => {
   return gulp.src([
     `fonts/**/*.{woff,woff2}`,
     `img/**.*`
@@ -159,7 +186,7 @@ gulp.task(`clean`, () => {
   return del(`build`);
 });
 
-gulp.task(`js-watch`, gulp.series(`build-scripts`, `build-js-presets`, `build-tests`, (done) => {
+gulp.task(`js-watch`, gulp.series(`build-scripts`, `build-prompt`, `build-js-presets`, `build-tests`, (done) => {
   server.reload();
   done();
 }));

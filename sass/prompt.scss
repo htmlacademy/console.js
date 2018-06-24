@@ -18,11 +18,14 @@
   }
 
   &__input {
-    width: 100%;
+    display: block;
+    margin: 0;
+    white-space: pre;
+    min-height: 3em;
+    flex: 1 0 auto;
     outline: none;
     cursor: text;
     appearance: none;
-    -webkit-font-smoothing: subpixel-antialiased;
 
     &:not(:focus):empty::before {
       content: "write code here";
@@ -30,9 +33,14 @@
     }
   }
 
+  &__kek {
+    display: block;
+    outline: none;
+  }
+
   &__send-btn {
-    width: 36px;
-    height: 36px;
+    margin-left: 10px;
+    user-select: none;
 
     &:active {
       opacity: 0.5;
@@ -46,16 +54,9 @@
   }
 }
 
-.round-btn {
-  display: flex;
-  justify-content: center;
-  border-width: 1px;
-  border-style: solid;
-  border-radius: 50%;
-  outline: none;
-
-  &--blue {
-    border-color: #157ffb;
-    background-color: #157ffb;
+.send-icon {
+  &--grey {
+    fill: #858f99;
+    stroke: white;
   }
 }

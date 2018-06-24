@@ -10,20 +10,36 @@
       body {
         margin: 0;
         padding: 0;
-        height: 99%;
-        box-sizing: content-box;
+        height: 100%;
         -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
         -webkit-tap-highlight-color: transparent;
+      }
+
+      .global-container {
+        display: flex;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 99%;
+        /* box-sizing: content-box; */
+        flex-direction: column;
+      }
+
+      .global-container__prompt-container {
+        flex: 1 0 auto;
       }
     </style>
   </head>
   <body ontouchstart="">
-    <div class="console-container"></div>
-    <div class="prompt-container"></div>
+    <div class="global-container">
+      <div class="console-container"></div>
+      <div class="prompt-container global-container__prompt-container"></div>
+    </div>
     <script src="js/index-prompt.js"></script>
     <script src="js/index.js"></script>
 
     <script>
+      const consoleContainerEl = document.querySelector(`.console-container`);
       const getLengths = () => {
         const objects = Array.from(
             document.querySelectorAll(`.item--object:not(.hidden) > .item__content.entry-container--object:not(.hidden)`)
@@ -40,7 +56,7 @@
           fnLength: functions.length
         };
       };
-      const jsConsole = new Console(document.querySelector(`.console-container`), {
+      const jsConsole = new Console(consoleContainerEl, {
         array: {
           countEntriesWithoutKeys: true
         },

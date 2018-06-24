@@ -1,5 +1,6 @@
+import Misbehave from 'misbehave';
+import Prism from 'prismjs';
 import AbstractView from '../abstract-view';
-import {escapeHTML} from '../utils';
 
 const emptyRE = /^\n$/;
 
@@ -12,37 +13,40 @@ export default class PromptView extends AbstractView {
     return `\
 <div class="prompt">\
   <div class="prompt__line-arrow"></div>
-  <div class="prompt__input" contenteditable="true" autocapitalize="none" tabindex="0" role="textbox" aria-multiline="true"></div>\
-  <button class="prompt__send-btn round-btn round-btn--blue" aria-label="Выполнить">
-    <svg class="prompt__send-icon" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 38 38">
-      <polyline points="22, 4 36, 18 22, 32" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-      <line x1="2" y1="18" x2="34" y2="18" stroke="white" stroke-width="3" stroke-linecap="round" />
+  <code class="prompt__input" contenteditable="true" autocapitalize="none" autocorrect="off" spellcheck="false" tabindex="0" role="textbox" aria-multiline="true"></code>\
+  <a class="prompt__send-btn" aria-label="Выполнить">
+    <svg class="prompt__send-icon send-icon send-icon--grey" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 100 100">
+      <circle class="send-icon__circle" r="50%" cx="50%" cy="50%" />
+      <polyline points="55, 30 75, 50 55, 70" fill="none" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" />
+      <line x1="25" y1="50" x2="75" y2="50" stroke-width="7" stroke-linecap="round" />
     </svg>
-  </button>\
+  </a>\
 </div>`;
   }
 
   _bind() {
+    this._text = ``;
     this._inputEl = this.el.querySelector(`.prompt__input`);
-    this._inputEl.addEventListener(`paste`, this._handlePaste.bind(this));
-    this._inputEl.addEventListener(`input`, this._handleInput.bind(this));
+    this.editor = new Misbehave(this._inputEl, {
+      oninput: this._handleMisbehaveInput.bind(this)
+    });
+    this._inputEl.addEventListener(`keydown`, this._handleKeyDown.bind(this));
   }
 
-  _handlePaste(evt) {
-    evt.preventDefault();
-
-    const text = escapeHTML(evt.clipboardData.getData(`text`));
-    const selection = window.getSelection();
-
-    if (!selection.rangeCount) {
-      return;
-    }
-    selection.getRangeAt(0).insertNode(document.createTextNode(text));
-  }
-
-  _handleInput() {
+  _handleMisbehaveInput(text) {
     if (emptyRE.test(this._inputEl.innerText)) {
+      this._inputEl.innerText = ``;
+    } else {
+      this._inputEl.innerHTML = Prism.highlight(text, Prism.languages.javascript);
+    }
+  }
+
+  _handleKeyDown(evt) {
+    if (!evt.shiftKey && evt.key === `Enter`) {
+      // this.handleSubmit(this._inputEl.innerText);
       this._inputEl.innerText = ``;
     }
   }
+
+  handleSubmit() {}
 }
