@@ -43,7 +43,7 @@ export default class PromptView extends AbstractView {
 
   _handleKeyDown(evt) {
     if (!evt.shiftKey && evt.key === `Enter`) {
-      // this.handleSubmit(this._inputEl.innerText);
+      this.handleSubmit(this._inputEl.innerText);
       this._inputEl.innerText = ``;
     }
   }

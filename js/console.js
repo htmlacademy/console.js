@@ -53,6 +53,8 @@ export default class Console {
       parsedParams.env = params.env;
     }
 
+    parsedParams.global = params.global ? params.global : window;
+
     return parsedParams;
   }
 
@@ -200,7 +202,8 @@ export default class Console {
             )
           )) {
             view = new ArrayView(params, this);
-          } else if (!objectIsPrototype && (val instanceof Map || val instanceof Set)) {
+          } else if (!objectIsPrototype && (val instanceof this.params.global.Map || val instanceof this.params.global.Set)) {
+            console.log(123);
             view = new MapSetView(params, this);
           } else {
             view = new ObjectView(params, this);
