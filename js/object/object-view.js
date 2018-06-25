@@ -71,10 +71,10 @@ export default class ObjectView extends TypeView {
       return false;
     }
 
-    const objectIsInstance = this._value instanceof Node ||
-      this._value instanceof Error ||
-      this._value instanceof Date ||
-      this._value instanceof RegExp;
+    const objectIsInstance = this._console.checkInstanceOf(this._value, `Node`) ||
+      this._console.checkInstanceOf(this._value, `Error`) ||
+      this._console.checkInstanceOf(this._value, `Date`) ||
+      this._console.checkInstanceOf(this._value, `RegExp`);
 
     if (objectIsInstance && !checkObjectisPrototype(this._value)) {
       return false;
@@ -99,10 +99,10 @@ export default class ObjectView extends TypeView {
         this.protoConstructorName === `Object`;
     }
 
-    const objectIsInstance = this._value instanceof Node ||
-      this._value instanceof Error ||
-      this._value instanceof Date ||
-      this._value instanceof RegExp;
+    const objectIsInstance = this._console.checkInstanceOf(this._value, `Node`) ||
+      this._console.checkInstanceOf(this._value, `Error`) ||
+      this._console.checkInstanceOf(this._value, `Date`) ||
+      this._console.checkInstanceOf(this._value, `RegExp`);
 
     if (objectIsInstance && !checkObjectisPrototype(this._value)) {
       return false;
@@ -122,9 +122,9 @@ export default class ObjectView extends TypeView {
       return this._propKey !== `__proto__`;
     }
 
-    const objectIsInstance = this._value instanceof Error ||
-      this._value instanceof Date ||
-      this._value instanceof RegExp;
+    const objectIsInstance = this._console.checkInstanceOf(this._value, `Error`) ||
+      this._console.checkInstanceOf(this._value, `Date`) ||
+      this._console.checkInstanceOf(this._value, `RegExp`);
 
     if (objectIsInstance && !checkObjectisPrototype(this._value)) {
       return true;
@@ -141,9 +141,9 @@ export default class ObjectView extends TypeView {
       return false;
     }
 
-    const objectIsInstance = this._value instanceof Error ||
-      this._value instanceof Date ||
-      this._value instanceof RegExp;
+    const objectIsInstance = this._console.checkInstanceOf(this._value, `Error`) ||
+      this._console.checkInstanceOf(this._value, `Date`) ||
+      this._console.checkInstanceOf(this._value, `RegExp`);
 
     if (objectIsInstance && !checkObjectisPrototype(this._value)) {
       return true;
@@ -155,9 +155,9 @@ export default class ObjectView extends TypeView {
     if (this._mode === Mode.LOG ||
     this._mode === Mode.LOG_HTML ||
     this._mode === Mode.ERROR) {
-      const objectIsInstance = this._value instanceof Node ||
-        this._value instanceof Error ||
-        this._value instanceof Date;
+      const objectIsInstance = this._console.checkInstanceOf(this._value, `Node`) ||
+        this._console.checkInstanceOf(this._value, `Error`) ||
+        this._console.checkInstanceOf(this._value, `Date`);
 
       if (!objectIsInstance && !checkObjectisPrototype(this._value)) {
         return true;
@@ -170,8 +170,8 @@ export default class ObjectView extends TypeView {
     if (this._mode !== Mode.ERROR) {
       return false;
     }
-    const objectIsInstance = this._value instanceof Error ||
-      this._value instanceof Date;
+    const objectIsInstance = this._console.checkInstanceOf(this._value, `Error`) ||
+      this._console.checkInstanceOf(this._value, `Date`);
 
     return objectIsInstance && !checkObjectisPrototype(this._value);
   }
@@ -199,8 +199,8 @@ export default class ObjectView extends TypeView {
     }
 
     if (!Object.prototype.hasOwnProperty.call(this._value, `constructor`)) {
-      if (this._value instanceof Node) {
-        if (this._value instanceof HTMLElement) {
+      if (this._console.checkInstanceOf(this._value, `Node`)) {
+        if (this._console.checkInstanceOf(this._value, `HTMLElement`)) {
           let str = this._value.tagName.toLowerCase();
           if (this._value.id) {
             str += `#${this._value.id}`;
@@ -212,15 +212,15 @@ export default class ObjectView extends TypeView {
         } else {
           return this._value.nodeName;
         }
-      } else if (this._value instanceof Error) {
+      } else if (this._console.checkInstanceOf(this._value, `Error`)) {
         let str = this._value.name;
         if (this._value.message) {
           str += `: ${this._value.message}`;
         }
         return str;
-      } else if (this._value instanceof Date) {
+      } else if (this._console.checkInstanceOf(this._value, `Date`)) {
         return this._value.toString();
-      } else if (this._value instanceof RegExp) {
+      } else if (this._console.checkInstanceOf(this._value, `RegExp`)) {
         return `/${this._value.source}/${this._value.flags}`;
       }
     }
@@ -230,7 +230,7 @@ export default class ObjectView extends TypeView {
   }
 
   get headContentClassName() {
-    if (this._value instanceof RegExp && this._mode !== Mode.DIR) {
+    if (this._console.checkInstanceOf(this._value, `RegExp`) && this._mode !== Mode.DIR) {
       return `regexp`;
     }
     return null;
@@ -243,9 +243,9 @@ export default class ObjectView extends TypeView {
     entriesKeys.delete(`__proto__`); // Object may not have prototype
 
     // if object has PrimtiveValue property (only Number and String)
-    if ((obj instanceof String || obj instanceof Number) &&
+    if ((this._console.checkInstanceOf(obj, `String`) || this._console.checkInstanceOf(obj, `Number`)) &&
     !checkObjectisPrototype(this._value)) {
-      if (obj instanceof String) {
+      if (this._console.checkInstanceOf(obj, `String`)) {
         const el = this._console.createTypedView(this._value.toString(), mode, this.nextNestingLevel, this).el;
         TypeView.appendEntryElIntoFragment(
             this._createEntryEl({key: `[[PrimtiveValue]]`, el, withoutKey: inHead, isGrey: true}),
@@ -257,7 +257,7 @@ export default class ObjectView extends TypeView {
           }
           entriesKeys.delete(`length`);
         }
-      } else if (obj instanceof Number) {
+      } else if (this._console.checkInstanceOf(obj, `Number`)) {
         const el = this._console.createTypedView(this._value * 1, mode, this.nextNestingLevel, this).el;
         TypeView.appendEntryElIntoFragment(
             this._createEntryEl({key: `[[PrimtiveValue]]`, el, withoutKey: inHead, isGrey: true}),

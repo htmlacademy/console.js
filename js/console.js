@@ -10,8 +10,6 @@ import {Mode, ViewType, Env} from './enums';
 
 const DEFAULT_MAX_FIELDS_IN_HEAD = 5;
 
-const TypedArray = Object.getPrototypeOf(Int8Array);
-
 /**
  * Console
  * @class
@@ -44,6 +42,7 @@ export default class Console {
     };
 
     Object.assign(this.params, this._parseConsoleParams(params));
+    this.params.global.TypedArray = Object.getPrototypeOf(Int8Array);
   }
 
   _parseConsoleParams(params) {
@@ -178,6 +177,10 @@ export default class Console {
     this._el.innerHTML = ``;
   }
 
+  checkInstanceOf(obj, constructorName) {
+    return obj instanceof this.params.global[constructorName];
+  }
+
   createTypedView(val, mode, depth, parentView, propKey) {
     const params = {val, mode, depth, parentView, type: typeof val, propKey};
     switch (params.type) {
@@ -193,17 +196,16 @@ export default class Console {
           if (stringTagName !== `Object` && (
             Array.isArray(val) || (
               !objectIsPrototype && (
-                val instanceof HTMLCollection ||
-                val instanceof NodeList ||
-                val instanceof DOMTokenList ||
-                val instanceof TypedArray ||
+                this.checkInstanceOf(val, `HTMLCollection`) ||
+                this.checkInstanceOf(val, `NodeList`) ||
+                this.checkInstanceOf(val, `DOMTokenList`) ||
+                this.checkInstanceOf(val, `TypedArray`) ||
                 stringTagName === `Arguments`
               )
             )
           )) {
             view = new ArrayView(params, this);
-          } else if (!objectIsPrototype && (val instanceof this.params.global.Map || val instanceof this.params.global.Set)) {
-            console.log(123);
+          } else if (!objectIsPrototype && (this.checkInstanceOf(val, `Map`) || this.checkInstanceOf(val, `Set`))) {
             view = new MapSetView(params, this);
           } else {
             view = new ObjectView(params, this);

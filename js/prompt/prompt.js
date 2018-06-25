@@ -32,7 +32,6 @@ export default class Prompt {
     this._frame.style.border = 0;
     this._frame.style.position = `absolute`;
     this._frame.style.top = `-100px`;
-    this._frame.setAttribute(`sandbox`, `allow-same-origin allow-scripts`);
     document.body.appendChild(this._frame);
   }
 
