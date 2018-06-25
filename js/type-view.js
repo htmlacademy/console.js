@@ -643,7 +643,7 @@ ${withoutKey ? `` : `<span class="entry-container__key ${isGrey ? `grey` : ``}">
    * @return {boolean} — added — true, removed — false
    */
   static toggleMiddleware(el, className, isEnable) {
-    if (typeof isEnable === `undefined`) {
+    if (isEnable === void 0) {
       return el.classList.toggle(className);
     }
     if (isEnable) {

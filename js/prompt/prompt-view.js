@@ -27,9 +27,11 @@ export default class PromptView extends AbstractView {
   _bind() {
     this._text = ``;
     this._inputEl = this.el.querySelector(`.prompt__input`);
+    this._sendBtnEl = this.el.querySelector(`.prompt__send-btn`);
     this.editor = new Misbehave(this._inputEl, {
       oninput: this._handleMisbehaveInput.bind(this)
     });
+    this._sendBtnEl.addEventListener(`click`, this._handleSendClick.bind(this));
     this._inputEl.addEventListener(`keydown`, this._handleKeyDown.bind(this));
   }
 
@@ -43,10 +45,18 @@ export default class PromptView extends AbstractView {
 
   _handleKeyDown(evt) {
     if (!evt.shiftKey && evt.key === `Enter`) {
-      this.handleSubmit(this._inputEl.innerText);
-      this._inputEl.innerText = ``;
+      this._send();
     }
   }
 
-  handleSubmit() {}
+  _handleSendClick() {
+    this._send();
+  }
+
+  _send() {
+    this.onSend(this._inputEl.innerText);
+    this._inputEl.innerText = ``;
+  }
+
+  onSend() {}
 }

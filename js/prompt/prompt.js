@@ -1,28 +1,32 @@
 import PromptView from './prompt-view';
 
 export default class Prompt {
-  constructor(container, consoleObject, params = {}) {
+  constructor(container, createProxyFrame, consoleObject, params = {}) {
     if (!container) {
       throw new Error(`Prompt is not inited!`);
     } else if (!(container instanceof HTMLElement)) {
       throw new TypeError(`HTML element must be passed as container`);
     }
-    // this._consoleObject = consoleObject;
     this._view = new PromptView();
-    this._view.handleSubmit = this._onSubmit.bind(this);
+    this._view.onSend = this._handleSend.bind(this);
     this._container = container;
     this._container.appendChild(this._view.el);
     this._params = params;
 
-    this._createFrame();
+    this._createProxyFrame = createProxyFrame;
+    if (this._createProxyFrame) {
+      this._createFrame();
+    }
+    this._createElForScripts();
   }
 
   set consoleObject(val) {
     this._consoleObject = val;
+    this.usedWindow.console = this._consoleObject;
   }
 
-  get frameWindow() {
-    return this._frame.contentWindow;
+  get usedWindow() {
+    return this._createProxyFrame ? this._frame.contentWindow : window;
   }
 
   _createFrame() {
@@ -35,19 +39,21 @@ export default class Prompt {
     document.body.appendChild(this._frame);
   }
 
-  _onSubmit(code) {
-    const win = this._frame.contentWindow;
-    win.console = this._consoleObject;
-    const doc = win.document;
+  _createElForScripts() {
+    this._scriptsEl = this.usedWindow.document.createElement(`div`);
+    this.usedWindow.document.body.appendChild(this._scriptsEl);
+  }
+
+  _handleSend(code) {
+    const doc = this.usedWindow.document;
     const script = doc.createElement(`script`);
     const blob = new Blob([code], {
       type: `application/javascript`,
     });
     script.src = URL.createObjectURL(blob);
-    const res = win.eval(code);
+    const res = this.usedWindow.eval(code);
     this._consoleObject.log(res);
-    if (res !== void 0) {
-      doc.body.appendChild(script);
-    }
+    this._scriptsEl.appendChild(script);
+    this._scriptsEl.removeChild(script);
   }
 }

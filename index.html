@@ -56,7 +56,7 @@
           fnLength: functions.length
         };
       };
-      const prompt = new Prompt(document.querySelector(`.prompt-container`));
+      const prompt = new Prompt(document.querySelector(`.prompt-container`), false);
       const jsConsole = new Console(consoleContainerEl, {
         array: {
           countEntriesWithoutKeys: true
@@ -69,7 +69,7 @@
           maxFieldsToExpand: 15
         },
         stickTo: `bottom`,
-        global: prompt.frameWindow
+        global: prompt.usedWindow
       });
       prompt.consoleObject = jsConsole;
       // const prompt = new Prompt(document.querySelector(`.prompt-container`), jsConsole);
