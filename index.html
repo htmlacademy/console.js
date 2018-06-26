@@ -56,7 +56,6 @@
           fnLength: functions.length
         };
       };
-      const prompt = new Prompt(document.querySelector(`.prompt-container`), false);
       const jsConsole = new Console(consoleContainerEl, {
         array: {
           countEntriesWithoutKeys: true
@@ -67,12 +66,9 @@
           maxFieldsInHead: 5,
           minFieldsToExpand: 5, // как в object.maxFieldsInHead
           maxFieldsToExpand: 15
-        },
-        stickTo: `bottom`,
-        global: prompt.usedWindow
+        }
       });
-      prompt.consoleObject = jsConsole;
-      // const prompt = new Prompt(document.querySelector(`.prompt-container`), jsConsole);
+      const prompt = new Prompt(document.querySelector(`.prompt-container`), jsConsole);
       const obj = {};
       const arr = [obj];
       const fn = (bar = 123) => {

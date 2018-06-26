@@ -76,6 +76,9 @@ gulp.task(`build-prompt`, () => {
       .pipe(plumber())
       .pipe(sourcemaps.init())
       .pipe(rollup({
+        output: {
+          strict: false
+        },
         plugins: [
           nodeResolve(),
           commonjs(),

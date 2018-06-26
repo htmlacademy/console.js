@@ -11,21 +11,23 @@ export default class PromptView extends AbstractView {
 
   get template() {
     return `\
-<div class="prompt">\
+<div class="prompt">
   <div class="prompt__line-arrow"></div>
-  <code class="prompt__input" contenteditable="true" autocapitalize="none" autocorrect="off" spellcheck="false" tabindex="0" role="textbox" aria-multiline="true"></code>\
+  <code class="prompt__input" contenteditable="true" autocapitalize="none" autocorrect="off" spellcheck="false" tabindex="0" role="textbox" aria-multiline="true"></code>
   <a class="prompt__send-btn" aria-label="Выполнить">
     <svg class="prompt__send-icon send-icon send-icon--grey" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 100 100">
       <circle class="send-icon__circle" r="50%" cx="50%" cy="50%" />
       <polyline points="55, 30 75, 50 55, 70" fill="none" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" />
       <line x1="25" y1="50" x2="75" y2="50" stroke-width="7" stroke-linecap="round" />
     </svg>
-  </a>\
+  </a>
+  <div class="prompt__scripts"></div>
 </div>`;
   }
 
   _bind() {
     this._text = ``;
+    this._scriptsEl = this.el.querySelector(`.prompt__scripts`);
     this._inputEl = this.el.querySelector(`.prompt__input`);
     this._sendBtnEl = this.el.querySelector(`.prompt__send-btn`);
     this.editor = new Misbehave(this._inputEl, {
@@ -59,4 +61,14 @@ export default class PromptView extends AbstractView {
   }
 
   onSend() {}
+
+  createScriptFromCodeAndAppend(code) {
+    const script = document.createElement(`script`);
+    const blob = new Blob([code], {
+      type: `application/javascript`,
+    });
+    script.src = URL.createObjectURL(blob);
+    this._scriptsEl.appendChild(script);
+    this._scriptsEl.removeChild(script);
+  }
 }
