@@ -1,4 +1,7 @@
 /* eslint no-eval: "off" */
+import acorn from 'acorn/dist/acorn';
+import walk from 'acorn/dist/walk';
+// import babelParser from '@babel/parser';
 import PromptView from './prompt-view';
 
 const globalNotStrictEval = eval; // Bypass strict mode with Indirect eval call!
@@ -19,10 +22,29 @@ export default class Prompt {
     this._params = params;
   }
 
-  _handleSend(code) {
-    /* eslint no-new-func: "off" */
-    // this._view.createScriptFromCodeAndAppend(code);
-    const res = globalNotStrictEval(code);
+  async _handleSend(code) {
+    const {exprToEval, scriptCode} = this._preprocessCode(code);
+    console.log(exprToEval, scriptCode);
+    const ress = await this._view.createScriptFromCodeAndAppend(scriptCode);
+    console.log(ress);
+    const res = globalNotStrictEval(exprToEval);
     this._console.log(res);
+  }
+
+  _preprocessCode(code) {
+    let lastExpressionStatement = void 0;
+    walk.simple(acorn.parse(code), {
+      VariableDeclaration(node) {
+        // console.log(node)
+      },
+      ExpressionStatement(node) {
+        lastExpressionStatement = node;
+      }
+    });
+    let exprToEval = void 0;
+    if (lastExpressionStatement) {
+      exprToEval = code.substring(lastExpressionStatement.start, lastExpressionStatement.end);
+    }
+    return {exprToEval, scriptCode: code};
   }
 }

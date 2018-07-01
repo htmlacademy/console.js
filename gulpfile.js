@@ -59,9 +59,10 @@ gulp.task(`build-scripts`, () => {
             babelrc: false,
             exclude: [`node_modules/**`, `js/tests/**`],
             presets: [
-              [`env`, {modules: false}]
+              [`@babel/preset-env`, {modules: false}]
             ],
-            plugins: [`external-helpers`]
+            // externalHelpers: true,
+            // plugins: [`@babel/plugin-external-helpers`]
           })
         ]
       }, `iife`))
@@ -76,9 +77,6 @@ gulp.task(`build-prompt`, () => {
       .pipe(plumber())
       .pipe(sourcemaps.init())
       .pipe(rollup({
-        output: {
-          strict: false
-        },
         plugins: [
           nodeResolve(),
           commonjs(),
@@ -86,9 +84,10 @@ gulp.task(`build-prompt`, () => {
             babelrc: false,
             exclude: [`node_modules/**`, `js/tests/**`],
             presets: [
-              [`env`, {modules: false}]
+              [`@babel/preset-env`, {modules: false}]
             ],
-            plugins: [`external-helpers`, [`prismjs`, {
+            runtimeHelpers: true,
+            plugins: [[`prismjs`, {
               "languages": [`javascript`, `css`, `markup`],
               "plugins": [`line-numbers`]
             }]]
@@ -111,9 +110,9 @@ gulp.task(`build-js-presets`, () => {
           babel({
             babelrc: false,
             presets: [
-              [`env`, {modules: false}]
+              [`@babel/preset-env`, {modules: false}]
             ],
-            plugins: [`external-helpers`]
+            // plugins: [`@babel/plugin-external-helpers`]
           })
         ]
       }, `iife`))
