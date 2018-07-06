@@ -1,20 +1,20 @@
 /* eslint no-eval: "off" */
 import acorn from 'acorn/dist/acorn';
-import walk from 'acorn/dist/walk';
-// import babelParser from '@babel/parser';
+// import walk from 'acorn/dist/walk';
+// import estraverse from 'estraverse/estraverse';
+// import babelParser from '@babel/traverse';
 import PromptView from './prompt-view';
 
 const globalNotStrictEval = eval; // Bypass strict mode with Indirect eval call!
 export default class Prompt {
-  constructor(container, cons, params = {}) {
+  constructor(container, consoleGlobalName, params = {}) {
     if (!container) {
       throw new Error(`Prompt is not inited!`);
     } else if (!(container instanceof HTMLElement)) {
       throw new TypeError(`HTML element must be passed as container`);
     }
-    this._console = cons;
     this._container = container;
-
+    this._consGlobalName = consoleGlobalName;
     this._view = new PromptView();
     this._view.onSend = this._handleSend.bind(this);
     this._container.appendChild(this._view.el);
@@ -22,29 +22,28 @@ export default class Prompt {
     this._params = params;
   }
 
-  async _handleSend(code) {
-    const {exprToEval, scriptCode} = this._preprocessCode(code);
-    console.log(exprToEval, scriptCode);
-    const ress = await this._view.createScriptFromCodeAndAppend(scriptCode);
-    console.log(ress);
-    const res = globalNotStrictEval(exprToEval);
-    this._console.log(res);
-  }
-
-  _preprocessCode(code) {
-    let lastExpressionStatement = void 0;
-    walk.simple(acorn.parse(code), {
-      VariableDeclaration(node) {
-        // console.log(node)
-      },
-      ExpressionStatement(node) {
-        lastExpressionStatement = node;
+  _handleSend(code) {
+    const ast = acorn.parse(code);
+    const body = ast.body;
+    let l = body.length;
+    let lastExpressionStatementNode;
+    while (l--) {
+      const node = body[l];
+      if (node.type === `ExpressionStatement`) {
+        lastExpressionStatementNode = node;
+        break;
       }
-    });
-    let exprToEval = void 0;
-    if (lastExpressionStatement) {
-      exprToEval = code.substring(lastExpressionStatement.start, lastExpressionStatement.end);
     }
-    return {exprToEval, scriptCode: code};
+    let editedCode;
+    if (lastExpressionStatementNode) {
+      const leftStrPart = code.substring(0, lastExpressionStatementNode.start);
+      const rightStrPart = code.substring(lastExpressionStatementNode.end, code.length);
+      const exprStrPart = code.substring(lastExpressionStatementNode.start, lastExpressionStatementNode.end);
+
+      editedCode = `${leftStrPart};${this._consGlobalName}.log(${exprStrPart});${rightStrPart}`;
+    } else {
+      editedCode = `${code};${this._consGlobalName}.log(void 0);`;
+    }
+    this._view.createScriptFromCodeAndAppend(editedCode);
   }
 }

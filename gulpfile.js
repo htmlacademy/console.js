@@ -14,6 +14,7 @@ const imagemin = require(`gulp-imagemin`);
 const babel = require(`rollup-plugin-babel`);
 const nodeResolve = require(`rollup-plugin-node-resolve`);
 const commonjs = require(`rollup-plugin-commonjs`);
+const json = require(`rollup-plugin-json`);
 const rollup = require(`gulp-better-rollup`);
 const uglify = require(`gulp-uglify`);
 const sourcemaps = require(`gulp-sourcemaps`);
@@ -53,16 +54,20 @@ gulp.task(`build-scripts`, () => {
       .pipe(sourcemaps.init())
       .pipe(rollup({
         plugins: [
-          nodeResolve(),
-          commonjs(),
+          nodeResolve({
+            jsnext: true,
+            browser: true
+          }),
+          commonjs({
+            include: `node_modules/**`
+          }),
+          json(),
           babel({
             babelrc: false,
             exclude: [`node_modules/**`, `js/tests/**`],
             presets: [
               [`@babel/preset-env`, {modules: false}]
-            ],
-            // externalHelpers: true,
-            // plugins: [`@babel/plugin-external-helpers`]
+            ]
           })
         ]
       }, `iife`))
@@ -78,15 +83,20 @@ gulp.task(`build-prompt`, () => {
       .pipe(sourcemaps.init())
       .pipe(rollup({
         plugins: [
-          nodeResolve(),
-          commonjs(),
+          nodeResolve({
+            jsnext: true,
+            browser: true
+          }),
+          commonjs({
+            include: `node_modules/**`
+          }),
+          json(),
           babel({
             babelrc: false,
             exclude: [`node_modules/**`, `js/tests/**`],
             presets: [
               [`@babel/preset-env`, {modules: false}]
             ],
-            runtimeHelpers: true,
             plugins: [[`prismjs`, {
               "languages": [`javascript`, `css`, `markup`],
               "plugins": [`line-numbers`]
@@ -111,8 +121,7 @@ gulp.task(`build-js-presets`, () => {
             babelrc: false,
             presets: [
               [`@babel/preset-env`, {modules: false}]
-            ],
-            // plugins: [`@babel/plugin-external-helpers`]
+            ]
           })
         ]
       }, `iife`))

@@ -56,7 +56,7 @@
           fnLength: functions.length
         };
       };
-      const jsConsole = new Console(consoleContainerEl, {
+      window.jsConsole = new Console(consoleContainerEl, {
         array: {
           countEntriesWithoutKeys: true
         },
@@ -68,7 +68,7 @@
           maxFieldsToExpand: 15
         }
       });
-      const prompt = new Prompt(document.querySelector(`.prompt-container`), jsConsole);
+      const prompt = new Prompt(document.querySelector(`.prompt-container`), `jsConsole`);
       const obj = {};
       const arr = [obj];
       const fn = (bar = 123) => {

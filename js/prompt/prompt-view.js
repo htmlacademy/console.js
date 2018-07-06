@@ -62,7 +62,7 @@ export default class PromptView extends AbstractView {
 
   onSend() {}
 
-  async createScriptFromCodeAndAppend(code) {
+  createScriptFromCodeAndAppend(code, cb = () => {}) {
     const script = document.createElement(`script`);
     const blob = new Blob([code], {
       type: `application/javascript`,
@@ -70,6 +70,7 @@ export default class PromptView extends AbstractView {
     script.src = URL.createObjectURL(blob);
     script.onload = () => {
       this._scriptsEl.removeChild(script);
+      cb();
     };
     this._scriptsEl.appendChild(script);
   }
