@@ -1,13 +1,9 @@
 /* eslint no-eval: "off" */
 import acorn from 'acorn/dist/acorn';
-// import walk from 'acorn/dist/walk';
-// import estraverse from 'estraverse/estraverse';
-// import babelParser from '@babel/traverse';
 import PromptView from './prompt-view';
 
-const globalNotStrictEval = eval; // Bypass strict mode with Indirect eval call!
 export default class Prompt {
-  constructor(container, consoleGlobalName, params = {}) {
+  constructor(container, consoleGlobalName = `console`, params = {}) {
     if (!container) {
       throw new Error(`Prompt is not inited!`);
     } else if (!(container instanceof HTMLElement)) {
