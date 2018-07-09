@@ -109,6 +109,12 @@ export default class Console {
   }
 
   /**
+   * Subscribe on any event fired
+   * @abstract
+   */
+  onAny() {}
+
+  /**
    * Subscribe on log event fired
    * @abstract
    **/
@@ -137,13 +143,16 @@ export default class Console {
    * Push rest of arguments into container
    */
   log(...rest) {
-    this._el.appendChild(this._getRowEl(rest, Mode.LOG));
+    const rowEl = this._getRowEl(rest, Mode.LOG);
+    this._el.appendChild(rowEl);
     this.onlog();
+    this.onAny(rowEl.offsetHeight);
   }
 
   logHTML(...rest) {
     this._el.appendChild(this._getRowEl(rest, Mode.LOG_HTML));
     this.onlogHTML();
+    this.onAny();
   }
 
   /**
@@ -156,6 +165,7 @@ export default class Console {
     el.appendChild(this.createTypedView(val, Mode.ERROR).el);
     this._el.appendChild(el);
     this.onerror();
+    this.onAny();
   }
 
   /**
@@ -168,12 +178,14 @@ export default class Console {
     el.appendChild(this.createTypedView(val, Mode.DIR).el);
     this._el.appendChild(el);
     this.ondir();
+    this.onAny();
   }
 
   prompt(markup) {
     const el = getElement(`<div class="console__row"></div>`);
     el.innerHTML = markup;
     this._el.appendChild(el);
+    this.onAny(el.offsetHeight);
   }
 
   /**

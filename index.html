@@ -68,7 +68,16 @@
           maxFieldsToExpand: 15
         }
       });
-      const prompt = new Prompt(document.querySelector(`.prompt-container`), `jsConsole`);
+      const promptContainer = document.querySelector(`.prompt-container`);
+      const prompt = new Prompt(promptContainer, `jsConsole`);
+      window.jsConsole.onAny = (appendedElHeight) => {
+        const promptOffsetBottom = promptContainer.offsetTop + prompt.viewHeight;
+        if (promptOffsetBottom < document.body.clientHeight) {
+          window.scroll(0, document.body.scrollTop + appendedElHeight);
+        } else {
+          window.scroll(0, promptOffsetBottom);
+        }
+      };
       const obj = {};
       const arr = [obj];
       const fn = (bar = 123) => {

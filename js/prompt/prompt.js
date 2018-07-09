@@ -19,6 +19,10 @@ export default class Prompt {
     this._params = params;
   }
 
+  get viewHeight() {
+    return this._view.height;
+  }
+
   _handleSend(code, highlightedMarkup) {
     const ast = acorn.parse(code);
     const body = ast.body;

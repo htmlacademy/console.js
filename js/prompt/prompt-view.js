@@ -35,9 +35,14 @@ export default class PromptView extends AbstractView {
 
     this._sendBtnEl.addEventListener(`click`, this._handleSendClick.bind(this));
     this._inputEl.addEventListener(`keydown`, this._handleKeyDown.bind(this));
+    this._sendBtnEl.addEventListener(`mousedown`, this._handleMouseDown.bind(this));
     this.editor = new Misbehave(this._inputEl, {
       oninput: this._handleMisbehaveInput.bind(this)
     });
+  }
+
+  get height() {
+    return this._el.offsetHeight;
   }
 
   _handleMisbehaveInput(text) {
@@ -53,8 +58,13 @@ export default class PromptView extends AbstractView {
       this._send();
     }
   }
+
   _handleSendClick() {
     this._send();
+  }
+
+  _handleMouseDown(evt) {
+    evt.preventDefault();
   }
 
   _send() {
