@@ -231,7 +231,7 @@ export default class ObjectView extends TypeView {
 
   get headContentClassName() {
     if (this._console.checkInstanceOf(this._value, `RegExp`) && this._mode !== Mode.DIR) {
-      return `regexp`;
+      return `c-regexp`;
     }
     return null;
   }

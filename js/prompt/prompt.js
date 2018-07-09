@@ -11,14 +11,15 @@ export default class Prompt {
     }
     this._container = container;
     this._consGlobalName = consoleGlobalName;
-    this._view = new PromptView();
+    this._isMobile = /iPhone|iPad|iPod|Android/i.test(window.navigator.userAgent);
+    this._view = new PromptView(this._isMobile);
     this._view.onSend = this._handleSend.bind(this);
     this._container.appendChild(this._view.el);
 
     this._params = params;
   }
 
-  _handleSend(code) {
+  _handleSend(code, highlightedMarkup) {
     const ast = acorn.parse(code);
     const body = ast.body;
     let l = body.length;
@@ -40,6 +41,7 @@ export default class Prompt {
     } else {
       editedCode = `${code};${this._consGlobalName}.log(void 0);`;
     }
+    window[this._consGlobalName].prompt(highlightedMarkup);
     this._view.createScriptFromCodeAndAppend(editedCode);
   }
 }

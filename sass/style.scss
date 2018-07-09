@@ -125,15 +125,6 @@ __elem — element
   }
 }
 
-.c-undefined {
-  font-weight: bold;
-  font-style: italic;
-}
-
-.c-NaN {
-  font-weight: bold;
-}
-
 .c-string {
   margin: 0;
   color: green;
@@ -148,21 +139,14 @@ __elem — element
   }
 }
 
-.c-number {
-  color: darkorange;
-}
-
+.c-number,
 .c-boolean {
-  color: blue;
-}
-
-.c-null {
-  color: magenta;
+  color: darkorange;
 }
 
 .c-symbol,
 .c-regexp {
-  color: rgb(194, 30, 32);
+  color: #ee9900;
 }
 
 .length {
@@ -185,6 +169,8 @@ __elem — element
   font-style: italic;
 }
 
+.c-undefined,
+.c-null,
 .grey {
   color: #6e6e6e;
 }

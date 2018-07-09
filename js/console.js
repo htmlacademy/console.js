@@ -170,6 +170,12 @@ export default class Console {
     this.ondir();
   }
 
+  prompt(markup) {
+    const el = getElement(`<div class="console__row"></div>`);
+    el.innerHTML = markup;
+    this._el.appendChild(el);
+  }
+
   /**
    * Clean container
    */

@@ -29,13 +29,7 @@ export default class PrimitiveView extends TypeView {
         break;
 
       case `number`:
-        if (Number.isNaN(value)) {
-          html = `<div class="console__item item item--primitive c-NaN">NaN</div>`;
-        } else if ((value === Infinity || value === -Infinity)) {
-          html = `<div class="console__item item item--primitive c-number">${(value === -Infinity ? `-` : ``)}Infinity</div>`;
-        } else {
-          html = `<div class="console__item item item--primitive c-${type}">${value}</div>`;
-        }
+        html = `<div class="console__item item item--primitive c-${type}">${value}</div>`;
         break;
 
       case `string`:

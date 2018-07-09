@@ -2,11 +2,12 @@ import Misbehave from 'misbehave';
 import Prism from 'prismjs';
 import AbstractView from '../abstract-view';
 
-const emptyRE = /^\n$/;
+const emtyRE = /^\n{0,2}$/;
 
 export default class PromptView extends AbstractView {
-  constructor() {
+  constructor(isMobile) {
     super();
+    this._isMobile = isMobile;
   }
 
   get template() {
@@ -27,6 +28,7 @@ export default class PromptView extends AbstractView {
 
   _bind() {
     this._text = ``;
+    this._allowSend = false;
     this._scriptsEl = this.el.querySelector(`.prompt__scripts`);
     this._inputEl = this.el.querySelector(`.prompt__input`);
     this._sendBtnEl = this.el.querySelector(`.prompt__send-btn`);
@@ -39,7 +41,7 @@ export default class PromptView extends AbstractView {
   }
 
   _handleMisbehaveInput(text) {
-    if (emptyRE.test(this._inputEl.innerText)) {
+    if (emtyRE.test(text)) {
       this._inputEl.innerText = ``;
     } else {
       this._inputEl.innerHTML = Prism.highlight(text, Prism.languages.javascript);
@@ -47,18 +49,19 @@ export default class PromptView extends AbstractView {
   }
 
   _handleKeyDown(evt) {
-    if (!evt.shiftKey && evt.key === `Enter`) {
+    if (!this._isMobile && !evt.shiftKey && evt.key === `Enter`) {
       this._send();
     }
   }
-
   _handleSendClick() {
     this._send();
   }
 
   _send() {
-    this.onSend(this._inputEl.innerText);
-    this._inputEl.innerText = ``;
+    if (this._inputEl.innerText) {
+      this.onSend(this._inputEl.innerText, this._inputEl.innerHTML);
+      this._inputEl.innerText = ``;
+    }
   }
 
   onSend() {}

@@ -24,7 +24,7 @@ const debug = require(`gulp-debug`);
 const KarmaServer = require(`karma`).Server;
 
 gulp.task(`style`, () => {
-  return gulp.src([`sass/**/*.{css,scss,sass}`, `node_modules/prismjs/themes/**/*.{css,scss,sass}`])
+  return gulp.src([`node_modules/prismjs/themes/prism.css`, `sass/**/*.{css,scss,sass}`])
       .pipe(plumber())
       .pipe(sass())
       .pipe(concat(`style.css`))
@@ -98,8 +98,7 @@ gulp.task(`build-prompt`, () => {
               [`@babel/preset-env`, {modules: false}]
             ],
             plugins: [[`prismjs`, {
-              "languages": [`javascript`, `css`, `markup`],
-              "plugins": [`line-numbers`]
+              "languages": [`javascript`]
             }]]
           })
         ]
