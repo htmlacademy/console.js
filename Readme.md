@@ -2,10 +2,11 @@
 Chrome-like in-browser console
 Available methods:
  * `log`
- * `info` — equivalent to `log`
+ * `info` — same as `log`
  * `dir`
  * `error`
- * `warn` — equivalent to `error`
+ * `warn` — same as `error`
+ * `logHTML` — same as `log`, but strings won't be escaped
 
 ## Usage
 
