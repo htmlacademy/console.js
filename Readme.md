@@ -104,7 +104,8 @@ For example to autoexpand logged object specify:
 ```
 
 * `expandDepth` — depth on which fields of this object will be expanded. If not specified — 0 by default.
-* `minFieldsToExpand` — min length of enumerable fields in that object to autoexpand. If not specified — 0 by default.
+* `minFieldsToExpand` — min length of enumerable fields in that object to autoexpand. 0 by default.
+* `maxFieldsToExpand` — max length respectively. Positive infinity by default
 * `exclude` — array of view types that don't need to be expanded inside that root view type.
 
 You can also trim preview elements inside head (only available in object yet):
