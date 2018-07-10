@@ -79,8 +79,12 @@ You can specify 3 types of views here: `object`, `function` and `array`.
 And `common`, that has lower priority than concrete. Will be [merged](#presets-merge) into concrete one
 with [lodash.mergeWith](https://lodash.com/docs/4.17.10#mergeWith) using concatinating arrays
 
-For example to autoexpand logged object specify:
+* `expandDepth` — depth on which fields of this object will be expanded. If not specified — 0 by default.
+* `minFieldsToExpand` — min length of enumerable fields in that object to autoexpand. 0 by default.
+* `maxFieldsToExpand` — max length respectively. Positive infinity by default
+* `exclude` — array of view types that don't need to be expanded inside that root view type.
 
+Example:
 ```js
 {
   object: {
@@ -102,11 +106,6 @@ For example to autoexpand logged object specify:
   }
 }
 ```
-
-* `expandDepth` — depth on which fields of this object will be expanded. If not specified — 0 by default.
-* `minFieldsToExpand` — min length of enumerable fields in that object to autoexpand. 0 by default.
-* `maxFieldsToExpand` — max length respectively. Positive infinity by default
-* `exclude` — array of view types that don't need to be expanded inside that root view type.
 
 You can also trim preview elements inside head (only available in object yet):
 ```js
