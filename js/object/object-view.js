@@ -188,7 +188,7 @@ export default class ObjectView extends TypeView {
   }
 
   toggleError(isEnable) {
-    return TypeView.toggleMiddleware(this.el, `error`, isEnable);
+    return this.el.classList.toggle(`error`, isEnable);
   }
 
   get headContent() {

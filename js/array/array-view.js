@@ -77,7 +77,7 @@ export default class ArrayView extends TypeView {
   }
 
   toggleContentLengthShowed(isEnable) {
-    return !TypeView.toggleMiddleware(this._lengthEl, `hidden`, !isEnable);
+    return !this._lengthEl.classList.toggle(`hidden`, !isEnable);
   }
 
   get info() {
