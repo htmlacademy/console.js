@@ -28,7 +28,7 @@ export default class FunctionView extends TypeView {
     return `\
 <div class="console__item item item--${this.viewType} ${this._mode === Mode.ERROR ? `error` : ``}">\
   <div class="head item__head italic">\
-    <pre class="head__content ${nowrapOnLog ? `nowrap` : `` }"><span class="info info--function ${isShowInfo ? `` : `hidden`}">${this._getInfo()}</span>${isShowInfo && body ? ` ` : ``}${this._getBody()}</pre>\
+    <pre class="head__content pointer ${nowrapOnLog ? `nowrap` : `` }"><span class="info info--function ${isShowInfo ? `` : `hidden`}">${this._getInfo()}</span>${isShowInfo && body ? ` ` : ``}${this._getBody()}</pre>\
   </div>\
   <div class="item__content entry-container entry-container--${this.viewType} hidden"></div>\
 </div>`;

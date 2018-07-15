@@ -3,7 +3,7 @@ import acorn from 'acorn/dist/acorn';
 import PromptView from './prompt-view';
 
 export default class Prompt {
-  constructor(container, consoleGlobalName = `console`, params = {}) {
+  constructor(container, consoleGlobalName, params = {}) {
     if (!container) {
       throw new Error(`Prompt is not inited!`);
     } else if (!(container instanceof HTMLElement)) {

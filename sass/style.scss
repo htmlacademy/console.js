@@ -66,8 +66,8 @@ __elem — element
       vertical-align: baseline;
     }
 
-    &--pointer {
-      cursor: pointer;
+    &--arrow-pointer {
+      @extend .pointer;
 
       &::before {
         content: "";
@@ -87,11 +87,6 @@ __elem — element
     margin-left: 12px;
   }
 
-  // &--show-content {
-  //   & > #{$parent}__content {
-  //     display: flex;
-  //   }
-  // }
 
   &--primitive {}
 }
@@ -116,12 +111,6 @@ __elem — element
   &__info {
     display: inline-block;
     vertical-align: top;
-    // display: none;
-    //
-    // &--show {
-    //   display: inline-block;
-    //   vertical-align: top;
-    // }
   }
 }
 
@@ -189,6 +178,10 @@ __elem — element
 
 .hidden {
   display: none;
+}
+
+.pointer {
+  cursor: pointer;
 }
 
 .editor-container {

@@ -27,7 +27,7 @@ window.console.error = collectMessages.bind({mode: Mode.ERROR});
 
 const init = function () {
   const div = window.document.createElement(`div`);
-  div.classList.add(`console`);
+  div.classList.add(`console-container`);
   let config;
   if (Array.isArray(window.jsConsolePresets)) {
     config = mergeWith({}, ...window.jsConsolePresets.slice().reverse(), customizer);

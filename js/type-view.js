@@ -163,7 +163,7 @@ export default class TypeView extends AbstractView {
         if (self._isOpeningDisabled === bool) {
           return;
         }
-        self.togglePointer(!bool);
+        self.toggleArrowPointer(!bool);
         self._addOrRemoveHeadClickHandler(!bool);
         self._isOpeningDisabled = bool;
       },
@@ -233,8 +233,8 @@ export default class TypeView extends AbstractView {
     return this._headEl.classList.toggle(`italic`, isEnable);
   }
 
-  togglePointer(isEnable) {
-    return this._headEl.classList.toggle(`item__head--pointer`, isEnable);
+  toggleArrowPointer(isEnable) {
+    return this._headEl.classList.toggle(`item__head--arrow-pointer`, isEnable);
   }
 
   toggleArrowBottom(isEnable) {
