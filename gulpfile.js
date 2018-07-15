@@ -94,7 +94,7 @@ gulp.task(`build-scripts`, () => {
           })
         ]
       }, `iife`))
-      // .pipe(uglify())
+      .pipe(uglify())
       .pipe(sourcemaps.write(``))
       .pipe(gulp.dest(`build/js`));
 });
@@ -126,7 +126,7 @@ gulp.task(`build-prompt`, () => {
           })
         ]
       }, `iife`))
-      // .pipe(uglify())
+      .pipe(uglify())
       .pipe(sourcemaps.write(``))
       .pipe(gulp.dest(`build/js`));
 });

@@ -1,6 +1,6 @@
 {
   "name": "console.js",
-  "version": "0.2.5",
+  "version": "0.3.0",
   "description": "Inbrowser Demo Console",
   "author": "nikolayemrikh",
   "scripts": {
