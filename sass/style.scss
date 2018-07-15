@@ -1,27 +1,19 @@
 /*
 using BEM
 block — block
-block__elem — block's element
-block--mod — block's modifier
-block__elem--mod — element's modifier
+__elem — element
+--mod — modifier
+--mod_val — modifier value
 */
 
 .console {
-  display: inline-block;
-  box-sizing: border-box;
-  vertical-align: top;
-  width: 100%;
-  height: 100%;
-
   font-size: 0.8em;
   font-family: monospace, monospace;
   cursor: default;
 
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-tap-highlight-color: transparent;
-}
 
-.console {
   & pre, & code {
     margin: 0;
   }
@@ -36,7 +28,7 @@ block__elem--mod — element's modifier
   }
 
   &__row {
-    margin: 5px;
+    margin: 8px;
     padding: 5px;
     overflow: auto;
     background: #f8faf3;
@@ -74,8 +66,8 @@ block__elem--mod — element's modifier
       vertical-align: baseline;
     }
 
-    &--pointer {
-      cursor: pointer;
+    &--arrow-pointer {
+      @extend .pointer;
 
       &::before {
         content: "";
@@ -95,11 +87,6 @@ block__elem--mod — element's modifier
     margin-left: 12px;
   }
 
-  // &--show-content {
-  //   & > #{$parent}__content {
-  //     display: flex;
-  //   }
-  // }
 
   &--primitive {}
 }
@@ -124,13 +111,31 @@ block__elem--mod — element's modifier
   &__info {
     display: inline-block;
     vertical-align: top;
-    // display: none;
-    //
-    // &--show {
-    //   display: inline-block;
-    //   vertical-align: top;
-    // }
   }
+}
+
+.c-string {
+  margin: 0;
+  color: green;
+  white-space: pre-wrap;
+
+  &::before {
+    content: '"';
+  }
+
+  &::after {
+    content: '"';
+  }
+}
+
+.c-number,
+.c-boolean {
+  color: darkorange;
+}
+
+.c-symbol,
+.c-regexp {
+  color: #ee9900;
 }
 
 .length {
@@ -153,64 +158,30 @@ block__elem--mod — element's modifier
   font-style: italic;
 }
 
-.undefined {
-  font-weight: bold;
-  font-style: italic;
-}
-
+.c-undefined,
+.c-null,
 .grey {
   color: #6e6e6e;
-}
-
-.NaN {
-  font-weight: bold;
-}
-
-.string {
-  margin: 0;
-  color: green;
-  white-space: pre-wrap;
-
-  &::before {
-    content: '"';
-  }
-
-  &::after {
-    content: '"';
-  }
-}
-
-.nowrap {
-  white-space: nowrap;
-}
-
-.number {
-  color: darkorange;
-}
-
-.boolean {
-  color: blue;
-}
-
-.null {
-  color: magenta;
 }
 
 .key {
   color: #5bc0de;
 }
 
+.nowrap {
+  white-space: nowrap;
+}
+
 .error {
   color: red;
 }
 
-.symbol,
-.regexp {
-  color: rgb(194, 30, 32);
-}
-
 .hidden {
   display: none;
+}
+
+.pointer {
+  cursor: pointer;
 }
 
 .editor-container {
@@ -223,6 +194,3 @@ block__elem--mod — element's modifier
 
   border: 5px solid #ffd20d;
 }
-
-
-@import "entry-container";

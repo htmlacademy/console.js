@@ -1,7 +1,7 @@
 /* eslint no-undefined: 0 */
 
 // import FunctionView from '../function/function-view';
-import Console from '../main';
+import Console from '../console';
 import {Mode} from '../enums';
 
 // declare consts here
@@ -114,7 +114,7 @@ describe(`Check primitives: `, () => {
     const el = cons.createTypedView(str1, defaultMode).el;
     assert(
         el.classList.contains(`item--primitive`) &&
-        el.classList.contains(`string`) &&
+        el.classList.contains(`c-string`) &&
         el.textContent === str1
     );
   });
@@ -122,7 +122,7 @@ describe(`Check primitives: `, () => {
     const el = cons.createTypedView(str1, Mode.PROP).el;
     assert(
         el.classList.contains(`item--primitive`) &&
-        el.classList.contains(`string`) &&
+        el.classList.contains(`c-string`) &&
         el.classList.contains(`nowrap`) &&
         el.textContent === str1
     );
@@ -131,7 +131,7 @@ describe(`Check primitives: `, () => {
     const el = cons.createTypedView(str1, Mode.PREVIEW).el;
     assert(
         el.classList.contains(`item--primitive`) &&
-        el.classList.contains(`string`) &&
+        el.classList.contains(`c-string`) &&
         el.classList.contains(`nowrap`) &&
         el.textContent === str1
     );
@@ -140,7 +140,7 @@ describe(`Check primitives: `, () => {
     const el = cons.createTypedView(str2, defaultMode).el;
     assert(
         el.classList.contains(`item--primitive`) &&
-        el.classList.contains(`string`) &&
+        el.classList.contains(`c-string`) &&
         str2.includes(el.textContent)
     );
   });
@@ -148,7 +148,7 @@ describe(`Check primitives: `, () => {
     const el = cons.createTypedView(primitiveNumber, defaultMode).el;
     assert(
         el.classList.contains(`item--primitive`) &&
-        el.classList.contains(`number`) &&
+        el.classList.contains(`c-number`) &&
         el.textContent === primitiveNumber.toString()
     );
   });
@@ -156,7 +156,7 @@ describe(`Check primitives: `, () => {
     const el = cons.createTypedView(sym, defaultMode).el;
     assert(
         el.classList.contains(`item--primitive`) &&
-        el.classList.contains(`symbol`) &&
+        el.classList.contains(`c-symbol`) &&
         el.textContent === sym.toString()
     );
   });
@@ -164,7 +164,7 @@ describe(`Check primitives: `, () => {
     const el = cons.createTypedView(NaN, defaultMode).el;
     assert(
         el.classList.contains(`item--primitive`) &&
-        el.classList.contains(`NaN`) &&
+        el.classList.contains(`c-number`) &&
         el.textContent === `NaN`
     );
   });
@@ -172,7 +172,7 @@ describe(`Check primitives: `, () => {
     const el = cons.createTypedView(null, defaultMode).el;
     assert(
         el.classList.contains(`item--primitive`) &&
-        el.classList.contains(`null`) &&
+        el.classList.contains(`c-null`) &&
         el.textContent === `null`
     );
   });
@@ -180,7 +180,7 @@ describe(`Check primitives: `, () => {
     const el = cons.createTypedView(true, defaultMode).el;
     assert(
         el.classList.contains(`item--primitive`) &&
-        el.classList.contains(`boolean`) &&
+        el.classList.contains(`c-boolean`) &&
         el.textContent === `true`
     );
   });
@@ -188,7 +188,7 @@ describe(`Check primitives: `, () => {
     const el = cons.createTypedView(undefined, defaultMode).el;
     assert(
         el.classList.contains(`item--primitive`) &&
-        el.classList.contains(`undefined`) &&
+        el.classList.contains(`c-undefined`) &&
         el.textContent === `undefined`
     );
   });

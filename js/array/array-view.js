@@ -77,14 +77,14 @@ export default class ArrayView extends TypeView {
   }
 
   toggleContentLengthShowed(isEnable) {
-    return !TypeView.toggleMiddleware(this._lengthEl, `hidden`, !isEnable);
+    return !this._lengthEl.classList.toggle(`hidden`, !isEnable);
   }
 
   get info() {
     if (this._value[Symbol.toStringTag]) {
       return this._value[Symbol.toStringTag];
     } else if (this.stringTagName !== `Object` &&
-    (this.stringTagName !== `Array` || this._value === Array.prototype)) {
+    (this.stringTagName !== `Array` || this._value === this._console.params.global.Array.prototype)) {
       return this.stringTagName;
     } else {
       return this.protoConstructorName;
@@ -145,7 +145,7 @@ export default class ArrayView extends TypeView {
         emptyCount = 0;
       }
       if (hasKey) {
-        if (this._propKey === `[[Entries]]` && this._parentView.value instanceof Map) {
+        if (this._propKey === `[[Entries]]` && this._console.checkInstanceOf(this._parentView.value, `Map`)) {
           const pair = arr[i];
           const el = new MapEntryView({val: pair, mode, depth: this.nextNestingLevel, parentView: this, propKey: this._propKey}, this._console).el;
           this.isAutoExpandNeeded = true;

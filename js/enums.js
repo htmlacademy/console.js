@@ -49,12 +49,3 @@ export const Class = {
 export const Env = {
   TEST: `test`
 };
-
-/**
- * Console direction
- * @enum {string}
- */
-export const Direction = {
-  UPWARD: `upward`,
-  DOWNWARD: `downward`
-};

@@ -32,18 +32,18 @@ export default class MapSetView extends ObjectView {
         }
         const entry = entriesArr[i];
         let entryEl;
-        if (this._value instanceof Map) {
+        if (this._console.checkInstanceOf(this._value, `Map`)) {
           const el = new MapEntryView({val: entry, mode, depth: this.nextNestingLevel, parentView: this, propKey: this._propKey}, this._console).el;
           entryEl = this._createEntryEl({key: i, el, withoutKey: true});
         }
-        if (this.value instanceof Set) {
+        if (this._console.checkInstanceOf(this.value, `Set`)) {
           entryEl = this._createTypedEntryEl({obj: entriesArr, key: i, mode, withoutKey: true, notCheckDescriptors: true});
         }
         TypeView.appendEntryElIntoFragment(entryEl, fragment);
       }
     } else {
       const entriesList = entriesArr;
-      Object.setPrototypeOf(entriesList, null);
+      // Object.setPrototypeOf(entriesList, null); // TODO удалить поле прото из этого объекта, но сделать так, чтобы показывало Array
       const entriesArrEl = this._console.createTypedView(entriesList, Mode.PROP, this.nextNestingLevel, this, `[[Entries]]`).el;
       TypeView.appendEntryElIntoFragment(
           this._createEntryEl({key: `[[Entries]]`, el: entriesArrEl, withoutKey: false}),

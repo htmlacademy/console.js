@@ -14,6 +14,7 @@ const imagemin = require(`gulp-imagemin`);
 const babel = require(`rollup-plugin-babel`);
 const nodeResolve = require(`rollup-plugin-node-resolve`);
 const commonjs = require(`rollup-plugin-commonjs`);
+const json = require(`rollup-plugin-json`);
 const rollup = require(`gulp-better-rollup`);
 const uglify = require(`gulp-uglify`);
 const sourcemaps = require(`gulp-sourcemaps`);
@@ -23,7 +24,7 @@ const debug = require(`gulp-debug`);
 const KarmaServer = require(`karma`).Server;
 
 gulp.task(`style`, () => {
-  return gulp.src(`sass/**/*.{css,scss,sass}`)
+  return gulp.src([`sass/**/*.{css,scss,sass}`])
       .pipe(plumber())
       .pipe(sass())
       .pipe(concat(`style.css`))
@@ -46,6 +47,29 @@ gulp.task(`style`, () => {
       .pipe(gulp.dest(`build/css`));
 });
 
+gulp.task(`style-prism`, () => {
+  return gulp.src([`node_modules/prismjs/themes/prism.css`])
+      .pipe(plumber())
+      .pipe(concat(`prism.css`))
+      .pipe(postcss([
+        autoprefixer({
+          browsers: [
+            `last 1 version`,
+            `last 2 Chrome versions`,
+            `last 2 Firefox versions`,
+            `last 2 Opera versions`,
+            `last 2 Edge versions`
+          ]
+        }),
+        mqpacker({sort: true})
+      ]))
+      .pipe(gulp.dest(`build/css`))
+      .pipe(server.stream())
+      .pipe(minify())
+      .pipe(rename(`prism.min.css`))
+      .pipe(gulp.dest(`build/css`));
+});
+
 gulp.task(`build-scripts`, () => {
   return gulp.src([`js/index.js`, `js/index-silent.js`])
       .pipe(debug({title: `debug`}))
@@ -53,15 +77,52 @@ gulp.task(`build-scripts`, () => {
       .pipe(sourcemaps.init())
       .pipe(rollup({
         plugins: [
-          nodeResolve(),
-          commonjs(),
+          nodeResolve({
+            jsnext: true,
+            browser: true
+          }),
+          commonjs({
+            include: `node_modules/**`
+          }),
+          json(),
           babel({
             babelrc: false,
             exclude: [`node_modules/**`, `js/tests/**`],
             presets: [
-              [`env`, {modules: false}]
+              [`@babel/preset-env`, {modules: false}]
+            ]
+          })
+        ]
+      }, `iife`))
+      // .pipe(uglify())
+      .pipe(sourcemaps.write(``))
+      .pipe(gulp.dest(`build/js`));
+});
+
+gulp.task(`build-prompt`, () => {
+  return gulp.src([`js/index-prompt.js`])
+      .pipe(debug({title: `debug`}))
+      .pipe(plumber())
+      .pipe(sourcemaps.init())
+      .pipe(rollup({
+        plugins: [
+          nodeResolve({
+            jsnext: true,
+            browser: true
+          }),
+          commonjs({
+            include: `node_modules/**`
+          }),
+          json(),
+          babel({
+            babelrc: false,
+            exclude: [`node_modules/**`, `js/tests/**`],
+            presets: [
+              [`@babel/preset-env`, {modules: false}]
             ],
-            plugins: [`external-helpers`]
+            plugins: [[`prismjs`, {
+              "languages": [`javascript`]
+            }]]
           })
         ]
       }, `iife`))
@@ -81,9 +142,8 @@ gulp.task(`build-js-presets`, () => {
           babel({
             babelrc: false,
             presets: [
-              [`env`, {modules: false}]
-            ],
-            plugins: [`external-helpers`]
+              [`@babel/preset-env`, {modules: false}]
+            ]
           })
         ]
       }, `iife`))
@@ -134,7 +194,7 @@ gulp.task(`copy-html`, () => {
       .pipe(server.stream());
 });
 
-gulp.task(`copy`, gulp.series(`copy-html`, `build-scripts`, `build-js-presets`, `build-tests`, `style`, () => {
+gulp.task(`copy`, gulp.series(`copy-html`, `build-scripts`, `build-prompt`, `build-js-presets`, `build-tests`, `style`, `style-prism`, () => {
   return gulp.src([
     `fonts/**/*.{woff,woff2}`,
     `img/**.*`
@@ -159,12 +219,12 @@ gulp.task(`clean`, () => {
   return del(`build`);
 });
 
-gulp.task(`js-watch`, gulp.series(`build-scripts`, `build-js-presets`, `build-tests`, (done) => {
+gulp.task(`js-watch`, gulp.series(`build-scripts`, `build-prompt`, `build-js-presets`, `build-tests`, (done) => {
   server.reload();
   done();
 }));
 
-gulp.task(`assemble`, gulp.series(`clean`, `copy`, `style`));
+gulp.task(`assemble`, gulp.series(`clean`, `copy`, `style`, `style-prism`));
 
 gulp.task(`serve`, gulp.series(`assemble`, () => {
   server.init({
@@ -181,7 +241,7 @@ gulp.task(`serve`, gulp.series(`assemble`, () => {
 }));
 
 gulp.task(`test-watch`, gulp.series(`assemble`, `test:noerror`, () => {
-  gulp.watch(`sass/**/*.{scss,sass}`, gulp.series(`style`));
+  gulp.watch(`sass/**/*.{scss,sass}`, gulp.series(`style`, `style-prism`));
   gulp.watch(`*.html`).on(`change`, (e) => {
     if (e.type !== `deleted`) {
       gulp.series(`copy-html`);

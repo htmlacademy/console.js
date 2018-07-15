@@ -163,7 +163,7 @@ export default class TypeView extends AbstractView {
         if (self._isOpeningDisabled === bool) {
           return;
         }
-        self.togglePointer(!bool);
+        self.toggleArrowPointer(!bool);
         self._addOrRemoveHeadClickHandler(!bool);
         self._isOpeningDisabled = bool;
       },
@@ -210,35 +210,35 @@ export default class TypeView extends AbstractView {
   }
 
   toggleHeadContentBraced(isEnable) {
-    return TypeView.toggleMiddleware(this._headContentEl, `entry-container--braced`, isEnable);
+    return this._headContentEl.classList.toggle(`entry-container--braced`, isEnable);
   }
 
   toggleHeadContentOversized(isEnable) {
-    return TypeView.toggleMiddleware(this._headContentEl, `entry-container--oversize`, isEnable);
+    return this._headContentEl.classList.toggle(`entry-container--oversize`, isEnable);
   }
 
   toggleInfoShowed(isEnable) {
-    return !TypeView.toggleMiddleware(this._infoEl, `hidden`, !isEnable);
+    return !this._infoEl.classList.toggle(`hidden`, !isEnable);
   }
 
   toggleHeadContentShowed(isEnable) {
-    return !TypeView.toggleMiddleware(this._headContentEl, `hidden`, !isEnable);
+    return !this._headContentEl.classList.toggle(`hidden`, !isEnable);
   }
 
   toggleContentShowed(isEnable) {
-    return !TypeView.toggleMiddleware(this._contentEl, `hidden`, !isEnable);
+    return !this._contentEl.classList.toggle(`hidden`, !isEnable);
   }
 
   toggleItalic(isEnable) {
-    return TypeView.toggleMiddleware(this._headEl, `italic`, isEnable);
+    return this._headEl.classList.toggle(`italic`, isEnable);
   }
 
-  togglePointer(isEnable) {
-    return TypeView.toggleMiddleware(this._headEl, `item__head--pointer`, isEnable);
+  toggleArrowPointer(isEnable) {
+    return this._headEl.classList.toggle(`item__head--arrow-pointer`, isEnable);
   }
 
   toggleArrowBottom(isEnable) {
-    return TypeView.toggleMiddleware(this._headEl, `item__head--arrow-bottom`, isEnable);
+    return this._headEl.classList.toggle(`item__head--arrow-bottom`, isEnable);
   }
 
   get depth() {
@@ -630,28 +630,6 @@ ${withoutKey ? `` : `<span class="entry-container__key ${isGrey ? `grey` : ``}">
   static appendEntryElIntoFragment(entryEl, fragment) {
     if (entryEl !== null) {
       fragment.appendChild(entryEl);
-    }
-  }
-
-  /**
-   * Toggle CSS class on element
-   * If isEnable not present just toggle, otherwise add or remove
-   * @static
-   * @param {HTMLElement} el — element to toggle CSS class
-   * @param {string} className — CSS class
-   * @param {boolean|undefined} isEnable — add/remove if present, otherwise toggle
-   * @return {boolean} — added — true, removed — false
-   */
-  static toggleMiddleware(el, className, isEnable) {
-    if (typeof isEnable === `undefined`) {
-      return el.classList.toggle(className);
-    }
-    if (isEnable) {
-      el.classList.add(className);
-      return true;
-    } else {
-      el.classList.remove(className);
-      return false;
     }
   }
 

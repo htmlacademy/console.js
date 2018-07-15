@@ -1,10 +1,10 @@
 /* eslint no-invalid-this: "off"*/
-import Console from './main';
+import Console from './console';
 import mergeWith from 'lodash.mergewith';
 import {customizer} from './utils';
 import {Mode} from './enums';
 
-const CSS_URL = `//htmlacademy.github.io/console.js/0.2.4/css/style.min.css`;
+const CSS_URL = `css/style.min.css`;
 
 const messages = [];
 
@@ -27,7 +27,7 @@ window.console.error = collectMessages.bind({mode: Mode.ERROR});
 
 const init = function () {
   const div = window.document.createElement(`div`);
-  div.classList.add(`console`);
+  div.classList.add(`console-container`);
   let config;
   if (Array.isArray(window.jsConsolePresets)) {
     config = mergeWith({}, ...window.jsConsolePresets.slice().reverse(), customizer);
@@ -58,6 +58,8 @@ const init = function () {
 };
 
 window.addEventListener(`DOMContentLoaded`, () => {
+  document.body.style.margin = 0;
+  document.body.style.padding = 0;
   const link = window.document.createElement(`link`);
   link.rel = `stylesheet`;
   link.href = CSS_URL;
