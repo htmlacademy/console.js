@@ -96,7 +96,8 @@ abbr[title] {
   /* 1 */
   text-decoration: underline;
   /* 2 */
-  text-decoration: underline dotted;
+  -webkit-text-decoration: underline dotted;
+          text-decoration: underline dotted;
   /* 2 */ }
 
 /**
@@ -418,51 +419,88 @@ template {
   content: ": ";
   white-space: pre; }
 
+.prompt {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-around;
+  padding: 8px;
+  border-top: 1px solid #eeeeee;
+  box-sizing: border-box;
+  font-size: 0.8em;
+  font-family: monospace, monospace; }
+  .prompt__line-arrow {
+    width: 14px;
+    height: 14px;
+    margin-right: 10px;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewbox%3D%220%200%2040%2040%22%20width%3D%2240%22%20height%3D%2240%22%3E%0A%20%20%3Cpolyline%20points%3D%2210%2C%202%2030%2C%2020%2010%2C%2038%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20/%3E%0A%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-size: contain; }
+  .prompt__input {
+    display: block;
+    margin: 0;
+    white-space: pre;
+    min-height: 3em;
+    flex: 1 0 auto;
+    outline: none;
+    cursor: text;
+    -webkit-appearance: none;
+       -moz-appearance: none;
+            appearance: none; }
+    .prompt__input:not(:focus):empty::before {
+      content: "write code here";
+      color: gray; }
+  .prompt__send-btn {
+    margin-left: 10px;
+    -webkit-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+            user-select: none; }
+    .prompt__send-btn:active {
+      opacity: 0.5; }
+  .prompt__send-icon {
+    width: 26px;
+    height: 26px;
+    -webkit-transform: rotate(-90deg);
+            transform: rotate(-90deg); }
+
+.send-icon--grey {
+  fill: #858f99;
+  stroke: white; }
+
 @charset "UTF-8";
 /*
 using BEM
 block — block
-block__elem — block's element
-block--mod — block's modifier
-block__elem--mod — element's modifier
+__elem — element
+--mod — modifier
+--mod_val — modifier value
 */
 .console {
-  display: inline-block;
-  box-sizing: border-box;
-  vertical-align: top;
-  width: 100%;
-  height: 100%;
   font-size: 0.8em;
   font-family: monospace, monospace;
   cursor: default;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-tap-highlight-color: transparent; }
-
-.console pre, .console code {
-  margin: 0; }
-
-.console__header {
-  margin: 0; }
-
-.console__info {
-  font-size: 0.8em;
-  font-family: sans-serif; }
-
-.console__row {
-  margin: 5px;
-  padding: 5px;
-  overflow: auto;
-  background: #f8faf3;
-  white-space: nowrap; }
-  .console__row--error {
-    background-color: #ff00001a; }
-
-.console__item {
-  display: inline-block;
-  vertical-align: top; }
-
-.console__item ~ .console__item {
-  margin-left: 10px; }
+  .console pre, .console code {
+    margin: 0; }
+  .console__header {
+    margin: 0; }
+  .console__info {
+    font-size: 0.8em;
+    font-family: sans-serif; }
+  .console__row {
+    margin: 8px;
+    padding: 5px;
+    overflow: auto;
+    background: #f8faf3;
+    white-space: nowrap; }
+    .console__row--error {
+      background-color: #ff00001a; }
+  .console__item {
+    display: inline-block;
+    vertical-align: top; }
+  .console__item ~ .console__item {
+    margin-left: 10px; }
 
 .item__head {
   display: inline-block;
@@ -475,12 +513,11 @@ block__elem--mod — element's modifier
     background-repeat: no-repeat;
     background-size: contain;
     vertical-align: baseline; }
-  .item__head--pointer {
-    cursor: pointer; }
-    .item__head--pointer::before {
-      content: ""; }
+  .item__head--arrow-pointer::before {
+    content: ""; }
   .item__head--arrow-bottom::before {
-    transform: rotate(90deg); }
+    -webkit-transform: rotate(90deg);
+            transform: rotate(90deg); }
 
 .item__content {
   display: flex;
@@ -498,6 +535,23 @@ block__elem--mod — element's modifier
   display: inline-block;
   vertical-align: top; }
 
+.c-string {
+  margin: 0;
+  color: green;
+  white-space: pre-wrap; }
+  .c-string::before {
+    content: '"'; }
+  .c-string::after {
+    content: '"'; }
+
+.c-number,
+.c-boolean {
+  color: darkorange; }
+
+.c-symbol,
+.c-regexp {
+  color: #ee9900; }
+
 .length::before {
   content: '('; }
 
@@ -510,49 +564,25 @@ block__elem--mod — element's modifier
 .italic {
   font-style: italic; }
 
-.undefined {
-  font-weight: bold;
-  font-style: italic; }
-
+.c-undefined,
+.c-null,
 .grey {
   color: #6e6e6e; }
-
-.NaN {
-  font-weight: bold; }
-
-.string {
-  margin: 0;
-  color: green;
-  white-space: pre-wrap; }
-  .string::before {
-    content: '"'; }
-  .string::after {
-    content: '"'; }
-
-.nowrap {
-  white-space: nowrap; }
-
-.number {
-  color: darkorange; }
-
-.boolean {
-  color: blue; }
-
-.null {
-  color: magenta; }
 
 .key {
   color: #5bc0de; }
 
+.nowrap {
+  white-space: nowrap; }
+
 .error {
   color: red; }
 
-.symbol,
-.regexp {
-  color: #c21e20; }
-
 .hidden {
   display: none; }
+
+.pointer, .item__head--arrow-pointer {
+  cursor: pointer; }
 
 .editor-container {
   display: inline-block;
@@ -561,51 +591,3 @@ block__elem--mod — element's modifier
   height: 300px;
   vertical-align: top;
   border: 5px solid #ffd20d; }
-
-.entry-container__entry {
-  display: inline-block; }
-
-.entry-container--head {
-  white-space: normal; }
-  .entry-container--head .entry-container__entry:not(:last-child) {
-    margin-right: 5px; }
-    .entry-container--head .entry-container__entry:not(:last-child)::after {
-      content: ",";
-      white-space: pre; }
-
-.entry-container--braced.entry-container--object::before {
-  content: '{'; }
-
-.entry-container--braced.entry-container--object::after {
-  content: '}'; }
-
-.entry-container--braced.entry-container--object.entry-container--oversize .entry-container__entry:last-child {
-  margin-right: 5px; }
-  .entry-container--braced.entry-container--object.entry-container--oversize .entry-container__entry:last-child::after {
-    content: ",";
-    white-space: pre; }
-
-.entry-container--braced.entry-container--object.entry-container--oversize::after {
-  content: '…}'; }
-
-.entry-container--braced.entry-container--array::before {
-  content: '['; }
-
-.entry-container--braced.entry-container--array::after {
-  content: ']'; }
-
-.entry-container--braced.entry-container--array.entry-container--oversize .entry-container__entry:last-child {
-  margin-right: 5px; }
-  .entry-container--braced.entry-container--array.entry-container--oversize .entry-container__entry:last-child::after {
-    content: ",";
-    white-space: pre; }
-
-.entry-container--braced.entry-container--array.entry-container--oversize::after {
-  content: '…]'; }
-
-.entry-container__value-container--underscore:hover {
-  text-decoration: underline; }
-
-.entry-container__key::after {
-  content: ": ";
-  white-space: pre; }
