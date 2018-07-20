@@ -29,12 +29,14 @@ create new Console instance by passing output container
    var jsConsole = new Console(document.querySelector('.console-container'));
 
    jsConsole.log("Here is console.log!");
+   
    // console.log = jsConsole.log.bind(jsConsole);
    // console.dir = jsConsole.dir.bind(jsConsole);
    // ...
+   // console.log(123);
    // or use Console.prototype.extend()
-   jsConsole.extend(console);
-   console.log(123);
+   // jsConsole.extend(console);
+   // console.log(123);
   </script>
 </body>
 ```
@@ -55,7 +57,23 @@ Script will automatically create console container and extend native browser `wi
 
 ## Presets
 
-Use predefined configurations by connecting scripts on page:
+Use predefined configurations by connecting scripts on page
+
+### Available presets
+
+* [`htmlacademy.github.io/console.js/js/presets/htmlacademy.js`](https://github.com/htmlacademy/console.js/blob/master/js/presets/htmlacademy.js) —
+confifures behaviour, but not enabling autoexpand. 
+All objects will show only up to `5` properties it preview (header).
+Configures autoexpand to be triggered only if there're from `5` to `15` properties.
+Excludes `__proto__` property from autoexpand.
+Functions bodies will be collapsed.
+
+* [`htmlacademy.github.io/console.js/js/presets/autoexpand-all.js`](https://github.com/htmlacademy/console.js/blob/master/js/presets/autoexpand-all.js) —
+Enabling autoexpand of all objects by `1` level.
+
+You can use both to enable autoexpanding with defined behaviour.
+
+### Connecting presets on page
 
 ```html
 <script src="//htmlacademy.github.io/console.js/js/presets/preset-1.js"></script>
@@ -66,9 +84,9 @@ Use predefined configurations by connecting scripts on page:
 Lower connected preset script has higher priority than others. Will be [merged](#presets-merge) with
 [lodash.mergeWith](https://lodash.com/docs/4.17.10#mergeWith) using concatinating arrays
 
-### Customize output
+## Customize output
 
-If you want to configure console, all you need is
+If you want to configure console, all you need is call the constructor with config
 ```js
 const jsConsole = new Console(document.querySelector(`.console`), config);
 ```
