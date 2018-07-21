@@ -1,5 +1,6 @@
 # console.js [![Build Status](https://travis-ci.org/htmlacademy/console.js.svg?branch=master)](https://travis-ci.org/htmlacademy/console.js)
 Chrome-like in-browser console
+
 Available methods:
  * `log`
  * `info` — same as `log`
@@ -15,7 +16,7 @@ Available methods:
 
 Connect script `https://htmlacademy.github.io/console.js/js/index.js`,
 style file `https://htmlacademy.github.io/console.js/css/style.css` on page,
-create new Console instance by passing output container
+create new Console instance by passing output container and optional config
 
 ```html
 <head>
@@ -26,17 +27,26 @@ create new Console instance by passing output container
   <script src="//htmlacademy.github.io/console.js/js/index.js"></script>
 
   <script>
-   var jsConsole = new Console(document.querySelector('.console-container'));
+    const params = {
+      expandDepth: 1,
+      common: {
+        excludeProperties: [`__proto__`],
+        maxFieldsInHead: 5,
+        minFieldsToExpand: 5,
+        maxFieldsToExpand: 15
+      }
+    };
+    var jsConsole = new Console(document.querySelector('.console-container'), params);
 
-   jsConsole.log("Here is console.log!");
-   
-   // console.log = jsConsole.log.bind(jsConsole);
-   // console.dir = jsConsole.dir.bind(jsConsole);
-   // ...
-   // console.log(123);
-   // or use Console.prototype.extend()
-   // jsConsole.extend(console);
-   // console.log(123);
+    jsConsole.log("Here is console.log!");
+
+    // console.log = jsConsole.log.bind(jsConsole);
+    // console.dir = jsConsole.dir.bind(jsConsole);
+    // ...
+    // console.log(123);
+    // or use Console.prototype.extend()
+    // jsConsole.extend(console);
+    // console.log(123);
   </script>
 </body>
 ```
@@ -84,23 +94,32 @@ You can use both to enable autoexpanding with defined behaviour.
 Lower connected preset script has higher priority than others. Will be [merged](#presets-merge) with
 [lodash.mergeWith](https://lodash.com/docs/4.17.10#mergeWith) using concatinating arrays
 
-## Customize output
-
-If you want to configure console, all you need is call the constructor with config
+## Console constructor
 ```js
-const jsConsole = new Console(document.querySelector(`.console`), config);
+const jsConsole = new Console(DOMElement, config);
 ```
 
-Where 2nd argument in constructor call is params object
+### Parameters
 
+#### `DOMElement` — container to append console DOM element within.
+
+#### `config` — object containing settings
 You can specify 3 types of views here: `object`, `function` and `array`.
 And `common`, that has lower priority than concrete. Will be [merged](#presets-merge) into concrete one
 with [lodash.mergeWith](https://lodash.com/docs/4.17.10#mergeWith) using concatinating arrays
 
-* `expandDepth` — depth on which fields of this object will be expanded. If not specified — 0 by default.
-* `minFieldsToExpand` — min length of enumerable fields in that object to autoexpand. 0 by default.
-* `maxFieldsToExpand` — max length respectively. Positive infinity by default
+* `expandDepth` — depth on which fields of this object will be expanded. Default: `0`.
+* `maxFieldsInHead` — max length of properties in preview (head). If has more, `...` at the end will be showed. Default: `5`.
+* `minFieldsToExpand` — min length of enumerable fields in that object to autoexpand. Default: `0`.
+* `maxFieldsToExpand` — max length respectively. Default: `Positive infinity`.
 * `exclude` — array of view types that don't need to be expanded inside that root view type.
+* `showGetters` — specifies if `get` and `set` functions will be showed in expanded object body. Default: `true`.
+
+Specific properties for `array`:
+* `countEntriesWithoutKeys` — usefull only if `maxFieldsInHead` given. Specifies if indexed properties should be counted in preview (head). Default: `false`.
+
+Specific properties for `function`:
+* `nowrapOnLog` — specifies if functions bodies will be collapsed. Default: `false`.
 
 Example:
 ```js
