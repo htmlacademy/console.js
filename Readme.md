@@ -130,24 +130,20 @@ Example:
     exclude: [`function`, `array`] // will not expanded inside object
   },
   function: {
-    expandDepth: 1 // will expand only itself
+    expandDepth: 1 // will expand only itself (in dir mode only),
+    nowrapOnLog: true // On log will collapse function body
   },
   array: {
     expandDepth: 2, // expand 2 levels
     minFieldsToExpand: 4, // if there is 4 enum fields in array
     exclude: [`object`] // objects inside array won't be expanded
+    countEntriesWithoutKeys: true
   },
   common: {
     expandDepth: 1,
-    maxFieldsToExpand: 10
+    maxFieldsInHead: 6, // object and array will have up to 6 properties in their previews (headers)
+    maxFieldsToExpand: 10 // if there's more than 10 properties in obj of any type, it won't be expanded
   }
-}
-```
-
-You can also trim preview elements inside head (only available in object yet):
-```js
-object: {
-  `maxFieldsInHead`: 3 // trim preview elements down to 3
 }
 ```
 
