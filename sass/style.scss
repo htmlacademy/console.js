@@ -37,6 +37,28 @@ __elem — element
     &--error {
       background-color: #ff00001a;
     }
+
+    &--input,
+    &--output {
+      &::before {
+        width: 10px;
+        height: 10px;
+        margin-right: 10px;
+        background-repeat: no-repeat;
+        background-size: contain;
+        vertical-align: middle;
+        display: inline-block;
+        content: "";
+      }
+    }
+
+    &--input::before {
+      background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewbox%3D%220%200%2040%2040%22%20width%3D%2240%22%20height%3D%2240%22%3E%0A%20%20%3Cpolyline%20points%3D%2210%2C%202%2030%2C%2020%2010%2C%2038%22%20fill%3D%22none%22%20stroke%3D%22#6e6e6e%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20/%3E%0A%3C/svg%3E");
+    }
+
+    &--output::before {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewbox='0 0 40 40' width='40' height='40'%3E%3Cpolyline points='30, 2 10, 20 30, 38' fill='none' stroke='%236e6e6e' stroke-width='3' stroke-linecap='round' /%3E%3Ccircle r='4' cx='35' cy='20' fill='%236e6e6e' /%3E%3C/svg%3E%0A");
+    }
   }
 
   &__item {

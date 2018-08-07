@@ -148,7 +148,20 @@ export default class Console {
     this.onlog();
     this.onAny(rowEl.offsetHeight);
   }
+  /**
+   * Equivalent to this.log but marks row as output
+   */
+  logOutput(...rest) {
+    const rowEl = this._getRowEl(rest, Mode.LOG, `output`);
+    this._el.appendChild(rowEl);
+    this.onlog();
+    this.onAny(rowEl.offsetHeight);
+  }
 
+  /**
+   * Equivalent to console.log but special charachters in strings won't be excaped
+   * Push rest of arguments into container
+   */
   logHTML(...rest) {
     this._el.appendChild(this._getRowEl(rest, Mode.LOG_HTML));
     this.onlogHTML();
@@ -181,8 +194,13 @@ export default class Console {
     this.onAny();
   }
 
+  /**
+   * Logs user input into container
+   * Marks row as input
+   * @param {string} markup
+   */
   prompt(markup) {
-    const el = getElement(`<div class="console__row"></div>`);
+    const el = getElement(`<div class="console__row console__row--input"></div>`);
     el.innerHTML = markup;
     this._el.appendChild(el);
     this.onAny(el.offsetHeight);
@@ -225,6 +243,8 @@ export default class Console {
             view = new ArrayView(params, this);
           } else if (!objectIsPrototype && (this.checkInstanceOf(val, `Map`) || this.checkInstanceOf(val, `Set`))) {
             view = new MapSetView(params, this);
+          // } else if (!objectIsPrototype && val instanceof Promise) {
+          //   view = new PromiseView(params, this);
           } else {
             view = new ObjectView(params, this);
           }
@@ -238,8 +258,8 @@ export default class Console {
     }
   }
 
-  _getRowEl(entries, mode) {
-    const el = getElement(`<div class="console__row"></div>`);
+  _getRowEl(entries, mode, modifier) {
+    const el = getElement(`<div class="console__row ${modifier ? `console__row--${modifier}` : ``}"></div>`);
     entries.forEach((val) => {
       el.appendChild(this.createTypedView(val, mode).el);
     });
