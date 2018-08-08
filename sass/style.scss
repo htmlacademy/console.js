@@ -28,6 +28,7 @@ __elem — element
   }
 
   &__row {
+    position: relative;
     margin: 8px;
     padding: 5px;
     overflow: auto;
@@ -40,14 +41,17 @@ __elem — element
 
     &--input,
     &--output {
+      padding-left: 20px;
       &::before {
+        display: block;
         width: 10px;
         height: 10px;
         margin-right: 10px;
         background-repeat: no-repeat;
         background-size: contain;
-        vertical-align: middle;
-        display: inline-block;
+        position: absolute;
+        top: 8px;
+        left: 5px;
         content: "";
       }
     }

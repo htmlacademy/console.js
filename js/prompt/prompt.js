@@ -41,7 +41,7 @@ export default class Prompt {
       const expression = lastExpressionStatementNode.expression;
       const leftStrPart = code.substring(0, expression.start);
       const rightStrPart = code.substring(expression.end, code.length);
-      const exprStrPart = code.substring(expression.start, expression.end)
+      const exprStrPart = code.substring(expression.start, expression.end);
 
       editedCode = `${leftStrPart};${this._consGlobalName}.logOutput(${exprStrPart});${rightStrPart}`;
     } else {

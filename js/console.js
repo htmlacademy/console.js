@@ -200,8 +200,8 @@ export default class Console {
    * @param {string} markup
    */
   prompt(markup) {
-    const el = getElement(`<div class="console__row console__row--input"></div>`);
-    el.innerHTML = markup;
+    const el = getElement(`<div class="console__row console__row--input"><pre class="console__item item"></pre></div>`);
+    el.querySelector(`.console__item`).innerHTML = markup;
     this._el.appendChild(el);
     this.onAny(el.offsetHeight);
   }
