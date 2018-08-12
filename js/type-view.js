@@ -188,7 +188,6 @@ export default class TypeView extends AbstractView {
         if (bool === self._isContentShowed) {
           return;
         }
-        // self.toggleArrowBottom(bool);
         self._isContentShowed = self.toggleContentShowed(bool);
         if (self._isContentShowed && self._contentEl.childElementCount === 0) {
           self._contentEl.appendChild(self.createContent(self._value, false).fragment);
@@ -532,11 +531,14 @@ export default class TypeView extends AbstractView {
    * @param {function} [params.getViewEl] — function to get element if so wasn't present while calling this method
    * @return {HTMLSpanElement}
    */
-  _createEntryEl({key, el, mode, withoutKey, getViewEl, isGrey}) {
+  _createEntryEl({key, el, mode, withoutKey, withoutValue, getViewEl, isGrey}) {
     const entryEl = getElement(`\
 <span class="entry-container__entry">\
-${withoutKey ? `` : `<span class="entry-container__key ${isGrey ? `grey` : ``}">${key.toString()}</span>`}<span class="entry-container__value-container"></span>\
+${withoutKey ? `` : `<span class="entry-container__key ${isGrey ? `grey` : ``}">${key.toString()}</span>`}${withoutValue ? `` : `<span class="entry-container__value-container"></span>`}\
 </span>`);
+    if (withoutValue) {
+      return entryEl;
+    }
     const valueContEl = entryEl.querySelector(`.entry-container__value-container`);
 
     if (el) {
@@ -624,12 +626,18 @@ ${withoutKey ? `` : `<span class="entry-container__key ${isGrey ? `grey` : ``}">
   }
 
   /**
-   * @param {HTMLSpanElement|null} entryEl
+   * @param {HTMLElement|null} entryEl
    * @param {DocumentFragment} fragment
    */
   static appendEntryElIntoFragment(entryEl, fragment) {
     if (entryEl !== null) {
       fragment.appendChild(entryEl);
+    }
+  }
+
+  static prependEntryElIntoFragment(entryEl, fragment) {
+    if (entryEl !== null) {
+      fragment.insertBefore(entryEl, fragment.firstElementChild);
     }
   }
 

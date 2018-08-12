@@ -49,3 +49,13 @@ export const Class = {
 export const Env = {
   TEST: `test`
 };
+
+/**
+ * Promise state
+ * @enum {string}
+ */
+export const PromiseStatus = {
+  resolved: `resolved`,
+  rejected: `rejected`,
+  pending: `pending`
+};

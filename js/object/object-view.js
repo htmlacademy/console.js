@@ -47,7 +47,7 @@ export default class ObjectView extends TypeView {
             self.headContent instanceof DocumentFragment) {
             self._headContentEl.appendChild(self.headContent);
           } else {
-            self._headContentEl.innerHTML = self.headContent;
+            self._headContentEl.textContent = self.headContent;
           }
         }
         self._isHeadContentShowed = self.toggleHeadContentShowed(bool);
@@ -248,7 +248,7 @@ export default class ObjectView extends TypeView {
       if (this._console.checkInstanceOf(obj, `String`)) {
         const el = this._console.createTypedView(this._value.toString(), mode, this.nextNestingLevel, this).el;
         TypeView.appendEntryElIntoFragment(
-            this._createEntryEl({key: `[[PrimtiveValue]]`, el, withoutKey: inHead, isGrey: true}),
+            this._createEntryEl({key: `[[PrimitiveValue]]`, el, withoutKey: inHead}),
             fragment
         );
         if (inHead && obj.length) {
@@ -260,7 +260,7 @@ export default class ObjectView extends TypeView {
       } else if (this._console.checkInstanceOf(obj, `Number`)) {
         const el = this._console.createTypedView(this._value * 1, mode, this.nextNestingLevel, this).el;
         TypeView.appendEntryElIntoFragment(
-            this._createEntryEl({key: `[[PrimtiveValue]]`, el, withoutKey: inHead, isGrey: true}),
+            this._createEntryEl({key: `[[PrimitiveValue]]`, el, withoutKey: inHead}),
             fragment
         );
       }

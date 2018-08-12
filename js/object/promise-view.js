@@ -1,51 +1,62 @@
 import TypeView from '../type-view';
 import ObjectView from './object-view';
-import {Mode} from '../enums';
+import {Mode, PromiseStatus} from '../enums';
 
-export default class MapSetView extends ObjectView {
+export default class PromiseView extends ObjectView {
   constructor(params, cons) {
     super(params, cons);
   }
 
-  createContent(obj, inHead) {
-    const mode = inHead ? Mode.PREVIEW : Mode.PROP;
-    let fragment;
-    let isOversized = false;
-    if (!inHead) {
-      const contentObj = ObjectView.prototype.createContent.apply(this, [obj, inHead]);
-      fragment = contentObj.fragment;
-      isOversized = contentObj.isOversized;
-    } else {
-      fragment = document.createDocumentFragment();
-    }
+  _afterRender() {
+    this.getPromiseStatus().then(({value, status}) => {
+      this._promiseValue = value;
+      this._promiseStatus = status;
+      ObjectView.prototype._afterRender.call(this);
+    });
+  }
 
-    const maxFieldsInHead = this._console.params[this.viewType].maxFieldsInHead;
-    // entries() for Map, values() for Set
-    const entriesIterator = obj[Symbol.iterator]();
-    const entriesArr = [...entriesIterator];
+  getPromiseStatus() {
+    const obj = {};
+    return Promise.race([this.value, obj])
+      .then((val) => {
+        let status;
+        let value;
+        if (val === obj) {
+          status = PromiseStatus.pending;
+        } else {
+          status = PromiseStatus.resolved;
+          value = val;
+        }
+        return {status, value};
+      })
+      .catch((val) => ({status: PromiseStatus.rejected, value: val}));
+  }
+
+  createContent(obj, inHead) {
+    const {fragment, isOversized} = ObjectView.prototype.createContent.apply(this, [obj, inHead]);
     if (inHead) {
-      for (let i = 0, l = entriesArr.length; i < l; i++) {
-        if (i === maxFieldsInHead) {
-          isOversized = true;
-          break;
-        }
-        const entry = entriesArr[i];
-        let entryEl;
-        if (this._console.checkInstanceOf(this._value, `Map`)) {
-          const el = new MapEntryView({val: entry, mode, depth: this.nextNestingLevel, parentView: this, propKey: this._propKey}, this._console).el;
-          entryEl = this._createEntryEl({key: i, el, withoutKey: true});
-        }
-        if (this._console.checkInstanceOf(this.value, `Set`)) {
-          entryEl = this._createTypedEntryEl({obj: entriesArr, key: i, mode, withoutKey: true, notCheckDescriptors: true});
-        }
-        TypeView.appendEntryElIntoFragment(entryEl, fragment);
-      }
+      TypeView.prependEntryElIntoFragment(
+          this._createEntryEl({
+            key: `&lt;${this._promiseStatus}&gt;`,
+            el: this._console.createTypedView(this._promiseValue, Mode.PREVIEW, this.nextNestingLevel, this).el,
+            withoutValue: this._promiseStatus === PromiseStatus.pending,
+            isGrey: true
+          }),
+          fragment
+      );
     } else {
-      const entriesList = entriesArr;
-      // Object.setPrototypeOf(entriesList, null); // TODO удалить поле прото из этого объекта, но сделать так, чтобы показывало Array
-      const entriesArrEl = this._console.createTypedView(entriesList, Mode.PROP, this.nextNestingLevel, this, `[[Entries]]`).el;
       TypeView.appendEntryElIntoFragment(
-          this._createEntryEl({key: `[[Entries]]`, el: entriesArrEl, withoutKey: false}),
+          this._createEntryEl({
+            key: `[[PromiseStatus]]`,
+            el: this._console.createTypedView(this._promiseStatus, Mode.PROP, this.nextNestingLevel, this).el
+          }),
+          fragment
+      );
+      TypeView.appendEntryElIntoFragment(
+          this._createEntryEl({
+            key: `[[PromiseValue]]`,
+            el: this._console.createTypedView(this._promiseValue, Mode.PROP, this.nextNestingLevel, this).el
+          }),
           fragment
       );
     }

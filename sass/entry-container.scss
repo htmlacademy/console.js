@@ -70,7 +70,7 @@
     }
   }
 
-  &__key::after {
+  &__key + &__value-container::before {
     content: ": ";
     white-space: pre;
   }

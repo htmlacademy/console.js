@@ -2,6 +2,7 @@
 import mergeWith from 'lodash.mergewith';
 import ObjectView from './object/object-view';
 import MapSetView from './object/map-set-view';
+import PromiseView from './object/promise-view';
 import ArrayView from './array/array-view';
 import FunctionView from './function/function-view';
 import PrimitiveView from './primitive/primitive-view';
@@ -243,8 +244,8 @@ export default class Console {
             view = new ArrayView(params, this);
           } else if (!objectIsPrototype && (this.checkInstanceOf(val, `Map`) || this.checkInstanceOf(val, `Set`))) {
             view = new MapSetView(params, this);
-          // } else if (!objectIsPrototype && val instanceof Promise) {
-          //   view = new PromiseView(params, this);
+          } else if (!objectIsPrototype && val instanceof Promise) {
+            view = new PromiseView(params, this);
           } else {
             view = new ObjectView(params, this);
           }

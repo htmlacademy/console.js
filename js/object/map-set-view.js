@@ -12,12 +12,12 @@ export default class MapSetView extends ObjectView {
     const mode = inHead ? Mode.PREVIEW : Mode.PROP;
     let fragment;
     let isOversized = false;
-    if (!inHead) {
+    if (inHead) {
+      fragment = document.createDocumentFragment();
+    } else {
       const contentObj = ObjectView.prototype.createContent.apply(this, [obj, inHead]);
       fragment = contentObj.fragment;
       isOversized = contentObj.isOversized;
-    } else {
-      fragment = document.createDocumentFragment();
     }
 
     const maxFieldsInHead = this._console.params[this.viewType].maxFieldsInHead;
