@@ -47,7 +47,7 @@ export default class ObjectView extends TypeView {
             self.headContent instanceof DocumentFragment) {
             self._headContentEl.appendChild(self.headContent);
           } else {
-            self._headContentEl.innerHTML = self.headContent;
+            self._headContentEl.textContent = self.headContent;
           }
         }
         self._isHeadContentShowed = self.toggleHeadContentShowed(bool);
@@ -241,30 +241,6 @@ export default class ObjectView extends TypeView {
     const entriesKeys = inHead ? this.headContentEntriesKeys : this.contentEntriesKeys;
     const mode = inHead ? Mode.PREVIEW : Mode.PROP;
     entriesKeys.delete(`__proto__`); // Object may not have prototype
-
-    // if object has PrimtiveValue property (only Number and String)
-    if ((this._console.checkInstanceOf(obj, `String`) || this._console.checkInstanceOf(obj, `Number`)) &&
-    !checkObjectisPrototype(this._value)) {
-      if (this._console.checkInstanceOf(obj, `String`)) {
-        const el = this._console.createTypedView(this._value.toString(), mode, this.nextNestingLevel, this).el;
-        TypeView.appendEntryElIntoFragment(
-            this._createEntryEl({key: `[[PrimtiveValue]]`, el, withoutKey: inHead, isGrey: true}),
-            fragment
-        );
-        if (inHead && obj.length) {
-          for (let i = 0; i < obj.length; i++) {
-            entriesKeys.delete(i.toString());
-          }
-          entriesKeys.delete(`length`);
-        }
-      } else if (this._console.checkInstanceOf(obj, `Number`)) {
-        const el = this._console.createTypedView(this._value * 1, mode, this.nextNestingLevel, this).el;
-        TypeView.appendEntryElIntoFragment(
-            this._createEntryEl({key: `[[PrimtiveValue]]`, el, withoutKey: inHead, isGrey: true}),
-            fragment
-        );
-      }
-    }
 
     const maxFieldsInHead = this._console.params[this.viewType].maxFieldsInHead;
     let isOversized = false;

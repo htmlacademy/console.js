@@ -2,6 +2,7 @@
 
 const del = require(`del`);
 const gulp = require(`gulp`);
+const gulpIf = require(`gulp-if`);
 const sass = require(`gulp-sass`);
 const plumber = require(`gulp-plumber`);
 const postcss = require(`gulp-postcss`);
@@ -42,7 +43,7 @@ gulp.task(`style`, () => {
       ]))
       .pipe(gulp.dest(`build/css`))
       .pipe(server.stream())
-      .pipe(minify())
+      .pipe(gulpIf(process.env.NODE_ENV === `production`, minify()))
       .pipe(rename(`style.min.css`))
       .pipe(gulp.dest(`build/css`));
 });
@@ -65,7 +66,7 @@ gulp.task(`style-prism`, () => {
       ]))
       .pipe(gulp.dest(`build/css`))
       .pipe(server.stream())
-      .pipe(minify())
+      .pipe(gulpIf(process.env.NODE_ENV === `production`, minify()))
       .pipe(rename(`prism.min.css`))
       .pipe(gulp.dest(`build/css`));
 });
@@ -94,7 +95,7 @@ gulp.task(`build-scripts`, () => {
           })
         ]
       }, `iife`))
-      .pipe(uglify())
+      .pipe(gulpIf(process.env.NODE_ENV === `production`, uglify()))
       .pipe(sourcemaps.write(``))
       .pipe(gulp.dest(`build/js`));
 });
@@ -126,7 +127,7 @@ gulp.task(`build-prompt`, () => {
           })
         ]
       }, `iife`))
-      .pipe(uglify())
+      .pipe(gulpIf(process.env.NODE_ENV === `production`, uglify()))
       .pipe(sourcemaps.write(``))
       .pipe(gulp.dest(`build/js`));
 });
@@ -147,7 +148,7 @@ gulp.task(`build-js-presets`, () => {
           })
         ]
       }, `iife`))
-      .pipe(uglify())
+      .pipe(gulpIf(process.env.NODE_ENV === `production`, uglify()))
       .pipe(gulp.dest(`build/js/presets`));
 });
 

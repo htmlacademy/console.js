@@ -1,6 +1,6 @@
 {
   "name": "console.js",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Inbrowser Demo Console",
   "author": "nikolayemrikh",
   "scripts": {
@@ -10,7 +10,7 @@
     "test": "gulp test && npm run eslint",
     "test-watch": "gulp test-watch",
     "build:examples": "gulp examples",
-    "deploy": "gulp build && sh ./deploy.sh"
+    "deploy": "NODE_ENV=production gulp build && sh ./deploy.sh"
   },
   "devDependencies": {
     "@babel/core": "7.0.0-beta.51",
@@ -33,6 +33,7 @@
     "gulp-concat": "2.6.1",
     "gulp-csso": "3.0.1",
     "gulp-debug": "4.0.0",
+    "gulp-if": "2.0.2",
     "gulp-imagemin": "4.1.0",
     "gulp-mocha": "6.0.0",
     "gulp-mocha-chrome": "0.1.0",

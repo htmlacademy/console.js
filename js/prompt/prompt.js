@@ -35,15 +35,17 @@ export default class Prompt {
         break;
       }
     }
+
     let editedCode;
     if (lastExpressionStatementNode) {
-      const leftStrPart = code.substring(0, lastExpressionStatementNode.start);
-      const rightStrPart = code.substring(lastExpressionStatementNode.end, code.length);
-      const exprStrPart = code.substring(lastExpressionStatementNode.start, lastExpressionStatementNode.end);
+      const expression = lastExpressionStatementNode.expression;
+      const leftStrPart = code.substring(0, expression.start);
+      const rightStrPart = code.substring(expression.end, code.length);
+      const exprStrPart = code.substring(expression.start, expression.end);
 
-      editedCode = `${leftStrPart};${this._consGlobalName}.log(${exprStrPart});${rightStrPart}`;
+      editedCode = `${leftStrPart};${this._consGlobalName}.logOutput(${exprStrPart});${rightStrPart}`;
     } else {
-      editedCode = `${code};${this._consGlobalName}.log(void 0);`;
+      editedCode = `${code};${this._consGlobalName}.logOutput(void 0);`;
     }
     window[this._consGlobalName].prompt(highlightedMarkup);
     this._view.createScriptFromCodeAndAppend(editedCode);
