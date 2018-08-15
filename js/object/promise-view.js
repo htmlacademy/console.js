@@ -34,11 +34,12 @@ export default class PromiseView extends ObjectView {
 
   createContent(obj, inHead) {
     const {fragment, isOversized} = ObjectView.prototype.createContent.apply(this, [obj, inHead]);
+    const mode = inHead ? Mode.PREVIEW : Mode.PROP;
     if (inHead) {
       TypeView.prependEntryElIntoFragment(
           this._createEntryEl({
             key: `&lt;${this._promiseStatus}&gt;`,
-            el: this._console.createTypedView(this._promiseValue, Mode.PREVIEW, this.nextNestingLevel, this).el,
+            el: this._console.createTypedView(this._promiseValue, mode, this.nextNestingLevel, this).el,
             withoutValue: this._promiseStatus === PromiseStatus.pending,
             isGrey: true
           }),
@@ -48,14 +49,14 @@ export default class PromiseView extends ObjectView {
       TypeView.appendEntryElIntoFragment(
           this._createEntryEl({
             key: `[[PromiseStatus]]`,
-            el: this._console.createTypedView(this._promiseStatus, Mode.PROP, this.nextNestingLevel, this).el
+            el: this._console.createTypedView(this._promiseStatus, mode, this.nextNestingLevel, this).el
           }),
           fragment
       );
       TypeView.appendEntryElIntoFragment(
           this._createEntryEl({
             key: `[[PromiseValue]]`,
-            el: this._console.createTypedView(this._promiseValue, Mode.PROP, this.nextNestingLevel, this).el
+            el: this._console.createTypedView(this._promiseValue, mode, this.nextNestingLevel, this).el
           }),
           fragment
       );

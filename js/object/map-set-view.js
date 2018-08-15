@@ -12,19 +12,15 @@ export default class MapSetView extends ObjectView {
     const mode = inHead ? Mode.PREVIEW : Mode.PROP;
     let fragment;
     let isOversized = false;
-    if (inHead) {
-      fragment = document.createDocumentFragment();
-    } else {
-      const contentObj = ObjectView.prototype.createContent.apply(this, [obj, inHead]);
-      fragment = contentObj.fragment;
-      isOversized = contentObj.isOversized;
-    }
 
     const maxFieldsInHead = this._console.params[this.viewType].maxFieldsInHead;
     // entries() for Map, values() for Set
     const entriesIterator = obj[Symbol.iterator]();
     const entriesArr = [...entriesIterator];
+
     if (inHead) {
+      fragment = document.createDocumentFragment();
+
       for (let i = 0, l = entriesArr.length; i < l; i++) {
         if (i === maxFieldsInHead) {
           isOversized = true;
@@ -42,9 +38,12 @@ export default class MapSetView extends ObjectView {
         TypeView.appendEntryElIntoFragment(entryEl, fragment);
       }
     } else {
-      const entriesList = entriesArr;
-      // Object.setPrototypeOf(entriesList, null); // TODO удалить поле прото из этого объекта, но сделать так, чтобы показывало Array
-      const entriesArrEl = this._console.createTypedView(entriesList, Mode.PROP, this.nextNestingLevel, this, `[[Entries]]`).el;
+      const contentObj = ObjectView.prototype.createContent.apply(this, [obj, inHead]);
+      fragment = contentObj.fragment;
+      isOversized = contentObj.isOversized;
+
+      // Object.setPrototypeOf(entriesArr, null); // TODO удалить поле прото из этого объекта, но сделать так, чтобы показывало Array
+      const entriesArrEl = this._console.createTypedView(entriesArr, Mode.PROP, this.nextNestingLevel, this, `[[Entries]]`).el;
       TypeView.appendEntryElIntoFragment(
           this._createEntryEl({key: `[[Entries]]`, el: entriesArrEl, withoutKey: false}),
           fragment
