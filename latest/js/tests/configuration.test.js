@@ -2074,6 +2074,16 @@
 	  TEST: `test`
 	};
 
+	/**
+	 * Promise state
+	 * @enum {string}
+	 */
+	const PromiseStatus = {
+	  resolved: `resolved`,
+	  rejected: `rejected`,
+	  pending: `pending`
+	};
+
 	/* eslint no-empty: "off"*/
 
 	const isNativeFunction = (fn) => {
@@ -2260,7 +2270,6 @@
 	        if (bool === self._isContentShowed) {
 	          return;
 	        }
-	        // self.toggleArrowBottom(bool);
 	        self._isContentShowed = self.toggleContentShowed(bool);
 	        if (self._isContentShowed && self._contentEl.childElementCount === 0) {
 	          self._contentEl.appendChild(self.createContent(self._value, false).fragment);
@@ -2604,11 +2613,14 @@
 	   * @param {function} [params.getViewEl] — function to get element if so wasn't present while calling this method
 	   * @return {HTMLSpanElement}
 	   */
-	  _createEntryEl({key, el, mode, withoutKey, getViewEl, isGrey}) {
+	  _createEntryEl({key, el, mode, withoutKey, withoutValue, getViewEl, isGrey}) {
 	    const entryEl = getElement(`\
 <span class="entry-container__entry">\
-${withoutKey ? `` : `<span class="entry-container__key ${isGrey ? `grey` : ``}">${key.toString()}</span>`}<span class="entry-container__value-container"></span>\
+${withoutKey ? `` : `<span class="entry-container__key ${isGrey ? `grey` : ``}">${key.toString()}</span>`}${withoutValue ? `` : `<span class="entry-container__value-container"></span>`}\
 </span>`);
+	    if (withoutValue) {
+	      return entryEl;
+	    }
 	    const valueContEl = entryEl.querySelector(`.entry-container__value-container`);
 
 	    if (el) {
@@ -2696,12 +2708,18 @@ ${withoutKey ? `` : `<span class="entry-container__key ${isGrey ? `grey` : ``}">
 	  }
 
 	  /**
-	   * @param {HTMLSpanElement|null} entryEl
+	   * @param {HTMLElement|null} entryEl
 	   * @param {DocumentFragment} fragment
 	   */
 	  static appendEntryElIntoFragment(entryEl, fragment) {
 	    if (entryEl !== null) {
 	      fragment.appendChild(entryEl);
+	    }
+	  }
+
+	  static prependEntryElIntoFragment(entryEl, fragment) {
+	    if (entryEl !== null) {
+	      fragment.insertBefore(entryEl, fragment.firstElementChild);
 	    }
 	  }
 
@@ -2796,7 +2814,7 @@ ${withoutKey ? `` : `<span class="entry-container__key ${isGrey ? `grey` : ``}">
 	            self.headContent instanceof DocumentFragment) {
 	            self._headContentEl.appendChild(self.headContent);
 	          } else {
-	            self._headContentEl.innerHTML = self.headContent;
+	            self._headContentEl.textContent = self.headContent;
 	          }
 	        }
 	        self._isHeadContentShowed = self.toggleHeadContentShowed(bool);
@@ -2991,30 +3009,6 @@ ${withoutKey ? `` : `<span class="entry-container__key ${isGrey ? `grey` : ``}">
 	    const mode = inHead ? Mode.PREVIEW : Mode.PROP;
 	    entriesKeys.delete(`__proto__`); // Object may not have prototype
 
-	    // if object has PrimtiveValue property (only Number and String)
-	    if ((this._console.checkInstanceOf(obj, `String`) || this._console.checkInstanceOf(obj, `Number`)) &&
-	    !checkObjectisPrototype(this._value)) {
-	      if (this._console.checkInstanceOf(obj, `String`)) {
-	        const el = this._console.createTypedView(this._value.toString(), mode, this.nextNestingLevel, this).el;
-	        TypeView.appendEntryElIntoFragment(
-	            this._createEntryEl({key: `[[PrimtiveValue]]`, el, withoutKey: inHead, isGrey: true}),
-	            fragment
-	        );
-	        if (inHead && obj.length) {
-	          for (let i = 0; i < obj.length; i++) {
-	            entriesKeys.delete(i.toString());
-	          }
-	          entriesKeys.delete(`length`);
-	        }
-	      } else if (this._console.checkInstanceOf(obj, `Number`)) {
-	        const el = this._console.createTypedView(this._value * 1, mode, this.nextNestingLevel, this).el;
-	        TypeView.appendEntryElIntoFragment(
-	            this._createEntryEl({key: `[[PrimtiveValue]]`, el, withoutKey: inHead, isGrey: true}),
-	            fragment
-	        );
-	      }
-	    }
-
 	    const maxFieldsInHead = this._console.params[this.viewType].maxFieldsInHead;
 	    let isOversized = false;
 	    let addedKeysCounter = 0;
@@ -3124,19 +3118,15 @@ ${withoutKey ? `` : `<span class="entry-container__key ${isGrey ? `grey` : ``}">
 	    const mode = inHead ? Mode.PREVIEW : Mode.PROP;
 	    let fragment;
 	    let isOversized = false;
-	    if (!inHead) {
-	      const contentObj = ObjectView.prototype.createContent.apply(this, [obj, inHead]);
-	      fragment = contentObj.fragment;
-	      isOversized = contentObj.isOversized;
-	    } else {
-	      fragment = document.createDocumentFragment();
-	    }
 
 	    const maxFieldsInHead = this._console.params[this.viewType].maxFieldsInHead;
 	    // entries() for Map, values() for Set
 	    const entriesIterator = obj[Symbol.iterator]();
 	    const entriesArr = [...entriesIterator];
+
 	    if (inHead) {
+	      fragment = document.createDocumentFragment();
+
 	      for (let i = 0, l = entriesArr.length; i < l; i++) {
 	        if (i === maxFieldsInHead) {
 	          isOversized = true;
@@ -3154,14 +3144,124 @@ ${withoutKey ? `` : `<span class="entry-container__key ${isGrey ? `grey` : ``}">
 	        TypeView.appendEntryElIntoFragment(entryEl, fragment);
 	      }
 	    } else {
-	      const entriesList = entriesArr;
-	      // Object.setPrototypeOf(entriesList, null); // TODO удалить поле прото из этого объекта, но сделать так, чтобы показывало Array
-	      const entriesArrEl = this._console.createTypedView(entriesList, Mode.PROP, this.nextNestingLevel, this, `[[Entries]]`).el;
+	      const contentObj = ObjectView.prototype.createContent.apply(this, [obj, inHead]);
+	      fragment = contentObj.fragment;
+	      isOversized = contentObj.isOversized;
+
+	      // Object.setPrototypeOf(entriesArr, null); // TODO удалить поле прото из этого объекта, но сделать так, чтобы показывало Array
+	      const entriesArrEl = this._console.createTypedView(entriesArr, Mode.PROP, this.nextNestingLevel, this, `[[Entries]]`).el;
 	      TypeView.appendEntryElIntoFragment(
 	          this._createEntryEl({key: `[[Entries]]`, el: entriesArrEl, withoutKey: false}),
 	          fragment
 	      );
 	    }
+	    return {fragment, isOversized};
+	  }
+	}
+
+	class PromiseView extends ObjectView {
+	  constructor(params, cons) {
+	    super(params, cons);
+	  }
+
+	  _afterRender() {
+	    this.getPromiseStatus().then(({value, status}) => {
+	      this._promiseValue = value;
+	      this._promiseStatus = status;
+	      ObjectView.prototype._afterRender.call(this);
+	    });
+	  }
+
+	  getPromiseStatus() {
+	    const obj = {};
+	    return Promise.race([this.value, obj])
+	      .then((val) => {
+	        let status;
+	        let value;
+	        if (val === obj) {
+	          status = PromiseStatus.pending;
+	        } else {
+	          status = PromiseStatus.resolved;
+	          value = val;
+	        }
+	        return {status, value};
+	      })
+	      .catch((val) => ({status: PromiseStatus.rejected, value: val}));
+	  }
+
+	  createContent(obj, inHead) {
+	    const {fragment, isOversized} = ObjectView.prototype.createContent.apply(this, [obj, inHead]);
+	    const mode = inHead ? Mode.PREVIEW : Mode.PROP;
+	    if (inHead) {
+	      TypeView.prependEntryElIntoFragment(
+	          this._createEntryEl({
+	            key: `&lt;${this._promiseStatus}&gt;`,
+	            el: this._console.createTypedView(this._promiseValue, mode, this.nextNestingLevel, this).el,
+	            withoutValue: this._promiseStatus === PromiseStatus.pending,
+	            isGrey: true
+	          }),
+	          fragment
+	      );
+	    } else {
+	      TypeView.appendEntryElIntoFragment(
+	          this._createEntryEl({
+	            key: `[[PromiseStatus]]`,
+	            el: this._console.createTypedView(this._promiseStatus, mode, this.nextNestingLevel, this).el
+	          }),
+	          fragment
+	      );
+	      TypeView.appendEntryElIntoFragment(
+	          this._createEntryEl({
+	            key: `[[PromiseValue]]`,
+	            el: this._console.createTypedView(this._promiseValue, mode, this.nextNestingLevel, this).el
+	          }),
+	          fragment
+	      );
+	    }
+	    return {fragment, isOversized};
+	  }
+	}
+
+	class StringNumberView extends ObjectView {
+	  constructor(params, cons) {
+	    super(params, cons);
+	  }
+
+	  /**
+	   * @override TypeView
+	   */
+	  get headContentEntriesKeys() {
+	    if (!this._headEntriesKeys) {
+	      this._headEntriesKeys = this._getEntriesKeys(true);
+
+	      if (this.value.length) {
+	        for (let i = 0; i < this.value.length; i++) {
+	          this._headEntriesKeys.delete(i.toString());
+	        }
+	        this._headEntriesKeys.delete(`length`);
+	      }
+	    }
+	    return this._headEntriesKeys;
+	  }
+
+	  createContent(obj, inHead) {
+	    const {fragment, isOversized} = ObjectView.prototype.createContent.apply(this, [obj, inHead]);
+
+	    const mode = inHead ? Mode.PREVIEW : Mode.PROP;
+	    if (this._console.checkInstanceOf(obj, `String`)) {
+	      const el = this._console.createTypedView(this._value.toString(), mode, this.nextNestingLevel, this).el;
+	      TypeView.appendEntryElIntoFragment(
+	          this._createEntryEl({key: `[[PrimitiveValue]]`, el, withoutKey: inHead}),
+	          fragment
+	      );
+	    } else if (this._console.checkInstanceOf(obj, `Number`)) {
+	      const el = this._console.createTypedView(this._value * 1, mode, this.nextNestingLevel, this).el;
+	      TypeView.appendEntryElIntoFragment(
+	          this._createEntryEl({key: `[[PrimitiveValue]]`, el, withoutKey: inHead}),
+	          fragment
+	      );
+	    }
+
 	    return {fragment, isOversized};
 	  }
 	}
@@ -3509,7 +3609,6 @@ ${this._fnType === FnType.ARROW ? ` => ` : ` `}${bodyLines.join(`\n`)}`;
 	    return bodyContent;
 	  }
 
-
 	  createContent(fn) {
 	    const fragment = document.createDocumentFragment();
 	    const entriesKeys = this.contentEntriesKeys;
@@ -3745,7 +3844,20 @@ ${this._fnType === FnType.ARROW ? ` => ` : ` `}${bodyLines.join(`\n`)}`;
 	    this.onlog();
 	    this.onAny(rowEl.offsetHeight);
 	  }
+	  /**
+	   * Equivalent to this.log but marks row as output
+	   */
+	  logOutput(...rest) {
+	    const rowEl = this._getRowEl(rest, Mode.LOG, `output`);
+	    this._el.appendChild(rowEl);
+	    this.onlog();
+	    this.onAny(rowEl.offsetHeight);
+	  }
 
+	  /**
+	   * Equivalent to console.log but special charachters in strings won't be excaped
+	   * Push rest of arguments into container
+	   */
 	  logHTML(...rest) {
 	    this._el.appendChild(this._getRowEl(rest, Mode.LOG_HTML));
 	    this.onlogHTML();
@@ -3778,9 +3890,14 @@ ${this._fnType === FnType.ARROW ? ` => ` : ` `}${bodyLines.join(`\n`)}`;
 	    this.onAny();
 	  }
 
+	  /**
+	   * Logs user input into container
+	   * Marks row as input
+	   * @param {string} markup
+	   */
 	  prompt(markup) {
-	    const el = getElement(`<div class="console__row"></div>`);
-	    el.innerHTML = markup;
+	    const el = getElement(`<div class="console__row console__row--input"><pre class="console__item item"></pre></div>`);
+	    el.querySelector(`.console__item`).innerHTML = markup;
 	    this._el.appendChild(el);
 	    this.onAny(el.offsetHeight);
 	  }
@@ -3822,6 +3939,10 @@ ${this._fnType === FnType.ARROW ? ` => ` : ` `}${bodyLines.join(`\n`)}`;
 	            view = new ArrayView(params, this);
 	          } else if (!objectIsPrototype && (this.checkInstanceOf(val, `Map`) || this.checkInstanceOf(val, `Set`))) {
 	            view = new MapSetView(params, this);
+	          } else if (!objectIsPrototype && val instanceof Promise) {
+	            view = new PromiseView(params, this);
+	          } else if (!objectIsPrototype && (this.checkInstanceOf(val, `String`) || this.checkInstanceOf(val, `Number`))) {
+	            view = new StringNumberView(params, this);
 	          } else {
 	            view = new ObjectView(params, this);
 	          }
@@ -3835,8 +3956,8 @@ ${this._fnType === FnType.ARROW ? ` => ` : ` `}${bodyLines.join(`\n`)}`;
 	    }
 	  }
 
-	  _getRowEl(entries, mode) {
-	    const el = getElement(`<div class="console__row"></div>`);
+	  _getRowEl(entries, mode, modifier) {
+	    const el = getElement(`<div class="console__row ${modifier ? `console__row--${modifier}` : ``}"></div>`);
 	    entries.forEach((val) => {
 	      el.appendChild(this.createTypedView(val, mode).el);
 	    });

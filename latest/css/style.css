@@ -415,7 +415,7 @@ template {
 .entry-container__value-container--underscore:hover {
   text-decoration: underline; }
 
-.entry-container__key::after {
+.entry-container__key + .entry-container__value-container::before {
   content: ": ";
   white-space: pre; }
 
@@ -489,6 +489,7 @@ __elem — element
     font-size: 0.8em;
     font-family: sans-serif; }
   .console__row {
+    position: relative;
     margin: 8px;
     padding: 5px;
     overflow: auto;
@@ -496,6 +497,23 @@ __elem — element
     white-space: nowrap; }
     .console__row--error {
       background-color: #ff00001a; }
+    .console__row--input, .console__row--output {
+      padding-left: 20px; }
+      .console__row--input::before, .console__row--output::before {
+        display: block;
+        width: 10px;
+        height: 10px;
+        margin-right: 10px;
+        background-repeat: no-repeat;
+        background-size: contain;
+        position: absolute;
+        top: 8px;
+        left: 5px;
+        content: ""; }
+    .console__row--input::before {
+      background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewbox%3D%220%200%2040%2040%22%20width%3D%2240%22%20height%3D%2240%22%3E%0A%20%20%3Cpolyline%20points%3D%2210%2C%202%2030%2C%2020%2010%2C%2038%22%20fill%3D%22none%22%20stroke%3D%22#6e6e6e%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20/%3E%0A%3C/svg%3E"); }
+    .console__row--output::before {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewbox='0 0 40 40' width='40' height='40'%3E%3Cpolyline points='30, 2 10, 20 30, 38' fill='none' stroke='%236e6e6e' stroke-width='3' stroke-linecap='round' /%3E%3Ccircle r='4' cx='35' cy='20' fill='%236e6e6e' /%3E%3C/svg%3E%0A"); }
   .console__item {
     display: inline-block;
     vertical-align: top; }

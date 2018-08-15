@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>console.js</title>
+    <link href="css/style.css" rel="stylesheet">
+    <link href="css/prism.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .global-container {
+        display: flex;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 99%;
+        flex-direction: column;
+      }
+
+      .global-container__prompt-container {
+        flex: 1 0 auto;
+      }
+    </style>
+  </head>
+  <body ontouchstart=""><!-- Чтобы :active на кнопку отправки работал на мобильных устройствах -->
+    <div class="global-container">
+      <div class="console-container"></div>
+      <div class="prompt-container global-container__prompt-container"></div>
+    </div>
+    <script src="js/index-prompt.js"></script>
+    <script src="js/index.js"></script>
+
+    <script>
+      const consoleContainerEl = document.querySelector(`.console-container`);
+      window.jsConsole = new Console(consoleContainerEl, {
+        array: {
+          countEntriesWithoutKeys: true
+        },
+        common: {
+          excludeProperties: [`__proto__`],
+          expandDepth: 1,
+          maxFieldsInHead: 5,
+          minFieldsToExpand: 5, // значение как в object.maxFieldsInHead
+          maxFieldsToExpand: 15
+        }
+      });
+      window.jsConsole.extend(window.console);
+      window.addEventListener(`error`, (evt) => {
+        window.jsConsole.error(evt.error);
+      });
+      const promptContainer = document.querySelector(`.prompt-container`);
+      const prompt = new Prompt(promptContainer, `jsConsole`);
+      window.jsConsole.onAny = (appendedElHeight) => {
+        const promptOffsetBottom = promptContainer.offsetTop + prompt.viewHeight;
+        if (promptOffsetBottom < document.body.clientHeight) {
+          window.scroll(0, document.body.scrollTop + appendedElHeight);
+        } else {
+          window.scroll(0, promptOffsetBottom);
+        }
+      };
+      const obj = {};
+      const arr = [obj];
+      const fn = (bar = 123) => {
+        return bar;
+      };
+      arr.push(arr);
+      // arr.fn = fn;
+      fn.arr = arr;
+      fn.obj = obj;
+      obj.obj = obj;
+      obj.arr = arr;
+      obj.fn = fn;
+      jsConsole.log(obj);
+      jsConsole.dir(fn);
+      jsConsole.log(arr);
+    </script>
+  </body>
+</html>
