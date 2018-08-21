@@ -27,16 +27,17 @@ export default class StringNumberView extends ObjectView {
   createContent(obj, inHead) {
     const {fragment, isOversized} = ObjectView.prototype.createContent.apply(this, [obj, inHead]);
 
+    const insertFn = inHead ? TypeView.prependEntryElIntoFragment : TypeView.appendEntryElIntoFragment;
     const mode = inHead ? Mode.PREVIEW : Mode.PROP;
     if (this._console.checkInstanceOf(obj, `String`)) {
       const el = this._console.createTypedView(this._value.toString(), mode, this.nextNestingLevel, this).el;
-      TypeView.appendEntryElIntoFragment(
+      insertFn(
           this._createEntryEl({key: `[[PrimitiveValue]]`, el, withoutKey: inHead}),
           fragment
       );
     } else if (this._console.checkInstanceOf(obj, `Number`)) {
       const el = this._console.createTypedView(this._value * 1, mode, this.nextNestingLevel, this).el;
-      TypeView.appendEntryElIntoFragment(
+      insertFn(
           this._createEntryEl({key: `[[PrimitiveValue]]`, el, withoutKey: inHead}),
           fragment
       );

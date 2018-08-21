@@ -145,6 +145,9 @@ export default class Console {
    * Push rest of arguments into container
    */
   log(...rest) {
+    if (!rest.length) {
+      return;
+    }
     const rowEl = this._getRowEl(rest, Mode.LOG);
     this._el.appendChild(rowEl);
     this.onlog();
@@ -154,6 +157,9 @@ export default class Console {
    * Equivalent to this.log but marks row as output
    */
   logOutput(...rest) {
+    if (!rest.length) {
+      return;
+    }
     const rowEl = this._getRowEl(rest, Mode.LOG, `output`);
     this._el.appendChild(rowEl);
     this.onlog();
@@ -165,9 +171,13 @@ export default class Console {
    * Push rest of arguments into container
    */
   logHTML(...rest) {
-    this._el.appendChild(this._getRowEl(rest, Mode.LOG_HTML));
+    if (!rest.length) {
+      return;
+    }
+    const rowEl = this._getRowEl(rest, Mode.LOG_HTML);
+    this._el.appendChild(rowEl);
     this.onlogHTML();
-    this.onAny();
+    this.onAny(rowEl.offsetHeight);
   }
 
   /**
@@ -175,12 +185,16 @@ export default class Console {
    * Push single value into conainer
    * @param {*} val — value
    */
-  error(val) {
-    const el = getElement(`<div class="console__row console__row--error"></div>`);
-    el.appendChild(this.createTypedView(val, Mode.ERROR).el);
-    this._el.appendChild(el);
+  error(...rest) {
+    if (!rest.length) {
+      return;
+    }
+    const val = rest[0];
+    const rowEl = getElement(`<div class="console__row console__row--error"></div>`);
+    rowEl.appendChild(this.createTypedView(val, Mode.ERROR).el);
+    this._el.appendChild(rowEl);
     this.onerror();
-    this.onAny();
+    this.onAny(rowEl.offsetHeight);
   }
 
   /**
@@ -188,12 +202,16 @@ export default class Console {
    * Push single value into conainer
    * @param {*} val — value
    */
-  dir(val) {
-    const el = getElement(`<div class="console__row"></div>`);
-    el.appendChild(this.createTypedView(val, Mode.DIR).el);
-    this._el.appendChild(el);
+  dir(...rest) {
+    if (!rest.length) {
+      return;
+    }
+    const val = rest[0];
+    const rowEl = getElement(`<div class="console__row"></div>`);
+    rowEl.appendChild(this.createTypedView(val, Mode.DIR).el);
+    this._el.appendChild(rowEl);
     this.ondir();
-    this.onAny();
+    this.onAny(rowEl.offsetHeight);
   }
 
   /**

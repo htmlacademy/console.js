@@ -191,7 +191,7 @@ export default class ObjectView extends TypeView {
     return this.el.classList.toggle(`error`, isEnable);
   }
 
-  get headContent() {
+  get headContent() { // FIXME
     if (this._mode === Mode.PREVIEW &&
     this.stringTagName === `Object` &&
     this.protoConstructorName === `Object`) {

@@ -1,8 +1,9 @@
 /* eslint no-undefined: 0 */
 
 // import FunctionView from '../function/function-view';
-import Console from '../console';
 import {Mode} from '../enums';
+
+const Console = window.Console;
 
 // declare consts here
 //

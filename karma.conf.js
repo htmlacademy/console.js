@@ -2,9 +2,9 @@ module.exports = function (config) {
   config.set({
     basePath: ``,
     frameworks: [`mocha`, `chai`],
-    files: [
-      `build/js/tests/**/*.test.js`,
-    ],
+    // files: [
+    //   `build/js/tests/**/*.test.js`,
+    // ],
     browserConsoleLogOpptions: {
       level: `debug`,
       format: `%b %T: %m`,
@@ -13,7 +13,7 @@ module.exports = function (config) {
     singleRun: true,
     client: {
       mocha: {
-        timeout: 15000 // 6 seconds - upped from 2 seconds
+        timeout: 15000
       }
     },
     browsers: [`ChromeHeadless`],

@@ -1,5 +1,6 @@
-import Console from "../console";
 import {ViewType, Env} from "../enums";
+
+const Console = window.Console;
 
 const obj = {};
 const arr = [obj];

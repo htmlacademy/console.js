@@ -1,7 +1,9 @@
 .entry-container {
   $parent: &;
 
-  &__entry {
+  &__entry,
+  &__key,
+  &__value-container {
     display: inline-block;
   }
 

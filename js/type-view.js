@@ -533,9 +533,9 @@ export default class TypeView extends AbstractView {
    */
   _createEntryEl({key, el, mode, withoutKey, withoutValue, getViewEl, isGrey}) {
     const entryEl = getElement(`\
-<span class="entry-container__entry">\
-${withoutKey ? `` : `<span class="entry-container__key ${isGrey ? `grey` : ``}">${key.toString()}</span>`}${withoutValue ? `` : `<span class="entry-container__value-container"></span>`}\
-</span>`);
+<div class="entry-container__entry">\
+${withoutKey ? `` : `<span class="entry-container__key ${isGrey ? `grey` : ``}">${key.toString()}</span>`}${withoutValue ? `` : `<div class="entry-container__value-container"></div>`}\
+</div>`);
     if (withoutValue) {
       return entryEl;
     }
