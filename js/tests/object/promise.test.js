@@ -1,4 +1,4 @@
-import {getFirstItemInRow, getHeadEntries, getBodyEntries} from "../test-helpers";
+import {getFirstItemInRow, getHeadEntries, getBodyEntries, getInfoEl, getProtoEntry} from "../test-helpers";
 import {Env} from "../../enums";
 
 const Console = window.Console;
@@ -196,6 +196,42 @@ describe(`Promise:`, () => {
         assert.exists(promiseValueEntry, `body isn't contains [[PromiseValue]] special property`);
         done();
       }, 0);
+    });
+
+    describe(`Should check prototype name:`, () => {
+      it(`item info contains correct prototype/constructor name`, (done) => {
+        cons = getConsole(document.body);
+
+        const obj = new Promise((res) => res(456));
+        cons.log(obj);
+
+        setTimeout(() => {
+          const el = getFirstItemInRow();
+
+          const infoEl = getInfoEl(el);
+          assert.strictEqual(infoEl.innerText.trim(), `Promise`, `incorrect name`);
+          done();
+        }, 0);
+      });
+
+      it(`__proto__ property has correct prototype/constructor name`, (done) => {
+        cons = getConsole(document.body, {
+          common: {
+            expandDepth: 1
+          }
+        });
+
+        const obj = new Promise((res) => res(456));
+        cons.log(obj);
+
+        setTimeout(() => {
+          const el = getFirstItemInRow();
+
+          const protoEntryInfoEl = getInfoEl(getProtoEntry(el).valueContEl);
+          assert.strictEqual(protoEntryInfoEl.innerText.trim(), `Promise`, `incorrect name`);
+          done();
+        }, 0);
+      });
     });
   });
 });

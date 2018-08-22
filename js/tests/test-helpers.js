@@ -19,3 +19,12 @@ export const getBodyEntries = (el) => {
     valueContEl: entryEl.querySelector(`.entry-container__value-container`)
   }));
 };
+
+export const getInfoEl = (el) => {
+  return el.querySelector(`.head__info`);
+};
+
+export const getProtoEntry = (el) => {
+  return getBodyEntries(el)
+    .find((entry) => entry.keyEl.innerText.trim() === `__proto__`);
+};
