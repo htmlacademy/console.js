@@ -1,4 +1,4 @@
-import {getFirstItemInRow, getEntries} from "../test-helpers";
+import {getFirstItemInRow, getHeadEntries} from "../test-helpers";
 import {Env} from "../../enums";
 
 const Console = window.Console;
@@ -25,7 +25,7 @@ describe(`Number and String:`, () => {
 
       const el = getFirstItemInRow();
 
-      const entries = getEntries(el);
+      const entries = getHeadEntries(el);
 
       assert(entries.length === 3, `different number of properties`);
       assert((
@@ -45,7 +45,7 @@ describe(`Number and String:`, () => {
 
       const el = getFirstItemInRow();
 
-      const entries = getEntries(el);
+      const entries = getHeadEntries(el);
 
       assert(entries.length === 3, `different number of properties`);
       assert((

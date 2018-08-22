@@ -18,7 +18,7 @@ export default class ObjectView extends TypeView {
 <div class="console__item item item--${this.viewType}">\
   <div class="head item__head">\
     <span class="info head__info hidden"></span>\
-    <div class="head__content entry-container entry-container--head entry-container--${this.viewType} hidden"></div>\
+    <div class="head__content entry-container entry-container--head entry-container--${this.viewType} hidden">${this.getHeadContent()}</div>\
   </div>\
   <div class="item__content entry-container entry-container--${this.viewType} hidden"></div>\
 </div>`;
@@ -36,6 +36,8 @@ export default class ObjectView extends TypeView {
     this._state.isItalicEnabled = this.isEnableItalic;
     this._state.isErrorEnabled = this.isEnableError;
     this._state.isOversized = this.isEnableOversized;
+
+    this._state.isOpened = this.isOpeningAllowed;
   }
 
   _getStateDescriptors() {
@@ -43,12 +45,9 @@ export default class ObjectView extends TypeView {
     return {
       set isHeadContentShowed(bool) {
         if (bool && !self._headContentEl.innerHTML) {
-          if (self.headContent instanceof HTMLElement ||
-            self.headContent instanceof DocumentFragment) {
-            self._headContentEl.appendChild(self.headContent);
-          } else {
-            self._headContentEl.textContent = self.headContent;
-          }
+          const {fragment, isOversized} = self.createContent(self.value, true);
+          self.isEnableOversized = isOversized;
+          self._headContentEl.appendChild(fragment);
         }
         self._isHeadContentShowed = self.toggleHeadContentShowed(bool);
       },
@@ -191,7 +190,15 @@ export default class ObjectView extends TypeView {
     return this.el.classList.toggle(`error`, isEnable);
   }
 
-  get headContent() { // FIXME
+
+  get headContentClassName() {
+    if (this._console.checkInstanceOf(this._value, `RegExp`) && this._mode !== Mode.DIR) {
+      return `c-regexp`;
+    }
+    return null;
+  }
+
+  getHeadContent() { // FIXME
     if (this._mode === Mode.PREVIEW &&
     this.stringTagName === `Object` &&
     this.protoConstructorName === `Object`) {
@@ -224,16 +231,7 @@ export default class ObjectView extends TypeView {
         return `/${this._value.source}/${this._value.flags}`;
       }
     }
-    const obj = this.createContent(this._value, true);
-    this._isEnableOversized = obj.isOversized;
-    return obj.fragment;
-  }
-
-  get headContentClassName() {
-    if (this._console.checkInstanceOf(this._value, `RegExp`) && this._mode !== Mode.DIR) {
-      return `c-regexp`;
-    }
-    return null;
+    return ``;
   }
 
   createContent(obj, inHead) {

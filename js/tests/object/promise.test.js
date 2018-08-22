@@ -1,4 +1,4 @@
-import {getFirstItemInRow, getEntries} from "../test-helpers";
+import {getFirstItemInRow, getHeadEntries, getBodyEntries} from "../test-helpers";
 import {Env} from "../../enums";
 
 const Console = window.Console;
@@ -14,10 +14,10 @@ describe(`Promise:`, () => {
     cons = null;
   });
   describe(`Should check spesial value:`, () => {
-    it(`Promise immediately resolved with undefined:`, (done) => {
+    it(`Promise resolved:`, (done) => {
       cons = getConsole(document.body);
 
-      const obj = new Promise((res) => res());
+      const obj = new Promise((res) => res(`test`));
       obj.foo = `test`;
       obj.bar = 123;
 
@@ -25,16 +25,16 @@ describe(`Promise:`, () => {
       setTimeout(() => {
         const el = getFirstItemInRow();
 
-        const entries = getEntries(el);
+        const entries = getHeadEntries(el);
 
         assert(entries.length === 3, `different number of properties`);
         assert(entries[0].keyEl.innerText.trim() === `<resolved>`, `first value's key ins't a [[PromiseStatus]]`);
-        assert(entries[0].valueContEl.innerText.trim() === `undefined`, `first value's value ins't a [[PromiseValue]]`);
+        assert(entries[0].valueContEl.innerText.trim() === `test`, `first value's value ins't a [[PromiseValue]]`);
         done();
       }, 0);
     });
 
-    it(`Promise immediately rejected with error message:`, (done) => {
+    it(`Promise rejected:`, (done) => {
       cons = getConsole(document.body);
 
       const obj = new Promise((res, rej) => rej(`Some error`));
@@ -46,7 +46,7 @@ describe(`Promise:`, () => {
       setTimeout(() => {
         const el = getFirstItemInRow();
 
-        const entries = getEntries(el);
+        const entries = getHeadEntries(el);
 
         assert(entries.length === 4, `different number of properties`);
         assert(entries[0].keyEl.innerText.trim() === `<rejected>`, `first value's key ins't a [[PromiseStatus]]`);
@@ -67,11 +67,52 @@ describe(`Promise:`, () => {
       setTimeout(() => {
         const el = getFirstItemInRow();
 
-        const entries = getEntries(el);
+        const entries = getHeadEntries(el);
 
         assert(entries.length === 2, `different number of properties`);
         assert(entries[0].keyEl.innerText.trim() === `<pending>`, `first value's key ins't a [[PromiseStatus]]`);
         assert(entries[0].valueContEl === null || entries[0].valueContEl.innerText === ``, `first value's value ins't a [[PromiseValue]]`);
+        done();
+      }, 0);
+    });
+  });
+  describe(`Should check body:`, () => {
+    it(`Promise resolved:`, (done) => {
+      cons = getConsole(document.body, {
+        common: {
+          expandDepth: 1
+        }
+      });
+
+      const obj = new Promise((res) => res(123456));
+      obj.foo = `test`;
+      obj.bar = 123;
+
+      cons.log(obj);
+      setTimeout(() => {
+        const el = getFirstItemInRow();
+
+        const entries = getBodyEntries(el);
+
+        assert(entries.length === 5, `different number of properties`); // 2 + [[PromiseStatus]] + [[PromiseValue]] + __proto__
+
+        const promiseStatusEntry = entries.find((entry) => entry.keyEl.innerText.trim() === `[[PromiseStatus]]`);
+
+        assert.exists(promiseStatusEntry, `body isn't contains [[PromiseStatus]] special property`);
+        assert.strictEqual(
+            promiseStatusEntry.valueContEl.innerText.trim(),
+            `resolved`,
+            `body's [[PromiseStatus]] special property has incorrect value`
+        );
+
+        const promiseValueEntry = entries.find((entry) => entry.keyEl.innerText.trim() === `[[PromiseValue]]`);
+        assert.strictEqual(
+            promiseStatusEntry.valueContEl.innerText.trim(),
+            `resolved`,
+            `body's [[PromiseStatus]] special property has incorrect value`
+        );
+
+        assert.exists(promiseValueEntry, `body isn't contains [[PromiseValue]] special property`);
         done();
       }, 0);
     });

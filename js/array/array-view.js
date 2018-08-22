@@ -40,6 +40,8 @@ export default class ArrayView extends TypeView {
     !this._parentView) {
       this.toggleItalic(true);
     }
+
+    this._state.isOpened = this.isOpeningAllowed;
   }
 
   _getStateDescriptors() {

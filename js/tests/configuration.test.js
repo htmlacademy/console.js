@@ -1,16 +1,18 @@
-import {ViewType, Env} from "../enums";
+import {ViewType} from "../enums";
 
 const Console = window.Console;
 
+// WARNING: karma mocha adds "should" property to every object
 const obj = {};
 const arr = [obj];
-arr.push(arr);
-// arr.fn = fn;
 const fn = (bar = 123) => {
   return bar;
 };
+arr.push(arr);
+arr.fn = fn;
 fn.arr = arr;
 fn.obj = obj;
+fn.fn = fn;
 obj.obj = obj;
 obj.arr = arr;
 obj.fn = fn;
@@ -34,10 +36,9 @@ const getLengths = () => {
 
 const getConsole = (container, params) => {
   return new Console(container, Object.assign(params, {
-    env: Env.TEST,
-    // common: {
-    //   excludeProperties: [`__proto__`]
-    // }
+    common: {
+      excludeProperties: [`__proto__`]
+    }
   }));
 };
 
@@ -52,22 +53,22 @@ describe(`Check depth object`, () => {
     cons.clean();
     cons = null;
   });
-  it(`root object should be opened on 2 levels`, () => {
+  it(`root object should be opened on 6 levels`, () => {
     cons = getConsole(div, {
       object: {
-        expandDepth: 2,
+        expandDepth: 4,
         minFieldsToExpand: 1
       }
     });
     cons.log(obj);
     const {objLength, arrLength, fnLength} = getLengths();
-    assert(objLength === 3 && arrLength === 1 && fnLength === 1);
+    assert(objLength === 14 && arrLength === 13 && fnLength === 13);
   });
-  it(`root object should not be opened because of minFieldsToExpand === 4 and obj has 3 fields`, () => {
+  it(`root object should not be opened because of minFieldsToExpand === 5`, () => {
     cons = getConsole(div, {
       object: {
-        expandDepth: 2,
-        minFieldsToExpand: 4
+        expandDepth: 1,
+        minFieldsToExpand: 5
       }
     });
     cons.log(obj);
@@ -82,32 +83,30 @@ describe(`Check depth object`, () => {
       }
     });
     cons.log(obj);
-    // console.log(document.querySelector(`.console`).innerHTML);
     const {objLength, arrLength, fnLength} = getLengths();
-    // console.log(`objLength: ${objLength}, arrLength: ${arrLength}, fnLength: ${fnLength}`);
-    assert(objLength === 13 && arrLength === 0 && fnLength === 65);
+    assert(objLength === 8 && arrLength === 0 && fnLength === 7);
   });
   it(`root object should be opened with excluding nested functions`, () => {
     cons = getConsole(div, {
       object: {
-        expandDepth: 5,
+        expandDepth: 4,
         exclude: [ViewType.FUNCTION]
       }
     });
     cons.log(obj);
     const {objLength, arrLength, fnLength} = getLengths();
-    assert(objLength === 30 && arrLength === 22 && fnLength === 0);
+    assert(objLength === 8 && arrLength === 7 && fnLength === 0);
   });
   it(`root object should be opened with excluding nested arrays and functions`, () => {
     cons = getConsole(div, {
       object: {
-        expandDepth: 3,
+        expandDepth: 4,
         exclude: [ViewType.ARRAY, ViewType.FUNCTION]
       }
     });
     cons.log(obj);
     const {objLength, arrLength, fnLength} = getLengths(cons);
-    assert(objLength === 5 && arrLength === 0 && fnLength === 0);
+    assert(objLength === 4 && arrLength === 0 && fnLength === 0);
   });
 });
 
@@ -119,20 +118,20 @@ describe(`Check depth array`, () => {
   it(`root array should be opened on 2 levels`, () => {
     cons = getConsole(div, {
       array: {
-        expandDepth: 2,
+        expandDepth: 4,
         minFieldsToExpand: 1
       }
     });
     cons.log(arr);
     const {objLength, arrLength, fnLength} = getLengths();
-    const bool = objLength === 1 && arrLength === 3 && fnLength === 0;
+    const bool = objLength === 13 && arrLength === 14 && fnLength === 13;
     assert(bool);
   });
-  it(`root array should not be opened because of minFieldsToExpand === 4 and array has 2 fields`, () => {
+  it(`root array should not be opened because of minFieldsToExpand === 5`, () => {
     cons = getConsole(div, {
       array: {
         expandDepth: 2,
-        minFieldsToExpand: 4
+        minFieldsToExpand: 7
       }
     });
     cons.log(arr);
@@ -148,30 +147,29 @@ describe(`Check depth array`, () => {
     });
     cons.log(arr);
     const {objLength, arrLength, fnLength} = getLengths();
-    // console.log(`objLength: ${objLength}, arrLength: ${arrLength}, fnLength: ${fnLength}`);
-    assert(objLength === 0 && arrLength === 8 && fnLength === 97);
+    assert(objLength === 0 && arrLength === 8 && fnLength === 7);
   });
   it(`root array should be opened with excluding nested functions`, () => {
     cons = getConsole(div, {
       array: {
-        expandDepth: 3,
+        expandDepth: 4,
         exclude: [ViewType.FUNCTION]
       }
     });
     cons.log(arr);
     const {objLength, arrLength, fnLength} = getLengths();
-    assert(objLength === 6 && arrLength === 6 && fnLength === 0);
+    assert(objLength === 7 && arrLength === 8 && fnLength === 0);
   });
   it(`root array should be opened with excluding nested objects and functions`, () => {
     cons = getConsole(div, {
       array: {
-        expandDepth: 2,
+        expandDepth: 4,
         exclude: [ViewType.OBJECT, ViewType.FUNCTION]
       }
     });
     cons.log(arr);
     const {objLength, arrLength, fnLength} = getLengths();
-    assert(objLength === 0 && arrLength === 3 && fnLength === 0);
+    assert(objLength === 0 && arrLength === 4 && fnLength === 0);
   });
 });
 
@@ -189,14 +187,13 @@ describe(`Check depth function DIR`, () => {
     });
     cons.dir(fn);
     const {objLength, arrLength, fnLength} = getLengths();
-    // console.log(`objLength: ${objLength}, arrLength: ${arrLength}, fnLength: ${fnLength}`);
-    assert(objLength === 14 && arrLength === 11 && fnLength === 72);
+    assert(objLength === 13 && arrLength === 13 && fnLength === 14);
   });
-  it(`root function should not be opened because of minFieldsToExpand === 5 and function has 3 fields`, () => {
+  it(`root function should not be opened because of minFieldsToExpand === 10`, () => {
     cons = getConsole(div, {
       function: {
         expandDepth: 2,
-        minFieldsToExpand: 7
+        minFieldsToExpand: 10
       }
     });
     cons.dir(fn);
@@ -212,30 +209,29 @@ describe(`Check depth function DIR`, () => {
     });
     cons.dir(fn);
     const {objLength, arrLength, fnLength} = getLengths();
-    // console.log(`objLength: ${objLength}, arrLength: ${arrLength}, fnLength: ${fnLength}`);
-    assert(objLength === 0 && arrLength === 5 && fnLength === 46);
+    assert(objLength === 0 && arrLength === 7 && fnLength === 8);
   });
   it(`root function should be opened with excluding nested arrays`, () => {
     cons = getConsole(div, {
       function: {
-        expandDepth: 3,
+        expandDepth: 4,
         exclude: [ViewType.ARRAY]
       }
     });
     cons.dir(fn);
     const {objLength, arrLength, fnLength} = getLengths();
-    assert(objLength === 4 && arrLength === 0 && fnLength === 9);
+    assert(objLength === 7 && arrLength === 0 && fnLength === 8);
   });
   it(`root function should be opened with excluding nested objects and arrays`, () => {
     cons = getConsole(div, {
       function: {
-        expandDepth: 2,
+        expandDepth: 4,
         exclude: [ViewType.OBJECT, ViewType.ARRAY]
       }
     });
     cons.dir(fn);
     const {objLength, arrLength, fnLength} = getLengths();
-    assert(objLength === 0 && arrLength === 0 && fnLength === 2);
+    assert(objLength === 0 && arrLength === 0 && fnLength === 4);
   });
 });
 

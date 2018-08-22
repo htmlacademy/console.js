@@ -65,10 +65,6 @@ export default class TypeView extends AbstractView {
     this._contentEl = this.el.querySelector(`.item__content`);
 
     this._afterRender();
-
-    this._state.isOpened = this._mode !== Mode.PREVIEW &&
-      !this._state.isOpeningDisabled &&
-      this.isAutoExpandNeeded;
   }
 
   get protoConstructorName() {
@@ -240,6 +236,12 @@ export default class TypeView extends AbstractView {
     return this._headEl.classList.toggle(`item__head--arrow-bottom`, isEnable);
   }
 
+  get isOpeningAllowed() {
+    return this._mode !== Mode.PREVIEW &&
+      !this._state.isOpeningDisabled &&
+      this.isAutoExpandNeeded;
+  }
+
   get depth() {
     if (!this._cache.depth) {
       this._cache.depth = this._parentView ? this._parentView.depth + 1 : 1;
@@ -391,10 +393,6 @@ export default class TypeView extends AbstractView {
       }
     }
 
-    if (this._console.params.env === Env.TEST) {
-      keys.delete(`should`);
-    }
-
     return keys;
   }
 
@@ -491,13 +489,6 @@ export default class TypeView extends AbstractView {
 
     const keys = Object.keys(this._ownPropertyDescriptorsWithGetSet);
     keys.sort(TypeView.compareProperties);
-
-    if (this._console.params.env === Env.TEST) {
-      const shouldKeyIndex = keys.indexOf(`should`);
-      if (shouldKeyIndex !== -1) {
-        keys.splice(shouldKeyIndex, 1);
-      }
-    }
 
     for (let key of keys) {
       const descriptor = this._ownPropertyDescriptorsWithGetSet[key];

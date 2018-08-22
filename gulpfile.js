@@ -178,6 +178,8 @@ gulp.task(`test`, function (done) {
     singleRun: process.env.TEST_DEBUG !== `true`,
     debug: true,
     files: [
+      `node_modules/chai/chai.js`,
+      `karma-chai-adapter.js`,
       `build/js/index.js`,
       testsGlob
     ]

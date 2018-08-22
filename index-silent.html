@@ -21,13 +21,14 @@
     <script>
       const obj = {};
       const arr = [obj];
-      arr.push(arr);
-      // arr.fn = fn;
       const fn = (bar = 123) => {
         return bar;
       };
+      arr.push(arr);
+      arr.fn = fn;
       fn.arr = arr;
       fn.obj = obj;
+      fn.fn = fn;
       obj.obj = obj;
       obj.arr = arr;
       obj.fn = fn;

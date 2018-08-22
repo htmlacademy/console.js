@@ -72,9 +72,10 @@
         return bar;
       };
       arr.push(arr);
-      // arr.fn = fn;
+      arr.fn = fn;
       fn.arr = arr;
       fn.obj = obj;
+      fn.fn = fn;
       obj.obj = obj;
       obj.arr = arr;
       obj.fn = fn;
