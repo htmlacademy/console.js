@@ -14,7 +14,7 @@ describe(`Promise:`, () => {
     cons = null;
   });
   describe(`Should check spesial value:`, () => {
-    it(`Promise resolved:`, (done) => {
+    it(`Resolved:`, (done) => {
       cons = getConsole(document.body);
 
       const obj = new Promise((res) => res(`test`));
@@ -34,7 +34,7 @@ describe(`Promise:`, () => {
       }, 0);
     });
 
-    it(`Promise rejected:`, (done) => {
+    it(`Rejected:`, (done) => {
       cons = getConsole(document.body);
 
       const obj = new Promise((res, rej) => rej(`Some error`));
@@ -55,7 +55,7 @@ describe(`Promise:`, () => {
       }, 0);
     });
 
-    it(`Promise pending:`, (done) => {
+    it(`Pending:`, (done) => {
       cons = getConsole(document.body);
 
       const obj = new Promise((res) => setTimeout(() => {
@@ -77,7 +77,7 @@ describe(`Promise:`, () => {
     });
   });
   describe(`Should check body:`, () => {
-    it(`Promise resolved:`, (done) => {
+    it(`Resolved:`, (done) => {
       cons = getConsole(document.body, {
         common: {
           expandDepth: 1
@@ -107,8 +107,89 @@ describe(`Promise:`, () => {
 
         const promiseValueEntry = entries.find((entry) => entry.keyEl.innerText.trim() === `[[PromiseValue]]`);
         assert.strictEqual(
+            promiseValueEntry.valueContEl.innerText.trim(),
+            `123456`,
+            `body's [[PromiseStatus]] special property has incorrect value`
+        );
+
+        assert.exists(promiseValueEntry, `body isn't contains [[PromiseValue]] special property`);
+        done();
+      }, 0);
+    });
+
+    it(`Rejected:`, (done) => {
+      cons = getConsole(document.body, {
+        common: {
+          expandDepth: 1
+        }
+      });
+
+      const obj = new Promise((res, rej) => rej(`errroroooorr`));
+      obj.foo = `test`;
+
+      cons.log(obj);
+      setTimeout(() => {
+        const el = getFirstItemInRow();
+
+        const entries = getBodyEntries(el);
+
+        assert(entries.length === 4, `different number of properties`); // 1 + [[PromiseStatus]] + [[PromiseValue]] + __proto__
+
+        const promiseStatusEntry = entries.find((entry) => entry.keyEl.innerText.trim() === `[[PromiseStatus]]`);
+
+        assert.exists(promiseStatusEntry, `body isn't contains [[PromiseStatus]] special property`);
+        assert.strictEqual(
             promiseStatusEntry.valueContEl.innerText.trim(),
-            `resolved`,
+            `rejected`,
+            `body's [[PromiseStatus]] special property has incorrect value`
+        );
+
+        const promiseValueEntry = entries.find((entry) => entry.keyEl.innerText.trim() === `[[PromiseValue]]`);
+        assert.strictEqual(
+            promiseValueEntry.valueContEl.innerText.trim(),
+            `errroroooorr`,
+            `body's [[PromiseStatus]] special property has incorrect value`
+        );
+
+        assert.exists(promiseValueEntry, `body isn't contains [[PromiseValue]] special property`);
+        done();
+      }, 0);
+    });
+
+    it(`Pending:`, (done) => {
+      cons = getConsole(document.body, {
+        common: {
+          expandDepth: 1
+        }
+      });
+
+      const obj = new Promise((res) => setTimeout(() => {
+        res();
+      }, 10000));
+      obj.foo = `test`;
+      obj.bar = 89;
+
+      cons.log(obj);
+      setTimeout(() => {
+        const el = getFirstItemInRow();
+
+        const entries = getBodyEntries(el);
+
+        assert(entries.length === 5, `different number of properties`); // 2 + [[PromiseStatus]] + [[PromiseValue]] + __proto__
+
+        const promiseStatusEntry = entries.find((entry) => entry.keyEl.innerText.trim() === `[[PromiseStatus]]`);
+
+        assert.exists(promiseStatusEntry, `body isn't contains [[PromiseStatus]] special property`);
+        assert.strictEqual(
+            promiseStatusEntry.valueContEl.innerText.trim(),
+            `pending`,
+            `body's [[PromiseStatus]] special property has incorrect value`
+        );
+
+        const promiseValueEntry = entries.find((entry) => entry.keyEl.innerText.trim() === `[[PromiseValue]]`);
+        assert.strictEqual(
+            promiseValueEntry.valueContEl.innerText.trim(),
+            `undefined`,
             `body's [[PromiseStatus]] special property has incorrect value`
         );
 
