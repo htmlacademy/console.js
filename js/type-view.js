@@ -1,7 +1,7 @@
 /* eslint no-empty: "off"*/
 /* eslint no-unused-vars: "off"*/
 import AbstractView from './abstract-view';
-import {getElement} from './utils';
+import {getElement, escapeHTML} from './utils';
 import {Mode, Env} from './enums';
 
 const isNativeFunction = (fn) => {
@@ -525,7 +525,7 @@ export default class TypeView extends AbstractView {
   _createEntryEl({key, el, mode, withoutKey, withoutValue, getViewEl, isGrey}) {
     const entryEl = getElement(`\
 <div class="entry-container__entry">\
-${withoutKey ? `` : `<span class="entry-container__key ${isGrey ? `grey` : ``}">${key.toString()}</span>`}${withoutValue ? `` : `<div class="entry-container__value-container"></div>`}\
+${withoutKey ? `` : `<span class="entry-container__key ${withoutValue ? `` : `entry-container__key--with-colon`} ${isGrey ? `grey` : ``}">${escapeHTML(key.toString())}</span>`}${withoutValue ? `` : `<div class="entry-container__value-container"></div>`}\
 </div>`);
     if (withoutValue) {
       return entryEl;

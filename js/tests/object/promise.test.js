@@ -13,7 +13,7 @@ describe(`Promise:`, () => {
     cons.clean();
     cons = null;
   });
-  describe(`Should check spesial value:`, () => {
+  describe(`Should check special value:`, () => {
     it(`Resolved:`, (done) => {
       cons = getConsole(document.body);
 

@@ -180,6 +180,7 @@ export default class ArrayView extends TypeView {
       addedKeysCounter++;
     }
     if (!inHead) {
+      fragment.appendChild(this._createGettersEntriesFragment());
       TypeView.appendEntryElIntoFragment(
           this._createTypedEntryEl({obj: arr, key: `length`, mode, notCheckDescriptors: true}),
           fragment

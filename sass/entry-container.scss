@@ -72,8 +72,11 @@
     }
   }
 
-  &__key + &__value-container::before {
-    content: ": ";
-    white-space: pre;
+  &__key {
+    &--with-colon::after {
+      content: ":";
+      white-space: pre;
+      margin-right: 6px;
+    }
   }
 }
