@@ -111,6 +111,38 @@ export default class Console {
   }
 
   /**
+   * This is implementation of https://console.spec.whatwg.org/#logger
+   * @param {{}} opts
+   * @param {[]} entries
+   */
+  _log(opts, entries) {
+    if (!entries.length) {
+      return;
+    }
+
+    // if (entries.length > 1 && entries[0].search(/specifiers/)) {
+    // this._print(opts.mode, this._format(entries));
+    // return;
+    // }
+
+    this._print(opts, entries);
+  }
+
+  _format() {
+
+  }
+
+  _print({mode, modifier, onPrint}, values) {
+    const rowEl = getElement(`<div class="console__row ${modifier ? `console__row--${modifier}` : ``}"></div>`);
+    values.forEach((val) => {
+      rowEl.appendChild(this.createTypedView(val, mode).el);
+    });
+    this._el.appendChild(rowEl);
+    onPrint(rowEl);
+    this.onAny(rowEl);
+  }
+
+  /**
    * Subscribe on any event fired
    * @abstract
    */
@@ -120,98 +152,65 @@ export default class Console {
    * Subscribe on log event fired
    * @abstract
    **/
-  onlog() {}
+  onLog() {}
 
   /**
    * Subscribe on logHTML event fired
    * @abstract
    **/
-  onlogHTML() {}
+  onLogHTML() {}
 
   /**
    * Subscribe on dir event fired
    * @abstract
    **/
-  ondir() {}
+  onDir() {}
 
   /**
    * Subscribe on error event fired
    * @abstract
    **/
-  onerror() {}
+  onError() {}
 
   /**
    * Equivalent to console.log
    * Push rest of arguments into container
    */
-  log(...rest) {
-    if (!rest.length) {
-      return;
-    }
-    const rowEl = this._getRowEl(rest, Mode.LOG);
-    this._el.appendChild(rowEl);
-    this.onlog();
-    this.onAny(rowEl.offsetHeight);
+  log(...entries) {
+    this._log({mode: Mode.LOG, onPrint: this.onLog}, entries);
   }
   /**
    * Equivalent to this.log but marks row as output
    */
-  logOutput(...rest) {
-    if (!rest.length) {
-      return;
-    }
-    const rowEl = this._getRowEl(rest, Mode.LOG, `output`);
-    this._el.appendChild(rowEl);
-    this.onlog();
-    this.onAny(rowEl.offsetHeight);
+  logOutput(...entries) {
+    this._log({mode: Mode.LOG, modifier: `output`, onPrint: this.onLog}, entries);
   }
 
   /**
    * Equivalent to console.log but special charachters in strings won't be excaped
    * Push rest of arguments into container
    */
-  logHTML(...rest) {
-    if (!rest.length) {
-      return;
-    }
-    const rowEl = this._getRowEl(rest, Mode.LOG_HTML);
-    this._el.appendChild(rowEl);
-    this.onlogHTML();
-    this.onAny(rowEl.offsetHeight);
+  logHTML(...entries) {
+    this._log({mode: Mode.LOG_HTML, onPrint: this.onLogHTML}, entries);
   }
 
   /**
    * Equivalent to console.error
    * Push single value into conainer
-   * @param {*} val — value
    */
-  error(...rest) {
-    if (!rest.length) {
-      return;
-    }
-    const val = rest[0];
-    const rowEl = getElement(`<div class="console__row console__row--error"></div>`);
-    rowEl.appendChild(this.createTypedView(val, Mode.ERROR).el);
-    this._el.appendChild(rowEl);
-    this.onerror();
-    this.onAny(rowEl.offsetHeight);
+  error(...entries) {
+    this._log({mode: Mode.ERROR, modifier: `error`, onPrint: this.onError}, entries);
   }
 
   /**
    * Equivalent to console.dir
-   * Push single value into conainer
-   * @param {*} val — value
+   * Push single value into container
    */
-  dir(...rest) {
-    if (!rest.length) {
+  dir(...entries) {
+    if (!entries.length) {
       return;
     }
-    const val = rest[0];
-    const rowEl = getElement(`<div class="console__row"></div>`);
-    rowEl.appendChild(this.createTypedView(val, Mode.DIR).el);
-    this._el.appendChild(rowEl);
-    this.ondir();
-    this.onAny(rowEl.offsetHeight);
+    this._print({mode: Mode.DIR, onPrint: this.onDir}, [entries[0]]);
   }
 
   /**
@@ -220,10 +219,10 @@ export default class Console {
    * @param {string} markup
    */
   prompt(markup) {
-    const el = getElement(`<div class="console__row console__row--input"><pre class="console__item item"></pre></div>`);
-    el.querySelector(`.console__item`).innerHTML = markup;
-    this._el.appendChild(el);
-    this.onAny(el.offsetHeight);
+    const rowEl = getElement(`<div class="console__row console__row--input"><pre class="console__item item"></pre></div>`);
+    rowEl.querySelector(`.console__item`).innerHTML = markup;
+    this._el.appendChild(rowEl);
+    this.onAny(rowEl);
   }
 
   /**
