@@ -37,6 +37,8 @@ export default class FunctionView extends TypeView {
   _afterRender() {
     this._state.isOpeningDisabled = this.isDisableOpening;
 
+    this._state.isOpened = this.isOpeningAllowed;
+
     if (this._mode === Mode.LOG || this._mode === Mode.LOG_HTML || this._mode === Mode.ERROR) {
       this._headContentEl.addEventListener(`click`, () => {
         this._headContentEl.classList.toggle(`nowrap`);
@@ -153,7 +155,7 @@ ${this._fnType === FnType.ARROW ? ` => ` : ` `}${bodyLines.join(`\n`)}`;
     return bodyContent;
   }
 
-  createContent(fn) {
+  createContent(fn, inHead) {
     const fragment = document.createDocumentFragment();
     const entriesKeys = this.contentEntriesKeys;
     for (let key of entriesKeys) {
@@ -161,6 +163,9 @@ ${this._fnType === FnType.ARROW ? ` => ` : ` `}${bodyLines.join(`\n`)}`;
           this._createTypedEntryEl({obj: fn, key, mode: Mode.PROP}),
           fragment
       );
+    }
+    if (!inHead) {
+      fragment.appendChild(this._createGettersEntriesFragment());
     }
     TypeView.appendEntryElIntoFragment(
         this._createTypedEntryEl({obj: fn, key: `__proto__`, mode: Mode.PROP, notCheckDescriptors: true}),

@@ -50,7 +50,7 @@ __elem — element
         background-repeat: no-repeat;
         background-size: contain;
         position: absolute;
-        top: 8px;
+        top: 0.5em;
         left: 5px;
         content: "";
       }
@@ -119,6 +119,11 @@ __elem — element
 
 .map-pair {
   display: inline-block;
+
+  &__key,
+  &__value {
+    display: inline-block;
+  }
 
   &--braced {
     &::before {

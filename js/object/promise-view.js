@@ -38,7 +38,7 @@ export default class PromiseView extends ObjectView {
     if (inHead) {
       TypeView.prependEntryElIntoFragment(
           this._createEntryEl({
-            key: `&lt;${this._promiseStatus}&gt;`,
+            key: `<${this._promiseStatus}>`,
             el: this._console.createTypedView(this._promiseValue, mode, this.nextNestingLevel, this).el,
             withoutValue: this._promiseStatus === PromiseStatus.pending,
             isGrey: true

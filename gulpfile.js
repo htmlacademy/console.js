@@ -82,15 +82,13 @@ gulp.task(`build-scripts`, () => {
             jsnext: true,
             browser: true
           }),
-          commonjs({
-            include: `node_modules/**`
-          }),
+          commonjs(),
           json(),
           babel({
             babelrc: false,
             exclude: [`node_modules/**`, `js/tests/**`],
             presets: [
-              [`@babel/preset-env`, {modules: false}]
+              [`@babel/preset-env`, {modules: false, useBuiltIns: `entry`}]
             ]
           })
         ]
@@ -111,9 +109,7 @@ gulp.task(`build-prompt`, () => {
             jsnext: true,
             browser: true
           }),
-          commonjs({
-            include: `node_modules/**`
-          }),
+          commonjs(),
           json(),
           babel({
             babelrc: false,
@@ -168,18 +164,25 @@ gulp.task(`build-tests`, () => {
 });
 
 gulp.task(`test`, function (done) {
-  // return gulp
-  //     .src([`js/**/*.test.js`], {
-  //       read: false
-  //     })
-  //     .pipe(mocha({
-  //       compilers: [`js:babel-register`],
-  //       reporter: `spec`
-  //     }));
+  let testOnlyFiles;
+  if (process.env.TEST_ONLY_FILES) {
+    testOnlyFiles = process.env.TEST_ONLY_FILES
+      .trim()
+      .split(/\s*\,\s*|\s+/)
+      .join(`|`);
+  }
+  const testsGlob = `build/js/tests/**/${testOnlyFiles ? `+(${testOnlyFiles})` : `*`}.test.js`;
+
   new KarmaServer({
     configFile: __dirname + `/karma.conf.js`,
-    // singleRun: true,
-    debug: true
+    singleRun: process.env.TEST_DEBUG !== `true`,
+    debug: true,
+    files: [
+      `node_modules/chai/chai.js`,
+      `karma-chai-adapter.js`,
+      `build/js/index.js`,
+      testsGlob
+    ]
   }, done).start();
 });
 

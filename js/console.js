@@ -12,6 +12,8 @@ import {Mode, ViewType, Env} from './enums';
 
 const DEFAULT_MAX_FIELDS_IN_HEAD = 5;
 
+// const getSpecifiresRE = () => /%s|%d|%i|%f|%o|%O/g;
+
 /**
  * Console
  * @class
@@ -111,6 +113,78 @@ export default class Console {
   }
 
   /**
+   * This is implementation of https://console.spec.whatwg.org/#logger
+   * @param {{}} opts
+   * @param {[]} entries
+   */
+  _log(opts, entries) {
+    if (!entries.length) {
+      return;
+    }
+
+    // if (entries.length > 1 && getSpecifiresRE().test(entries[0])) {
+    //   this._print(opts, this._format(entries));
+    //   return;
+    // }
+
+    this._print(opts, entries);
+  }
+
+  // _format(entries) {
+  //   let targetStr = entries.shift();
+  //
+  //   const re = getSpecifiresRE();
+  //
+  //   let match;
+  //   while ((match = re.exec(targetStr)) !== null) {
+  //     const substitution = entries.shift();
+  //     const specifier = match[0];
+  //     let convertedSubstitution;
+  //     switch (specifier) {
+  //       case `%s`:
+  //         convertedSubstitution = substitution;
+  //         break;
+  //       case `%d`:
+  //       case `%i`:
+  //         if (typeof substitution === `symbol`) {
+  //           convertedSubstitution = Number.NaN;
+  //         } else {
+  //           convertedSubstitution = Number.parseInt(substitution, 10);
+  //         }
+  //         break;
+  //       case `%f`:
+  //         if (typeof substitution === `symbol`) {
+  //           convertedSubstitution = Number.NaN;
+  //         } else {
+  //           convertedSubstitution = Number.parseFloat(substitution);
+  //         }
+  //         break;
+  //       case `%o`:
+  //
+  //         break;
+  //       case `%O`:
+  //
+  //         break;
+  //     }
+  //     targetStr = targetStr.replace(specifier, convertedSubstitution);
+  //   }
+  //   entries.unshift(targetStr);
+  //   return entries;
+  // }
+
+  _print({mode, modifier, onPrint}, values) {
+    const rowEl = getElement(`<div class="console__row ${modifier ? `console__row--${modifier}` : ``}"></div>`);
+    values.forEach((val) => {
+      rowEl.appendChild(this.createTypedView(val, mode).el);
+    });
+    this._el.appendChild(rowEl);
+    if (onPrint) {
+      onPrint(rowEl);
+    }
+    this.onAny(rowEl);
+  }
+
+  /**
    * Subscribe on any event fired
    * @abstract
    */
@@ -120,80 +194,65 @@ export default class Console {
    * Subscribe on log event fired
    * @abstract
    **/
-  onlog() {}
+  onLog() {}
 
   /**
    * Subscribe on logHTML event fired
    * @abstract
    **/
-  onlogHTML() {}
+  onLogHTML() {}
 
   /**
    * Subscribe on dir event fired
    * @abstract
    **/
-  ondir() {}
+  onDir() {}
 
   /**
    * Subscribe on error event fired
    * @abstract
    **/
-  onerror() {}
+  onError() {}
 
   /**
    * Equivalent to console.log
    * Push rest of arguments into container
    */
-  log(...rest) {
-    const rowEl = this._getRowEl(rest, Mode.LOG);
-    this._el.appendChild(rowEl);
-    this.onlog();
-    this.onAny(rowEl.offsetHeight);
+  log(...entries) {
+    this._log({mode: Mode.LOG, onPrint: this.onLog}, entries);
   }
   /**
    * Equivalent to this.log but marks row as output
    */
-  logOutput(...rest) {
-    const rowEl = this._getRowEl(rest, Mode.LOG, `output`);
-    this._el.appendChild(rowEl);
-    this.onlog();
-    this.onAny(rowEl.offsetHeight);
+  logOutput(...entries) {
+    this._log({mode: Mode.LOG, modifier: `output`, onPrint: this.onLog}, entries);
   }
 
   /**
    * Equivalent to console.log but special charachters in strings won't be excaped
    * Push rest of arguments into container
    */
-  logHTML(...rest) {
-    this._el.appendChild(this._getRowEl(rest, Mode.LOG_HTML));
-    this.onlogHTML();
-    this.onAny();
+  logHTML(...entries) {
+    this._log({mode: Mode.LOG_HTML, onPrint: this.onLogHTML}, entries);
   }
 
   /**
    * Equivalent to console.error
    * Push single value into conainer
-   * @param {*} val — value
    */
-  error(val) {
-    const el = getElement(`<div class="console__row console__row--error"></div>`);
-    el.appendChild(this.createTypedView(val, Mode.ERROR).el);
-    this._el.appendChild(el);
-    this.onerror();
-    this.onAny();
+  error(...entries) {
+    this._log({mode: Mode.ERROR, modifier: `error`, onPrint: this.onError}, entries);
   }
 
   /**
    * Equivalent to console.dir
-   * Push single value into conainer
-   * @param {*} val — value
+   * Push single value into container
    */
-  dir(val) {
-    const el = getElement(`<div class="console__row"></div>`);
-    el.appendChild(this.createTypedView(val, Mode.DIR).el);
-    this._el.appendChild(el);
-    this.ondir();
-    this.onAny();
+  dir(...entries) {
+    if (!entries.length) {
+      return;
+    }
+    this._print({mode: Mode.DIR, onPrint: this.onDir}, [entries[0]]);
   }
 
   /**
@@ -202,10 +261,10 @@ export default class Console {
    * @param {string} markup
    */
   prompt(markup) {
-    const el = getElement(`<div class="console__row console__row--input"><pre class="console__item item"></pre></div>`);
-    el.querySelector(`.console__item`).innerHTML = markup;
-    this._el.appendChild(el);
-    this.onAny(el.offsetHeight);
+    const rowEl = getElement(`<div class="console__row console__row--input"><pre class="console__item item"></pre></div>`);
+    rowEl.querySelector(`.console__item`).innerHTML = markup;
+    this._el.appendChild(rowEl);
+    this.onAny(rowEl);
   }
 
   /**

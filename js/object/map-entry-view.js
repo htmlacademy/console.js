@@ -30,7 +30,7 @@ export default class MapEntryView extends TypeView {
     this._state.isBraced = this._mode !== Mode.PREVIEW;
     this._state.isHeadContentShowed = true;
     this._state.isOpeningDisabled = this._mode === Mode.PREVIEW;
-    this._state.isOpened = this._mode !== Mode.PREVIEW;
+    this._state.isOpened = this.isOpeningAllowed;
   }
 
   _getStateDescriptors() {

@@ -57,7 +57,8 @@
       });
       const promptContainer = document.querySelector(`.prompt-container`);
       const prompt = new Prompt(promptContainer, `jsConsole`);
-      window.jsConsole.onAny = (appendedElHeight) => {
+      window.jsConsole.onAny = (rowEl) => {
+        const appendedElHeight = rowEl.offsetHeight;
         const promptOffsetBottom = promptContainer.offsetTop + prompt.viewHeight;
         if (promptOffsetBottom < document.body.clientHeight) {
           window.scroll(0, document.body.scrollTop + appendedElHeight);
@@ -71,9 +72,10 @@
         return bar;
       };
       arr.push(arr);
-      // arr.fn = fn;
+      arr.fn = fn;
       fn.arr = arr;
       fn.obj = obj;
+      fn.fn = fn;
       obj.obj = obj;
       obj.arr = arr;
       obj.fn = fn;
