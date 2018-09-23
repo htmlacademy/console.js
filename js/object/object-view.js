@@ -198,7 +198,7 @@ export default class ObjectView extends TypeView {
     return null;
   }
 
-  getHeadContent() { // FIXME
+  getHeadContent() {
     if (this._mode === Mode.PREVIEW &&
     this.stringTagName === `Object` &&
     this.protoConstructorName === `Object`) {

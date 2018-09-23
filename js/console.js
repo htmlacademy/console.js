@@ -12,6 +12,8 @@ import {Mode, ViewType, Env} from './enums';
 
 const DEFAULT_MAX_FIELDS_IN_HEAD = 5;
 
+// const getSpecifiresRE = () => /%s|%d|%i|%f|%o|%O/g;
+
 /**
  * Console
  * @class
@@ -120,17 +122,55 @@ export default class Console {
       return;
     }
 
-    // if (entries.length > 1 && entries[0].search(/specifiers/)) {
-    // this._print(opts.mode, this._format(entries));
-    // return;
+    // if (entries.length > 1 && getSpecifiresRE().test(entries[0])) {
+    //   this._print(opts, this._format(entries));
+    //   return;
     // }
 
     this._print(opts, entries);
   }
 
-  _format() {
-
-  }
+  // _format(entries) {
+  //   let targetStr = entries.shift();
+  //
+  //   const re = getSpecifiresRE();
+  //
+  //   let match;
+  //   while ((match = re.exec(targetStr)) !== null) {
+  //     const substitution = entries.shift();
+  //     const specifier = match[0];
+  //     let convertedSubstitution;
+  //     switch (specifier) {
+  //       case `%s`:
+  //         convertedSubstitution = substitution;
+  //         break;
+  //       case `%d`:
+  //       case `%i`:
+  //         if (typeof substitution === `symbol`) {
+  //           convertedSubstitution = Number.NaN;
+  //         } else {
+  //           convertedSubstitution = Number.parseInt(substitution, 10);
+  //         }
+  //         break;
+  //       case `%f`:
+  //         if (typeof substitution === `symbol`) {
+  //           convertedSubstitution = Number.NaN;
+  //         } else {
+  //           convertedSubstitution = Number.parseFloat(substitution);
+  //         }
+  //         break;
+  //       case `%o`:
+  //
+  //         break;
+  //       case `%O`:
+  //
+  //         break;
+  //     }
+  //     targetStr = targetStr.replace(specifier, convertedSubstitution);
+  //   }
+  //   entries.unshift(targetStr);
+  //   return entries;
+  // }
 
   _print({mode, modifier, onPrint}, values) {
     const rowEl = getElement(`<div class="console__row ${modifier ? `console__row--${modifier}` : ``}"></div>`);
@@ -138,7 +178,9 @@ export default class Console {
       rowEl.appendChild(this.createTypedView(val, mode).el);
     });
     this._el.appendChild(rowEl);
-    onPrint(rowEl);
+    if (onPrint) {
+      onPrint(rowEl);
+    }
     this.onAny(rowEl);
   }
 
