@@ -371,7 +371,7 @@ template {
   display: none; }
 
 @charset "UTF-8";
-.entry-container__entry {
+.entry-container__entry, .entry-container__key, .entry-container__value-container {
   display: inline-block; }
 
 .entry-container--head {
@@ -415,9 +415,10 @@ template {
 .entry-container__value-container--underscore:hover {
   text-decoration: underline; }
 
-.entry-container__key + .entry-container__value-container::before {
-  content: ": ";
-  white-space: pre; }
+.entry-container__key--with-colon::after {
+  content: ":";
+  white-space: pre;
+  margin-right: 6px; }
 
 .prompt {
   display: flex;
@@ -507,7 +508,7 @@ __elem — element
         background-repeat: no-repeat;
         background-size: contain;
         position: absolute;
-        top: 8px;
+        top: 0.5em;
         left: 5px;
         content: ""; }
     .console__row--input::before {
@@ -544,6 +545,8 @@ __elem — element
 
 .map-pair {
   display: inline-block; }
+  .map-pair__key, .map-pair__value {
+    display: inline-block; }
   .map-pair--braced::before {
     content: '{'; }
   .map-pair--braced::after {
