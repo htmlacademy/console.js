@@ -114,6 +114,7 @@ with [lodash.mergeWith](https://lodash.com/docs/4.17.10#mergeWith) using concati
 * `maxFieldsToExpand` — max length respectively. Default: `Positive infinity`.
 * `exclude` — array of view types that don't need to be expanded inside that root view type.
 * `showGetters` — specifies if `get` and `set` functions will be showed in expanded object body. Default: `true`.
+* `showMethodBodyOnly` — if function is a method of any type of object — shows only body of this function (in opened object)
 
 Specific properties for `array`:
 * `countEntriesWithoutKeys` — usefull only if `maxFieldsInHead` given. Specifies if indexed properties should be counted in preview (head). Default: `false`.
@@ -127,7 +128,8 @@ Example:
   object: {
     expandDepth: 2,
     minFieldsToExpand: 1, // will expand if object has 1 or more enumerable fields
-    exclude: [`function`, `array`] // will not expanded inside object
+    exclude: [`function`, `array`] // will not expanded inside object,
+    showMethodBodyOnly: true // show method's body only (if object was opened) 
   },
   function: {
     expandDepth: 1 // will expand only itself (in dir mode only),
