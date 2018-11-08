@@ -17,18 +17,23 @@ export default class FunctionView extends TypeView {
     if (!params.parentView) {
       this.rootView = this;
     }
+    if (this.parentView && this._mode === Mode.PROP &&
+    this._console.params[this.parentView.viewType].showMethodBodyOnly) {
+      this._mode = Mode.LOG;
+    }
     this._fnType = FunctionView.checkFnType(this._value);
   }
 
   get template() {
     const isShowInfo = this._fnType !== FnType.ARROW || this._mode === Mode.PREVIEW;
     const body = this._getBody();
-    const nowrapOnLog = this._console.params[this.viewType].nowrapOnLog;
+    this._bodyCanWrap = body.includes(`\n`);
+    this._nowrapOnLog = this._console.params[this.viewType].nowrapOnLog && body.includes(`\n`);
 
     return `\
 <div class="console__item item item--${this.viewType} ${this._mode === Mode.ERROR ? `error` : ``}">\
   <div class="head item__head italic">\
-    <pre class="head__content pointer ${nowrapOnLog ? `nowrap` : `` }"><span class="info info--function ${isShowInfo ? `` : `hidden`}">${this._getInfo()}</span>${isShowInfo && body ? ` ` : ``}${this._getBody()}</pre>\
+    <pre class="head__content ${this._bodyCanWrap && this._nowrapOnLog ? `nowrap` : `` } ${this._bodyCanWrap ? `pointer` : ``}"><span class="info info--function ${isShowInfo ? `` : `hidden`}">${this._getInfo()}</span>${isShowInfo && body ? ` ` : ``}${this._getBody()}</pre>\
   </div>\
   <div class="item__content entry-container entry-container--${this.viewType} hidden"></div>\
 </div>`;
@@ -36,10 +41,9 @@ export default class FunctionView extends TypeView {
 
   _afterRender() {
     this._state.isOpeningDisabled = this.isDisableOpening;
-
     this._state.isOpened = this.isOpeningAllowed;
 
-    if (this._mode === Mode.LOG || this._mode === Mode.LOG_HTML || this._mode === Mode.ERROR) {
+    if (this._bodyCanWrap) {
       this._headContentEl.addEventListener(`click`, () => {
         this._headContentEl.classList.toggle(`nowrap`);
       });
@@ -82,6 +86,12 @@ export default class FunctionView extends TypeView {
     return str;
   }
 
+  /**
+   * Head content string for Mode.PROP with body
+   * body CAN NOT cointain newlines
+   * Collapses body if it's lenght is out of MAX_PREVIEW_FN_BODY_LENGTH
+   * @return {string}
+   */
   _getHeadPropMarkup() {
     const bodyLines = this._parseBody();
     const params = this._parseParams();
@@ -97,6 +107,11 @@ ${this._fnType === FnType.ARROW ? ` => ` : ` `}`;
     return markup;
   }
 
+  /**
+   * Head content string for Mode.DIR
+   * body CAN NOT cointain newlines
+   * @return {string}
+   */
   _getHeadDirMarkup() {
     const params = this._parseParams();
 
@@ -107,6 +122,11 @@ ${this._fnType === FnType.ARROW ? `()` : ``}`;
     return markup;
   }
 
+  /**
+   * Head content string for Mode.PROP
+   * body CAN cointain newlines
+   * @return {string}
+   */
   _getHeadLogMarkup() {
     const bodyLines = this._parseBody();
     const params = this._parseParams();

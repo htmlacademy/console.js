@@ -41,8 +41,12 @@
     <script>
       const consoleContainerEl = document.querySelector(`.console-container`);
       window.jsConsole = new Console(consoleContainerEl, {
+        function: {
+          nowrapOnLog: false // collapses body in LOG mode can be omitted if false
+        },
         array: {
-          countEntriesWithoutKeys: true
+          countEntriesWithoutKeys: true,
+          showMethodBodyOnly: true // shows body only if function is property (not in head)
         },
         common: {
           excludeProperties: [`__proto__`],
