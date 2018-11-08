@@ -1,11 +1,13 @@
 # console.js [![Build Status](https://travis-ci.org/htmlacademy/console.js.svg?branch=master)](https://travis-ci.org/htmlacademy/console.js)
 Chrome-like in-browser console
+
 Available methods:
  * `log`
- * `info` — equivalent to `log`
+ * `info` — same as `log`
  * `dir`
  * `error`
- * `warn` — equivalent to `error`
+ * `warn` — same as `error`
+ * `logHTML` — same as `log`, but strings won't be escaped
 
 ## Usage
 
@@ -14,7 +16,7 @@ Available methods:
 
 Connect script `https://htmlacademy.github.io/console.js/js/index.js`,
 style file `https://htmlacademy.github.io/console.js/css/style.css` on page,
-create new Console instance by passing output container
+create new Console instance by passing output container and optional config
 
 ```html
 <head>
@@ -25,15 +27,26 @@ create new Console instance by passing output container
   <script src="//htmlacademy.github.io/console.js/js/index.js"></script>
 
   <script>
-   var jsConsole = new Console(document.querySelector('.console-container'));
+    const params = {
+      expandDepth: 1,
+      common: {
+        excludeProperties: [`__proto__`],
+        maxFieldsInHead: 5,
+        minFieldsToExpand: 5,
+        maxFieldsToExpand: 15
+      }
+    };
+    var jsConsole = new Console(document.querySelector('.console-container'), params);
 
-   jsConsole.log("Here is console.log!");
-   // console.log = jsConsole.log.bind(jsConsole);
-   // console.dir = jsConsole.dir.bind(jsConsole);
-   // ...
-   // or use Console.prototype.extend()
-   jsConsole.extend(console);
-   console.log(123);
+    jsConsole.log("Here is console.log!");
+
+    // console.log = jsConsole.log.bind(jsConsole);
+    // console.dir = jsConsole.dir.bind(jsConsole);
+    // ...
+    // console.log(123);
+    // or use Console.prototype.extend()
+    // jsConsole.extend(console);
+    // console.log(123);
   </script>
 </body>
 ```
@@ -54,7 +67,23 @@ Script will automatically create console container and extend native browser `wi
 
 ## Presets
 
-Use predefined configurations by connecting scripts on page:
+Use predefined configurations by connecting scripts on page
+
+### Available presets
+
+* [`htmlacademy.github.io/console.js/js/presets/htmlacademy.js`](https://github.com/htmlacademy/console.js/blob/master/js/presets/htmlacademy.js) —
+confifures behaviour, but not enabling autoexpand.
+All objects will show only up to `5` properties it preview (header).
+Configures autoexpand to be triggered only if there're from `5` to `15` properties.
+Excludes `__proto__` property from autoexpand.
+Functions bodies will be collapsed.
+
+* [`htmlacademy.github.io/console.js/js/presets/autoexpand-all.js`](https://github.com/htmlacademy/console.js/blob/master/js/presets/autoexpand-all.js) —
+Enabling autoexpand of all objects by `1` level.
+
+You can use both to enable autoexpanding with defined behaviour.
+
+### Connecting presets on page
 
 ```html
 <script src="//htmlacademy.github.io/console.js/js/presets/preset-1.js"></script>
@@ -65,51 +94,58 @@ Use predefined configurations by connecting scripts on page:
 Lower connected preset script has higher priority than others. Will be [merged](#presets-merge) with
 [lodash.mergeWith](https://lodash.com/docs/4.17.10#mergeWith) using concatinating arrays
 
-### Customize output
-
-If you want to configure console, all you need is
+## Console constructor
 ```js
-const jsConsole = new Console(document.querySelector(`.console`), config);
+const jsConsole = new Console(DOMElement, config);
 ```
 
-Where 2nd argument in constructor call is params object
+### Parameters
 
+#### `DOMElement` — container to append console DOM element within.
+
+#### `config` — object containing settings
 You can specify 3 types of views here: `object`, `function` and `array`.
 And `common`, that has lower priority than concrete. Will be [merged](#presets-merge) into concrete one
 with [lodash.mergeWith](https://lodash.com/docs/4.17.10#mergeWith) using concatinating arrays
 
-For example to autoexpand logged object specify:
+* `expandDepth` — depth on which fields of this object will be expanded. Default: `0`.
+* `maxFieldsInHead` — max length of properties in preview (head). If has more, `...` at the end will be showed. Default: `5`.
+* `minFieldsToExpand` — min length of enumerable fields in that object to autoexpand. Default: `0`.
+* `maxFieldsToExpand` — max length respectively. Default: `Positive infinity`.
+* `exclude` — array of view types that don't need to be expanded inside that root view type.
+* `showGetters` — specifies if `get` and `set` functions will be showed in expanded object body. Default: `true`.
+* `showMethodBodyOnly` — if function is a method of any type of object — shows only body of this function (in opened object)
 
+Specific properties for `array`:
+* `countEntriesWithoutKeys` — usefull only if `maxFieldsInHead` given. Specifies if indexed properties should be counted in preview (head). Default: `false`.
+
+Specific properties for `function`:
+* `nowrapOnLog` — specifies if functions bodies will be collapsed. Default: `false`.
+
+Example:
 ```js
 {
   object: {
     expandDepth: 2,
     minFieldsToExpand: 1, // will expand if object has 1 or more enumerable fields
-    exclude: [`function`, `array`] // will not expanded inside object
+    exclude: [`function`, `array`] // will not expanded inside object,
+    showMethodBodyOnly: true // show method's body only (if object was opened)
   },
   function: {
-    expandDepth: 1 // will expand only itself
+    expandDepth: 1 // will expand only itself (in dir mode only),
+    nowrapOnLog: true // On log will collapse function body
   },
   array: {
     expandDepth: 2, // expand 2 levels
     minFieldsToExpand: 4, // if there is 4 enum fields in array
     exclude: [`object`] // objects inside array won't be expanded
+    countEntriesWithoutKeys: true
   },
   common: {
     expandDepth: 1,
-    maxFieldsToExpand: 10
+    maxFieldsInHead: 6, // object and array will have up to 6 properties in their previews (headers)
+    maxFieldsToExpand: 10 // if there's more than 10 properties in obj of any type, it won't be expanded
   }
-}
-```
-
-* `expandDepth` — depth on which fields of this object will be expanded. If not specified — 0 by default.
-* `minFieldsToExpand` — min length of enumerable fields in that object to autoexpand. If not specified — 0 by default.
-* `exclude` — array of view types that don't need to be expanded inside that root view type.
-
-You can also trim preview elements inside head (only available in object yet):
-```js
-object: {
-  `maxFieldsInHead`: 3 // trim preview elements down to 3
 }
 ```
 
