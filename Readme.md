@@ -14,17 +14,17 @@ Available methods:
 
 ### Manual setting
 
-Connect script `https://htmlacademy.github.io/console.js/js/index.js`,
-style file `https://htmlacademy.github.io/console.js/css/style.css` on page,
+Connect script `https://htmlacademy.github.io/console.js/latest/js/index.js`,
+style file `https://htmlacademy.github.io/console.js/latest/css/style.css` on page,
 create new Console instance by passing output container and optional config
 
 ```html
 <head>
-  <link rel="stylesheet" href="//htmlacademy.github.io/console.js/css/style.css">
+  <link rel="stylesheet" href="//htmlacademy.github.io/console.js/latest/css/style.css">
 </head>
 <body>
   <div class="console-container"></div>
-  <script src="//htmlacademy.github.io/console.js/js/index.js"></script>
+  <script src="//htmlacademy.github.io/console.js/latest/js/index.js"></script>
 
   <script>
     const params = {
@@ -53,12 +53,12 @@ create new Console instance by passing output container and optional config
 
 ### Silent
 
-Connect script `https://htmlacademy.github.io/console.js/js/index-silent.js` on page
+Connect script `https://htmlacademy.github.io/console.js/latest/js/index-silent.js` on page
 
 Script will automatically create console container and extend native browser `window.console`
 
 ```html
-<script src="//htmlacademy.github.io/console.js/js/index-silent.js"></script>
+<script src="//htmlacademy.github.io/console.js/latest/js/index-silent.js"></script>
 
 <script>
  console.log(123);
@@ -71,14 +71,14 @@ Use predefined configurations by connecting scripts on page
 
 ### Available presets
 
-* [`htmlacademy.github.io/console.js/js/presets/htmlacademy.js`](https://github.com/htmlacademy/console.js/blob/master/js/presets/htmlacademy.js) —
+* [`htmlacademy.github.io/console.js/latest/js/presets/htmlacademy.js`](https://github.com/htmlacademy/console.js/blob/master/js/presets/htmlacademy.js) —
 confifures behaviour, but not enabling autoexpand.
 All objects will show only up to `5` properties it preview (header).
 Configures autoexpand to be triggered only if there're from `5` to `15` properties.
 Excludes `__proto__` property from autoexpand.
 Functions bodies will be collapsed.
 
-* [`htmlacademy.github.io/console.js/js/presets/autoexpand-all.js`](https://github.com/htmlacademy/console.js/blob/master/js/presets/autoexpand-all.js) —
+* [`htmlacademy.github.io/console.js/latest/js/presets/autoexpand-all.js`](https://github.com/htmlacademy/console.js/blob/master/js/presets/autoexpand-all.js) —
 Enabling autoexpand of all objects by `1` level.
 
 You can use both to enable autoexpanding with defined behaviour.
@@ -86,9 +86,9 @@ You can use both to enable autoexpanding with defined behaviour.
 ### Connecting presets on page
 
 ```html
-<script src="//htmlacademy.github.io/console.js/js/presets/preset-1.js"></script>
-<script src="//htmlacademy.github.io/console.js/js/presets/preset-2.js"></script>
-<script src="//htmlacademy.github.io/console.js/js/index-silent.js"></script>
+<script src="//htmlacademy.github.io/console.js/latest/js/presets/preset-1.js"></script>
+<script src="//htmlacademy.github.io/console.js/latest/js/presets/preset-2.js"></script>
+<script src="//htmlacademy.github.io/console.js/latest/js/index-silent.js"></script>
 ```
 
 Lower connected preset script has higher priority than others. Will be [merged](#presets-merge) with
@@ -187,9 +187,9 @@ and concat arrays inside them
 
 You have 2 preset files:
 ```html
-<script src="//htmlacademy.github.io/console.js/js/presets/preset-1.js"></script>
-<script src="//htmlacademy.github.io/console.js/js/presets/preset-2.js"></script>
-<script src="//htmlacademy.github.io/console.js/js/index-silent.js"></script>
+<script src="//htmlacademy.github.io/console.js/latest/js/presets/preset-1.js"></script>
+<script src="//htmlacademy.github.io/console.js/latest/js/presets/preset-2.js"></script>
+<script src="//htmlacademy.github.io/console.js/latest/js/index-silent.js"></script>
 ```
 
 preset-1.js contains:
