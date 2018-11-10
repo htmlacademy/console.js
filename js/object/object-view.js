@@ -59,6 +59,21 @@ export default class ObjectView extends TypeView {
       },
       get isErrorEnabled() {
         return self._isErrorEnabled;
+      },
+      set isOpened(bool) {
+        if (bool === self._isOpened) {
+          return;
+        }
+
+        self._isOpened = bool;
+        self.toggleArrowBottom(bool);
+        self._state.isContentShowed = bool;
+
+        self._state.isHeadContentShowed = self.isShowHeadContent;
+        self._state.isShowInfo = self.isShowInfo;
+      },
+      get isOpened() {
+        return self._isOpened;
       }
     };
   }
@@ -80,6 +95,10 @@ export default class ObjectView extends TypeView {
     }
 
     if (this._mode === Mode.DIR) {
+      return true;
+    }
+
+    if (this._mode !== Mode.PREVIEW && this._state.isOpened) {
       return true;
     }
 
@@ -117,17 +136,19 @@ export default class ObjectView extends TypeView {
       return true;
     }
 
-    if (this._mode !== Mode.DIR && this._mode !== Mode.PREVIEW) {
-      return this._propKey !== `__proto__`;
-    }
-
-    const objectIsInstance = this._console.checkInstanceOf(this._value, `Error`) ||
+    const objectIsInstance = this._console.checkInstanceOf(this._value, `Node`) ||
+      this._console.checkInstanceOf(this._value, `Error`) ||
       this._console.checkInstanceOf(this._value, `Date`) ||
       this._console.checkInstanceOf(this._value, `RegExp`);
 
     if (objectIsInstance && !checkObjectisPrototype(this._value)) {
       return true;
     }
+
+    if (this._mode !== Mode.DIR && this._mode !== Mode.PREVIEW) {
+      return !(this._propKey === `__proto__` || this._state.isOpened);
+    }
+
     return false;
   }
 

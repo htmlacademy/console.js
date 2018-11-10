@@ -66,11 +66,10 @@ export default class ArrayView extends TypeView {
         self._isOpened = bool;
         self.toggleArrowBottom(bool);
         self._state.isContentShowed = bool;
-        if (self._mode === Mode.PROP && self._propKey !== `__proto__`) {
-          self._state.isHeadContentShowed = !bool;
-          self._state.isShowLength = bool || self._value.length > 1;
-          self._state.isShowInfo = self.isShowInfo;
-        }
+
+        self._state.isHeadContentShowed = self.isShowHeadContent;
+        self._state.isShowLength = self.isShowLength;
+        self._state.isShowInfo = self.isShowInfo;
       },
       get isOpened() {
         return self._isOpened;
@@ -94,20 +93,22 @@ export default class ArrayView extends TypeView {
   }
 
   get isShowInfo() {
-    return this._mode === Mode.DIR ||
+    return this._state.isOpened ||
+      this._mode === Mode.DIR ||
       this._mode === Mode.PREVIEW ||
-      (this._mode === Mode.PROP && (this._state.isOpened || this._propKey === `__proto__`)) ||
       this.stringTagName !== `Array` || this.protoConstructorName !== `Array`;
   }
 
   get isShowHeadContent() {
-    return !(this._mode === Mode.DIR ||
+    return !(this._state.isOpened ||
+      this._mode === Mode.DIR ||
       this._mode === Mode.PREVIEW ||
       (this._mode === Mode.PROP && this._propKey === `__proto__`));
   }
 
   get isShowLength() {
-    return this._mode === Mode.DIR ||
+    return this._state.isOpened ||
+      this._mode === Mode.DIR ||
       this._mode === Mode.PREVIEW ||
       (this._mode === Mode.PROP && this._propKey === `__proto__`) ||
       this._value.length > 1;

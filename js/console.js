@@ -311,6 +311,8 @@ export default class Console {
           } else {
             view = new ObjectView(params, this);
           }
+          // TODO: отнаследовать от ObjectView вьюху для ArrayBuffer, тк там есть длина (), но она записана не в length,
+          // а в byteLength
           view.stringTagName = stringTagName;
           return view;
         } else {

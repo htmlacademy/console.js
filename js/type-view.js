@@ -174,7 +174,8 @@ export default class TypeView extends AbstractView {
           return;
         }
 
-        self._isOpened = self.toggleArrowBottom(bool);
+        self._isOpened = bool;
+        self.toggleArrowBottom(bool);
         self._state.isContentShowed = bool;
       },
       get isOpened() {

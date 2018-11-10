@@ -35,7 +35,7 @@ export default class PrimitiveView extends TypeView {
       case `string`:
         let str;
         if (this._mode === Mode.PREVIEW && value.length > 100) {
-          str = `${value.substr(0, 50)}...${value.substr(-50)}`;
+          str = `${value.substr(0, 50)}…${value.substr(-50)}`;
         } else {
           str = value;
         }
