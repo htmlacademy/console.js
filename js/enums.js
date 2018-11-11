@@ -39,3 +39,11 @@ export const PromiseStatus = {
   rejected: `rejected`,
   pending: `pending`
 };
+
+/**
+ * @enum {string}
+ */
+export const WhereChangeHeaderOnExpand = {
+  ANY_DEPTH: `any-depth`,
+  ANY_DEPTH_EXCEPT_ROOT: `any-depth-except-root`
+};

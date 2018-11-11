@@ -31,6 +31,8 @@ const init = function () {
   let config;
   if (Array.isArray(window.jsConsolePresets)) {
     config = mergeWith({}, ...window.jsConsolePresets.slice().reverse(), customizer);
+  } else {
+    window.jsConsolePresets = [];
   }
   const jsConsole = new Console(div, config);
   window.document.body.appendChild(div);

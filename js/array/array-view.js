@@ -10,6 +10,7 @@ export default class ArrayView extends TypeView {
   constructor(params, cons) {
     super(params, cons);
     this.viewType = ViewType.ARRAY;
+    this._viewTypeParams = this._console.params[this.viewType];
     if (!params.parentView) {
       this.rootView = this;
     }
@@ -32,9 +33,6 @@ export default class ArrayView extends TypeView {
 
     this._state.isBraced = true;
     this._state.isOpeningDisabled = this._mode === Mode.PREVIEW;
-    this._state.isShowInfo = this.isShowInfo;
-    this._state.isHeadContentShowed = this.isShowHeadContent;
-    this._state.isShowLength = this.isShowLength;
 
     if ((this._mode === Mode.LOG || this._mode === Mode.LOG_HTML || this._mode === Mode.ERROR) &&
     !this._parentView) {
@@ -66,11 +64,10 @@ export default class ArrayView extends TypeView {
         self._isOpened = bool;
         self.toggleArrowBottom(bool);
         self._state.isContentShowed = bool;
-        if (self._mode === Mode.PROP && self._propKey !== `__proto__`) {
-          self._state.isHeadContentShowed = !bool;
-          self._state.isShowLength = bool || self._value.length > 1;
-          self._state.isShowInfo = self.isShowInfo;
-        }
+
+        self._state.isHeadContentShowed = self.isShowHeadContent;
+        self._state.isShowLength = self.isShowLength;
+        self._state.isShowInfo = self.isShowInfo;
       },
       get isOpened() {
         return self._isOpened;
@@ -94,20 +91,22 @@ export default class ArrayView extends TypeView {
   }
 
   get isShowInfo() {
-    return this._mode === Mode.DIR ||
+    return this._state.isOpened ||
+      this._mode === Mode.DIR ||
       this._mode === Mode.PREVIEW ||
-      (this._mode === Mode.PROP && (this._state.isOpened || this._propKey === `__proto__`)) ||
       this.stringTagName !== `Array` || this.protoConstructorName !== `Array`;
   }
 
   get isShowHeadContent() {
-    return !(this._mode === Mode.DIR ||
+    return !(this._state.isOpened ||
+      this._mode === Mode.DIR ||
       this._mode === Mode.PREVIEW ||
       (this._mode === Mode.PROP && this._propKey === `__proto__`));
   }
 
   get isShowLength() {
-    return this._mode === Mode.DIR ||
+    return this._state.isOpened ||
+      this._mode === Mode.DIR ||
       this._mode === Mode.PREVIEW ||
       (this._mode === Mode.PROP && this._propKey === `__proto__`) ||
       this._value.length > 1;
@@ -124,6 +123,8 @@ export default class ArrayView extends TypeView {
     const mode = inHead ? Mode.PREVIEW : Mode.PROP;
 
     const countEntriesWithoutKeys = this._console.params[this.viewType].countEntriesWithoutKeys;
+
+    const isMapEntriesSpecialValue = this._propKey === `[[Entries]]` && this._console.checkInstanceOf(this._parentView.value, `Map`);
 
     let emptyCount = 0;
     for (let i = 0, l = arr.length; i < l; i++) {
@@ -147,10 +148,9 @@ export default class ArrayView extends TypeView {
         emptyCount = 0;
       }
       if (hasKey) {
-        if (this._propKey === `[[Entries]]` && this._console.checkInstanceOf(this._parentView.value, `Map`)) {
+        if (isMapEntriesSpecialValue) {
           const pair = arr[i];
           const el = new MapEntryView({val: pair, mode, depth: this.nextNestingLevel, parentView: this, propKey: this._propKey}, this._console).el;
-          this.isAutoExpandNeeded = true;
           TypeView.appendEntryElIntoFragment(
               this._createEntryEl({key, el, withoutKey: inHead}),
               fragment
@@ -179,13 +179,17 @@ export default class ArrayView extends TypeView {
       );
       addedKeysCounter++;
     }
-    if (!inHead) {
+    if (!inHead && this._viewTypeParams.showGetters) {
       fragment.appendChild(this._createGettersEntriesFragment());
-      TypeView.appendEntryElIntoFragment(
-          this._createTypedEntryEl({obj: arr, key: `length`, mode, notCheckDescriptors: true}),
-          fragment
-      );
-      if (Object.getPrototypeOf(arr) !== null) {
+    }
+    if (!inHead) {
+      if (!this._viewTypeParams.removeProperties.includes(`length`)) {
+        TypeView.appendEntryElIntoFragment(
+            this._createTypedEntryEl({obj: arr, key: `length`, mode, notCheckDescriptors: true}),
+            fragment
+        );
+      }
+      if (!isMapEntriesSpecialValue && !this._viewTypeParams.removeProperties.includes(`__proto__`)) {
         TypeView.appendEntryElIntoFragment(
             this._createTypedEntryEl({obj: arr, key: `__proto__`, mode, notCheckDescriptors: true}),
             fragment

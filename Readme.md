@@ -32,8 +32,8 @@ create new Console instance by passing output container and optional config
       common: {
         excludeProperties: [`__proto__`],
         maxFieldsInHead: 5,
-        minFieldsToExpand: 5,
-        maxFieldsToExpand: 15
+        minFieldsToAutoexpand: 5,
+        maxFieldsToAutoexpand: 15
       }
     };
     var jsConsole = new Console(document.querySelector('.console-container'), params);
@@ -108,16 +108,18 @@ You can specify 3 types of views here: `object`, `function` and `array`.
 And `common`, that has lower priority than concrete. Will be [merged](#presets-merge) into concrete one
 with [lodash.mergeWith](https://lodash.com/docs/4.17.10#mergeWith) using concatinating arrays
 
-* `expandDepth` — depth on which fields of this object will be expanded. Default: `0`.
+* `expandDepth` — depth on which fields of this root object will be expanded. Default: `0`.
 * `maxFieldsInHead` — max length of properties in preview (head). If has more, `...` at the end will be showed. Default: `5`.
-* `minFieldsToExpand` — min length of enumerable fields in that object to autoexpand. Default: `0`.
-* `maxFieldsToExpand` — max length respectively. Default: `Positive infinity`.
-* `exclude` — array of view types that don't need to be expanded inside that root view type.
-* `showGetters` — specifies if `get` and `set` functions will be showed in expanded object body. Default: `true`.
-* `showMethodBodyOnly` — if function is a method of any type of object — shows only body of this function (in opened object)
+* `minFieldsToAutoexpand` — min length of fields in view type to auto expand. Default: `0`.
+* `maxFieldsToAutoexpand` — max length respectively. Default: `Positive infinity`.
+* `excludeViewTypesFromAutoexpand` — array of view types that don't need to be expanded inside that root view type.
+* `showGetters` — specifies if `get` and `set` methods will be showed in expanded object body. Default: `true`.
+* `showMethodBodyOnly` — if function is a method of any type of object — shows only body of this function (in opened object).
+* `excludePropertiesFromAutoexpand` — properties in view type which wouldn't be auto expanded.
+* `removeProperties` — array of properties to remove from view.
 
 Specific properties for `array`:
-* `countEntriesWithoutKeys` — usefull only if `maxFieldsInHead` given. Specifies if indexed properties should be counted in preview (head). Default: `false`.
+* `countEntriesWithoutKeys` — useful only if `maxFieldsInHead` given. Specifies if indexed properties should be counted in preview (head). Default: `false`.
 
 Specific properties for `function`:
 * `nowrapOnLog` — specifies if functions bodies will be collapsed. Default: `false`.
@@ -127,8 +129,8 @@ Example:
 {
   object: {
     expandDepth: 2,
-    minFieldsToExpand: 1, // will expand if object has 1 or more enumerable fields
-    exclude: [`function`, `array`] // will not expanded inside object,
+    minFieldsToAutoexpand: 1, // will expand if object has 1 or more enumerable fields
+    excludeViewTypesFromAutoexpand: [`function`, `array`] // will not expanded inside object,
     showMethodBodyOnly: true // show method's body only (if object was opened)
   },
   function: {
@@ -137,14 +139,14 @@ Example:
   },
   array: {
     expandDepth: 2, // expand 2 levels
-    minFieldsToExpand: 4, // if there is 4 enum fields in array
-    exclude: [`object`] // objects inside array won't be expanded
+    minFieldsToAutoexpand: 4, // if there is 4 enum fields in array
+    excludeViewTypesFromAutoexpand: [`object`] // objects inside array won't be expanded
     countEntriesWithoutKeys: true
   },
   common: {
     expandDepth: 1,
     maxFieldsInHead: 6, // object and array will have up to 6 properties in their previews (headers)
-    maxFieldsToExpand: 10 // if there's more than 10 properties in obj of any type, it won't be expanded
+    maxFieldsToAutoexpand: 10 // if there's more than 10 properties in obj of any type, it won't be expanded
   }
 }
 ```
@@ -157,13 +159,13 @@ This config:
 ```js
 {
   object: {
-    maxFieldsToExpand: 10,
-    exclude: [`object`]
+    maxFieldsToAutoexpand: 10,
+    excludeViewTypesFromAutoexpand: [`object`]
   },
   common: {
     expandDepth: 1
-    maxFieldsToExpand: 15,
-    exclude: [`array`]
+    maxFieldsToAutoexpand: 15,
+    excludeViewTypesFromAutoexpand: [`array`]
   }
 };
 ```
@@ -173,9 +175,9 @@ will be transformed into this on application start:
 ```js
 {
   object: {
-    maxFieldsToExpand: 10,
+    maxFieldsToAutoexpand: 10,
     expandDepth: 1,
-    exclude: [`object`, `array`]
+    excludeViewTypesFromAutoexpand: [`object`, `array`]
   }
 }
 ```
@@ -196,11 +198,11 @@ preset-1.js contains:
 ```js
 {
   object: {
-    maxFieldsToExpand: 5,
-    exclude: [`object`]
+    maxFieldsToAutoexpand: 5,
+    excludeViewTypesFromAutoexpand: [`object`]
   },
   common: {
-    exclude: [`function`]
+    excludeViewTypesFromAutoexpand: [`function`]
   }
 }
 ```
@@ -210,11 +212,11 @@ preset-2.js contains:
 ```js
 {
   object: {
-    maxFieldsToExpand: 10
+    maxFieldsToAutoexpand: 10
   },
   common: {
     expandDepth: 1
-    exclude: [`array`]
+    excludeViewTypesFromAutoexpand: [`array`]
   }
 }
 ```
@@ -224,12 +226,12 @@ result will be:
 ```js
 {
   object: {
-    maxFieldsToExpand: 10,
-    exclude: [`object`]
+    maxFieldsToAutoexpand: 10,
+    excludeViewTypesFromAutoexpand: [`object`]
   },
   common: {
     expandDepth: 1
-    exclude: [`array`, `function`]
+    excludeViewTypesFromAutoexpand: [`array`, `function`]
   }
 }
 ```

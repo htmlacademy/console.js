@@ -8,6 +8,7 @@ export default class ObjectView extends TypeView {
   constructor(params, cons) {
     super(params, cons);
     this.viewType = ViewType.OBJECT;
+    this._viewTypeParams = this._console.params[this.viewType];
     if (!params.parentView) {
       this.rootView = this;
     }
@@ -59,6 +60,21 @@ export default class ObjectView extends TypeView {
       },
       get isErrorEnabled() {
         return self._isErrorEnabled;
+      },
+      set isOpened(bool) {
+        if (bool === self._isOpened) {
+          return;
+        }
+
+        self._isOpened = bool;
+        self.toggleArrowBottom(bool);
+        self._state.isContentShowed = bool;
+
+        self._state.isHeadContentShowed = self.isShowHeadContent;
+        self._state.isShowInfo = self.isShowInfo;
+      },
+      get isOpened() {
+        return self._isOpened;
       }
     };
   }
@@ -80,6 +96,10 @@ export default class ObjectView extends TypeView {
     }
 
     if (this._mode === Mode.DIR) {
+      return true;
+    }
+
+    if (this._mode !== Mode.PREVIEW && this._state.isOpened) {
       return true;
     }
 
@@ -117,17 +137,19 @@ export default class ObjectView extends TypeView {
       return true;
     }
 
-    if (this._mode !== Mode.DIR && this._mode !== Mode.PREVIEW) {
-      return this._propKey !== `__proto__`;
-    }
-
-    const objectIsInstance = this._console.checkInstanceOf(this._value, `Error`) ||
+    const objectIsInstance = this._console.checkInstanceOf(this._value, `Node`) ||
+      this._console.checkInstanceOf(this._value, `Error`) ||
       this._console.checkInstanceOf(this._value, `Date`) ||
       this._console.checkInstanceOf(this._value, `RegExp`);
 
     if (objectIsInstance && !checkObjectisPrototype(this._value)) {
       return true;
     }
+
+    if (this._mode !== Mode.DIR && this._mode !== Mode.PREVIEW) {
+      return !(this._propKey === `__proto__` || this._state.isOpened);
+    }
+
     return false;
   }
 
@@ -238,7 +260,6 @@ export default class ObjectView extends TypeView {
     const fragment = document.createDocumentFragment();
     const entriesKeys = inHead ? this.headContentEntriesKeys : this.contentEntriesKeys;
     const mode = inHead ? Mode.PREVIEW : Mode.PROP;
-    entriesKeys.delete(`__proto__`); // Object may not have prototype
 
     const maxFieldsInHead = this._console.params[this.viewType].maxFieldsInHead;
     let isOversized = false;
@@ -251,10 +272,10 @@ export default class ObjectView extends TypeView {
       TypeView.appendEntryElIntoFragment(this._createTypedEntryEl({obj, key, mode, canReturnNull: inHead}), fragment);
       addedKeysCounter++;
     }
-    if (!inHead) {
+    if (!inHead && this._viewTypeParams.showGetters) {
       fragment.appendChild(this._createGettersEntriesFragment());
     }
-    if (!inHead && Object.getPrototypeOf(obj) !== null) {
+    if (!inHead && Object.getPrototypeOf(obj) !== null && !this._viewTypeParams.removeProperties.includes(`__proto__`)) {
       TypeView.appendEntryElIntoFragment(
           this._createTypedEntryEl({obj, key: `__proto__`, mode, notCheckDescriptors: true}),
           fragment
