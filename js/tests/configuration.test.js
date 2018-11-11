@@ -37,7 +37,7 @@ const getLengths = () => {
 const getConsole = (container, params) => {
   return new Console(container, Object.assign(params, {
     common: {
-      excludeProperties: [`__proto__`]
+      excludePropertiesFromAutoexpand: [`__proto__`]
     }
   }));
 };
@@ -57,18 +57,18 @@ describe(`Check depth object`, () => {
     cons = getConsole(div, {
       object: {
         expandDepth: 4,
-        minFieldsToExpand: 1
+        minFieldsToAutoexpand: 1
       }
     });
     cons.log(obj);
     const {objLength, arrLength, fnLength} = getLengths();
     assert(objLength === 14 && arrLength === 13 && fnLength === 13);
   });
-  it(`root object should not be opened because of minFieldsToExpand === 5`, () => {
+  it(`root object should not be opened because of minFieldsToAutoexpand === 5`, () => {
     cons = getConsole(div, {
       object: {
         expandDepth: 1,
-        minFieldsToExpand: 5
+        minFieldsToAutoexpand: 5
       }
     });
     cons.log(obj);
@@ -79,7 +79,7 @@ describe(`Check depth object`, () => {
     cons = getConsole(div, {
       object: {
         expandDepth: 4,
-        exclude: [ViewType.ARRAY]
+        excludeViewTypesFromAutoexpand: [ViewType.ARRAY]
       }
     });
     cons.log(obj);
@@ -90,7 +90,7 @@ describe(`Check depth object`, () => {
     cons = getConsole(div, {
       object: {
         expandDepth: 4,
-        exclude: [ViewType.FUNCTION]
+        excludeViewTypesFromAutoexpand: [ViewType.FUNCTION]
       }
     });
     cons.log(obj);
@@ -101,7 +101,7 @@ describe(`Check depth object`, () => {
     cons = getConsole(div, {
       object: {
         expandDepth: 4,
-        exclude: [ViewType.ARRAY, ViewType.FUNCTION]
+        excludeViewTypesFromAutoexpand: [ViewType.ARRAY, ViewType.FUNCTION]
       }
     });
     cons.log(obj);
@@ -119,7 +119,7 @@ describe(`Check depth array`, () => {
     cons = getConsole(div, {
       array: {
         expandDepth: 4,
-        minFieldsToExpand: 1
+        minFieldsToAutoexpand: 1
       }
     });
     cons.log(arr);
@@ -127,11 +127,11 @@ describe(`Check depth array`, () => {
     const bool = objLength === 13 && arrLength === 14 && fnLength === 13;
     assert(bool);
   });
-  it(`root array should not be opened because of minFieldsToExpand === 5`, () => {
+  it(`root array should not be opened because of minFieldsToAutoexpand === 5`, () => {
     cons = getConsole(div, {
       array: {
         expandDepth: 2,
-        minFieldsToExpand: 7
+        minFieldsToAutoexpand: 7
       }
     });
     cons.log(arr);
@@ -142,7 +142,7 @@ describe(`Check depth array`, () => {
     cons = getConsole(div, {
       array: {
         expandDepth: 4,
-        exclude: [ViewType.OBJECT]
+        excludeViewTypesFromAutoexpand: [ViewType.OBJECT]
       }
     });
     cons.log(arr);
@@ -153,7 +153,7 @@ describe(`Check depth array`, () => {
     cons = getConsole(div, {
       array: {
         expandDepth: 4,
-        exclude: [ViewType.FUNCTION]
+        excludeViewTypesFromAutoexpand: [ViewType.FUNCTION]
       }
     });
     cons.log(arr);
@@ -164,7 +164,7 @@ describe(`Check depth array`, () => {
     cons = getConsole(div, {
       array: {
         expandDepth: 4,
-        exclude: [ViewType.OBJECT, ViewType.FUNCTION]
+        excludeViewTypesFromAutoexpand: [ViewType.OBJECT, ViewType.FUNCTION]
       }
     });
     cons.log(arr);
@@ -182,18 +182,18 @@ describe(`Check depth function DIR`, () => {
     cons = getConsole(div, {
       function: {
         expandDepth: 4,
-        minFieldsToExpand: 1
+        minFieldsToAutoexpand: 1
       }
     });
     cons.dir(fn);
     const {objLength, arrLength, fnLength} = getLengths();
     assert(objLength === 13 && arrLength === 13 && fnLength === 14);
   });
-  it(`root function should not be opened because of minFieldsToExpand === 10`, () => {
+  it(`root function should not be opened because of minFieldsToAutoexpand === 10`, () => {
     cons = getConsole(div, {
       function: {
         expandDepth: 2,
-        minFieldsToExpand: 10
+        minFieldsToAutoexpand: 10
       }
     });
     cons.dir(fn);
@@ -204,7 +204,7 @@ describe(`Check depth function DIR`, () => {
     cons = getConsole(div, {
       function: {
         expandDepth: 4,
-        exclude: [ViewType.OBJECT]
+        excludeViewTypesFromAutoexpand: [ViewType.OBJECT]
       }
     });
     cons.dir(fn);
@@ -215,7 +215,7 @@ describe(`Check depth function DIR`, () => {
     cons = getConsole(div, {
       function: {
         expandDepth: 4,
-        exclude: [ViewType.ARRAY]
+        excludeViewTypesFromAutoexpand: [ViewType.ARRAY]
       }
     });
     cons.dir(fn);
@@ -226,7 +226,7 @@ describe(`Check depth function DIR`, () => {
     cons = getConsole(div, {
       function: {
         expandDepth: 4,
-        exclude: [ViewType.OBJECT, ViewType.ARRAY]
+        excludeViewTypesFromAutoexpand: [ViewType.OBJECT, ViewType.ARRAY]
       }
     });
     cons.dir(fn);

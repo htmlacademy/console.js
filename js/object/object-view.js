@@ -8,6 +8,7 @@ export default class ObjectView extends TypeView {
   constructor(params, cons) {
     super(params, cons);
     this.viewType = ViewType.OBJECT;
+    this._viewTypeParams = this._console.params[this.viewType];
     if (!params.parentView) {
       this.rootView = this;
     }
@@ -259,7 +260,6 @@ export default class ObjectView extends TypeView {
     const fragment = document.createDocumentFragment();
     const entriesKeys = inHead ? this.headContentEntriesKeys : this.contentEntriesKeys;
     const mode = inHead ? Mode.PREVIEW : Mode.PROP;
-    entriesKeys.delete(`__proto__`); // Object may not have prototype
 
     const maxFieldsInHead = this._console.params[this.viewType].maxFieldsInHead;
     let isOversized = false;
@@ -272,10 +272,10 @@ export default class ObjectView extends TypeView {
       TypeView.appendEntryElIntoFragment(this._createTypedEntryEl({obj, key, mode, canReturnNull: inHead}), fragment);
       addedKeysCounter++;
     }
-    if (!inHead) {
+    if (!inHead && this._viewTypeParams.showGetters) {
       fragment.appendChild(this._createGettersEntriesFragment());
     }
-    if (!inHead && Object.getPrototypeOf(obj) !== null) {
+    if (!inHead && Object.getPrototypeOf(obj) !== null && !this._viewTypeParams.removeProperties.includes(`__proto__`)) {
       TypeView.appendEntryElIntoFragment(
           this._createTypedEntryEl({obj, key: `__proto__`, mode, notCheckDescriptors: true}),
           fragment

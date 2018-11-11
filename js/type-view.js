@@ -35,6 +35,8 @@ export default class TypeView extends AbstractView {
       this._parentView = params.parentView;
       this.rootView = params.parentView.rootView;
     }
+    /** @abstract must be overriden */
+    this._viewTypeParams = void 0;
     this._console = cons;
     this._value = params.val;
     this._mode = params.mode;
@@ -285,14 +287,20 @@ export default class TypeView extends AbstractView {
     return this._cache.ownPropertyDescriptorsWithGetSet;
   }
 
-  get _ownPropertyDescriptorsWithGetSetLength() {
+  get _ownPropertyGetSetLength() {
     if (!this._cache.ownPropertyDescriptorsWithGetSetLength) {
       let count = 0;
       for (let key in this._ownPropertyDescriptorsWithGetSet) {
         if (!Object.prototype.hasOwnProperty.call(this._ownPropertyDescriptorsWithGetSet, key)) {
           continue;
         }
-        count++;
+        const descriptor = this._ownPropertyDescriptors[key];
+        if (descriptor.get) {
+          count++;
+        }
+        if (descriptor.set) {
+          count++;
+        }
       }
       this._cache.ownPropertyDescriptorsWithGetSetLength = count;
     }
@@ -393,7 +401,10 @@ export default class TypeView extends AbstractView {
         }
       }
     }
-
+    const removeProperties = this._viewTypeParams.removeProperties;
+    for (let prop of removeProperties) {
+      keys.delete(prop);
+    }
     return keys;
   }
 
@@ -428,27 +439,27 @@ export default class TypeView extends AbstractView {
     if (!this._cache.isAutoExpandNeeded) {
       this._cache.isAutoExpandNeeded = false;
 
-      const typeParams = this._console.params[this.rootView.viewType];
+      const rootViewTypeParams = this._console.params[this.rootView.viewType];
+      const viewTypeParams = this._viewTypeParams;
 
-      if (this._currentDepth > typeParams.expandDepth) {
+      if (this._currentDepth > rootViewTypeParams.expandDepth) {
         return this._cache.isAutoExpandNeeded;
       }
 
       if (this._parentView) {
-        if (!typeParams.exclude.includes(this.viewType) &&
-        !typeParams.excludeProperties.includes(this._propKey) &&
-        this._parentView.isAutoExpandNeeded) {
-          this._cache.isAutoExpandNeeded = true;
+        if (!(this._parentView.isAutoExpandNeeded &&
+        !rootViewTypeParams.excludeViewTypesFromAutoexpand.includes(this.viewType) &&
+        !rootViewTypeParams.excludePropertiesFromAutoexpand.includes(this._propKey))) {
+          return this._cache.isAutoExpandNeeded;
         }
-      } else {
-        let entriesKeysLength = this.contentEntriesKeys.size;
-        if (typeParams.showGetters) {
-          entriesKeysLength += this._ownPropertyDescriptorsWithGetSetLength;
-        }
-        if (typeParams.maxFieldsToExpand >= entriesKeysLength &&
-          entriesKeysLength >= typeParams.minFieldsToExpand) {
-          this._cache.isAutoExpandNeeded = true;
-        }
+      }
+      let entriesKeysLength = this.contentEntriesKeys.size;
+      if (viewTypeParams.showGetters) {
+        entriesKeysLength += this._ownPropertyGetSetLength;
+      }
+      if (viewTypeParams.maxFieldsToAutoexpand >= entriesKeysLength &&
+        entriesKeysLength >= viewTypeParams.minFieldsToAutoexpand) {
+        this._cache.isAutoExpandNeeded = true;
       }
     }
     return this._cache.isAutoExpandNeeded;
@@ -456,6 +467,11 @@ export default class TypeView extends AbstractView {
 
   set isAutoExpandNeeded(bool) {
     this._cache.isAutoExpandNeeded = bool;
+  }
+
+  get isChangeHeaderOnExpandNeeded() {
+    const typeParams = this._viewTypeParams;
+
   }
 
   get info() {

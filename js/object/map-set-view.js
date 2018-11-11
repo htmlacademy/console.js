@@ -43,9 +43,10 @@ export default class MapSetView extends ObjectView {
       isOversized = contentObj.isOversized;
 
       // Object.setPrototypeOf(entriesArr, null); // TODO удалить поле прото из этого объекта, но сделать так, чтобы показывало Array
-      const entriesArrEl = this._console.createTypedView(entriesArr, Mode.PROP, this.nextNestingLevel, this, `[[Entries]]`).el;
+      const entriesArrView = this._console.createTypedView(entriesArr, Mode.PROP, this.nextNestingLevel, this, `[[Entries]]`);
+      entriesArrView.isAutoExpandNeeded = true;
       TypeView.appendEntryElIntoFragment(
-          this._createEntryEl({key: `[[Entries]]`, el: entriesArrEl, withoutKey: false}),
+          this._createEntryEl({key: `[[Entries]]`, el: entriesArrView.el, withoutKey: false}),
           fragment
       );
     }

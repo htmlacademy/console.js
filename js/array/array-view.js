@@ -10,6 +10,7 @@ export default class ArrayView extends TypeView {
   constructor(params, cons) {
     super(params, cons);
     this.viewType = ViewType.ARRAY;
+    this._viewTypeParams = this._console.params[this.viewType];
     if (!params.parentView) {
       this.rootView = this;
     }
@@ -32,9 +33,6 @@ export default class ArrayView extends TypeView {
 
     this._state.isBraced = true;
     this._state.isOpeningDisabled = this._mode === Mode.PREVIEW;
-    this._state.isShowInfo = this.isShowInfo;
-    this._state.isHeadContentShowed = this.isShowHeadContent;
-    this._state.isShowLength = this.isShowLength;
 
     if ((this._mode === Mode.LOG || this._mode === Mode.LOG_HTML || this._mode === Mode.ERROR) &&
     !this._parentView) {
@@ -126,6 +124,8 @@ export default class ArrayView extends TypeView {
 
     const countEntriesWithoutKeys = this._console.params[this.viewType].countEntriesWithoutKeys;
 
+    const isMapEntriesSpecialValue = this._propKey === `[[Entries]]` && this._console.checkInstanceOf(this._parentView.value, `Map`);
+
     let emptyCount = 0;
     for (let i = 0, l = arr.length; i < l; i++) {
       if (inHead && countEntriesWithoutKeys && addedKeysCounter === maxFieldsInHead) {
@@ -148,10 +148,9 @@ export default class ArrayView extends TypeView {
         emptyCount = 0;
       }
       if (hasKey) {
-        if (this._propKey === `[[Entries]]` && this._console.checkInstanceOf(this._parentView.value, `Map`)) {
+        if (isMapEntriesSpecialValue) {
           const pair = arr[i];
           const el = new MapEntryView({val: pair, mode, depth: this.nextNestingLevel, parentView: this, propKey: this._propKey}, this._console).el;
-          this.isAutoExpandNeeded = true;
           TypeView.appendEntryElIntoFragment(
               this._createEntryEl({key, el, withoutKey: inHead}),
               fragment
@@ -180,13 +179,17 @@ export default class ArrayView extends TypeView {
       );
       addedKeysCounter++;
     }
-    if (!inHead) {
+    if (!inHead && this._viewTypeParams.showGetters) {
       fragment.appendChild(this._createGettersEntriesFragment());
-      TypeView.appendEntryElIntoFragment(
-          this._createTypedEntryEl({obj: arr, key: `length`, mode, notCheckDescriptors: true}),
-          fragment
-      );
-      if (Object.getPrototypeOf(arr) !== null) {
+    }
+    if (!inHead) {
+      if (!this._viewTypeParams.removeProperties.includes(`length`)) {
+        TypeView.appendEntryElIntoFragment(
+            this._createTypedEntryEl({obj: arr, key: `length`, mode, notCheckDescriptors: true}),
+            fragment
+        );
+      }
+      if (!isMapEntriesSpecialValue && !this._viewTypeParams.removeProperties.includes(`__proto__`)) {
         TypeView.appendEntryElIntoFragment(
             this._createTypedEntryEl({obj: arr, key: `__proto__`, mode, notCheckDescriptors: true}),
             fragment

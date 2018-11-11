@@ -3,10 +3,10 @@ const params = {
     nowrapOnLog: true
   },
   common: {
-    excludeProperties: [`__proto__`],
+    excludePropertiesFromAutoexpand: [`__proto__`],
     maxFieldsInHead: 5,
-    minFieldsToExpand: 5,
-    maxFieldsToExpand: 15
+    minFieldsToAutoexpand: 5,
+    maxFieldsToAutoexpand: 15
   }
 };
 

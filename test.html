@@ -40,8 +40,8 @@
       const jsConsole = new Console(document.querySelector(`.console-container`), {
         common: {
           excludeProperties: [`__proto__`],
-          minFieldsToExpand: 5, // как в object.maxFieldsInHead
-          maxFieldsToExpand: 15,
+          minFieldsToAutoexpand: 5, // как в object.maxFieldsInHead
+          maxFieldsToAutoexpand: 15,
           expandDepth: 1
         },
         function: {

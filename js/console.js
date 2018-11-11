@@ -23,7 +23,7 @@ export default class Console {
    * Initialize console into container
    * @param {HTMLElement} container — console container
    * @param {{}} params — parameters
-   * @param {number} params.minFieldsToExpand — min number of fields in obj to expand
+   * @param {number} params.minFieldsToAutoexpand — min number of fields in obj to expand
    * @param {number} params.maxFieldsInHead — max number of preview fields inside head
    * @param {number} params.expandDepth — level of depth to expand
    * @param {Env} params.env — environment
@@ -70,26 +70,29 @@ export default class Console {
     ) ? params.expandDepth : 0;
 
 
-    params.minFieldsToExpand = (
-      typeof params.minFieldsToExpand === `number` &&
-      params.minFieldsToExpand > 0
-    ) ? params.minFieldsToExpand : 0;
+    params.minFieldsToAutoexpand = (
+      typeof params.minFieldsToAutoexpand === `number` &&
+      params.minFieldsToAutoexpand > 0
+    ) ? params.minFieldsToAutoexpand : 0;
 
-    params.maxFieldsToExpand = (
-      typeof params.maxFieldsToExpand === `number` &&
-      params.maxFieldsToExpand > 0
-    ) ? params.maxFieldsToExpand : Number.POSITIVE_INFINITY;
+    params.maxFieldsToAutoexpand = (
+      typeof params.maxFieldsToAutoexpand === `number` &&
+      params.maxFieldsToAutoexpand > 0
+    ) ? params.maxFieldsToAutoexpand : Number.POSITIVE_INFINITY;
 
     params.maxFieldsInHead = (
       typeof params.maxFieldsInHead === `number` &&
       params.maxFieldsInHead > 0
     ) ? params.maxFieldsInHead : DEFAULT_MAX_FIELDS_IN_HEAD;
 
-    if (!Array.isArray(params.excludeProperties)) {
-      params.excludeProperties = [];
+    if (!Array.isArray(params.removeProperties)) {
+      params.removeProperties = [];
     }
-    if (!Array.isArray(params.exclude)) {
-      params.exclude = [];
+    if (!Array.isArray(params.excludePropertiesFromAutoexpand)) {
+      params.excludePropertiesFromAutoexpand = [];
+    }
+    if (!Array.isArray(params.excludeViewTypesFromAutoexpand)) {
+      params.excludeViewTypesFromAutoexpand = [];
     } else {
       const availableTypes = [];
       for (let key in ViewType) {
@@ -98,7 +101,7 @@ export default class Console {
           availableTypes.push(type);
         }
       }
-      if (!params.exclude.every((type) => availableTypes.includes(type))) {
+      if (!params.excludeViewTypesFromAutoexpand.every((type) => availableTypes.includes(type))) {
         throw new Error(`Provided type to exclude is not in available types`);
       }
     }

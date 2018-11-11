@@ -14,6 +14,7 @@ export default class FunctionView extends TypeView {
   constructor(params, cons) {
     super(params, cons);
     this.viewType = ViewType.FUNCTION;
+    this._viewTypeParams = this._console.params[this.viewType];
     if (!params.parentView) {
       this.rootView = this;
     }
@@ -175,7 +176,7 @@ ${this._fnType === FnType.ARROW ? ` => ` : ` `}${bodyLines.join(`\n`)}`;
     return bodyContent;
   }
 
-  createContent(fn, inHead) {
+  createContent(fn) {
     const fragment = document.createDocumentFragment();
     const entriesKeys = this.contentEntriesKeys;
     for (let key of entriesKeys) {
@@ -184,13 +185,15 @@ ${this._fnType === FnType.ARROW ? ` => ` : ` `}${bodyLines.join(`\n`)}`;
           fragment
       );
     }
-    if (!inHead) {
+    if (this._viewTypeParams.showGetters) {
       fragment.appendChild(this._createGettersEntriesFragment());
     }
-    TypeView.appendEntryElIntoFragment(
-        this._createTypedEntryEl({obj: fn, key: `__proto__`, mode: Mode.PROP, notCheckDescriptors: true}),
-        fragment
-    );
+    if (!this._viewTypeParams.removeProperties.includes(`__proto__`)) {
+      TypeView.appendEntryElIntoFragment(
+          this._createTypedEntryEl({obj: fn, key: `__proto__`, mode: Mode.PROP, notCheckDescriptors: true}),
+          fragment
+      );
+    }
     return {fragment};
   }
 
