@@ -42,18 +42,26 @@
       const consoleContainerEl = document.querySelector(`.console-container`);
       window.jsConsole = new Console(consoleContainerEl, {
         function: {
-          nowrapOnLog: false // collapses body in LOG mode can be omitted if false
+          nowrapOnLog: false, // collapses body in LOG mode can be omitted if false
+          showGetters: false,
+          removeProperties: [`caller`, `arguments`]
         },
         array: {
           countEntriesWithoutKeys: true,
           showMethodBodyOnly: true // shows body only if function is property (not in head)
         },
         common: {
-          excludeProperties: [`__proto__`],
-          expandDepth: 1,
+          excludePropertiesFromAutoexpand: [`__proto__`],
+          expandDepth: 2,
           maxFieldsInHead: 5,
-          minFieldsToExpand: 5, // значение как в object.maxFieldsInHead
-          maxFieldsToExpand: 15
+          minFieldsToAutoexpand: 5, // значение как в object.maxFieldsInHead
+          maxFieldsToAutoexpand: 15,
+          whereChangeHeaderOnExpand: `any-depth` // `any-depth-except-root`
+        },
+        object: {
+          excludeViewTypesFromAutoexpand: [`function`, `array`],
+          minFieldsToAutoexpand: 2,
+          // maxFieldsToAutoexpand: 2
         }
       });
       window.addEventListener(`error`, (evt) => {
