@@ -73,6 +73,7 @@
   }
 
   &__key {
+    color: #565656;
     &--with-colon::after {
       content: ":";
       white-space: pre;
