@@ -1,0 +1,1 @@
+!function(){"use strict";var o={function:{nowrapOnLog:!0},common:{excludePropertiesFromAutoexpand:["__proto__"],maxFieldsInHead:5,minFieldsToAutoexpand:5,maxFieldsToAutoexpand:15}};Array.isArray(window.jsConsolePresets)?window.jsConsolePresets.push(o):window.jsConsolePresets=[o]}();
