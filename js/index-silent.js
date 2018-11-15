@@ -4,7 +4,7 @@ import mergeWith from 'lodash.mergewith';
 import {customizer} from './utils';
 import {Mode} from './enums';
 
-const CSS_URL = `//htmlacademy.github.io/console.js/0.4.1/css/style.min.css`;
+const CSS_URL = `//htmlacademy.github.io/console.js/0.4.2/css/style.min.css`;
 
 const messages = [];
 

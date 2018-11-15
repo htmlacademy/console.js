@@ -18,8 +18,9 @@ export default class FunctionView extends TypeView {
     if (!params.parentView) {
       this.rootView = this;
     }
-    if (this.parentView && this._mode === Mode.PROP &&
-    this._console.params[this.parentView.viewType].showMethodBodyOnly) {
+    if (this.parentView && this._mode === Mode.PROP && (
+      this._console.params[this.parentView.viewType].showMethodBodyOnly ||
+      this._viewTypeParams.showMethodBodyOnly)) {
       this._mode = Mode.LOG;
     }
     this._fnType = FunctionView.checkFnType(this._value);
@@ -156,10 +157,14 @@ ${this._fnType === FnType.ARROW ? ` => ` : ` `}${bodyLines.join(`\n`)}`;
       const arrowIndex = str.indexOf(`=>`);
       str = str.substring(arrowIndex + 2);
     }
+    if (this._fnType === FnType.PLAIN) {
+      const lastParenthesisIndex = str.indexOf(`)`);
+      str = str.substring(lastParenthesisIndex);
+    }
     const firstBraceIndex = str.indexOf(`{`);
     str = str.substring(firstBraceIndex);
     const lines = str.split(`\n`);
-    const firstLine = lines.shift();
+    const firstLine = lines.shift().trim();
     const firstWhitespaceIndexes = lines
         .filter((line) => line.length !== 0)
         .map((line) => {
