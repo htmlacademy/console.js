@@ -156,10 +156,14 @@ ${this._fnType === FnType.ARROW ? ` => ` : ` `}${bodyLines.join(`\n`)}`;
       const arrowIndex = str.indexOf(`=>`);
       str = str.substring(arrowIndex + 2);
     }
+    if (this._fnType === FnType.PLAIN) {
+      const lastParenthesisIndex = str.indexOf(`)`);
+      str = str.substring(lastParenthesisIndex);
+    }
     const firstBraceIndex = str.indexOf(`{`);
     str = str.substring(firstBraceIndex);
     const lines = str.split(`\n`);
-    const firstLine = lines.shift();
+    const firstLine = lines.shift().trim();
     const firstWhitespaceIndexes = lines
         .filter((line) => line.length !== 0)
         .map((line) => {
