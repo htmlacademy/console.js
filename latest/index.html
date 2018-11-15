@@ -45,8 +45,7 @@
           nowrapOnLog: false // collapses body in LOG mode can be omitted if false
         },
         array: {
-          countEntriesWithoutKeys: true,
-          showMethodBodyOnly: true // shows body only if function is property (not in head)
+          countEntriesWithoutKeys: true
         },
         common: {
           excludeProperties: [`__proto__`],
@@ -56,7 +55,7 @@
           maxFieldsToAutoexpand: 15
         },
         object: {
-          expandDepth: 0,
+          showMethodBodyOnly: true, // shows body only if function is property (not in head)
           excludeViewTypesFromAutoexpand: [`function`, `array`],
           minFieldsToAutoexpand: 5,
           // maxFieldsToAutoexpand: 2
