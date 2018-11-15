@@ -18,8 +18,9 @@ export default class FunctionView extends TypeView {
     if (!params.parentView) {
       this.rootView = this;
     }
-    if (this.parentView && this._mode === Mode.PROP &&
-    this._console.params[this.parentView.viewType].showMethodBodyOnly) {
+    if (this.parentView && this._mode === Mode.PROP && (
+      this._console.params[this.parentView.viewType].showMethodBodyOnly ||
+      this._viewTypeParams.showMethodBodyOnly)) {
       this._mode = Mode.LOG;
     }
     this._fnType = FunctionView.checkFnType(this._value);
