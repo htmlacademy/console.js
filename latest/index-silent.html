@@ -12,10 +12,17 @@
         -webkit-tap-highlight-color: transparent;
       }
     </style>
-
     <script src="js/presets/autoexpand-all.js"></script>
     <script src="js/presets/htmlacademy.js"></script>
     <script src="js/index-silent.js"></script>
+    <script>
+      console.log(errorCatchedBeforeDOMContentLoaded)
+    </script>
+    <script>
+      setTimeout(() => {
+        console.log(errorCatchedAfterDOMContentLoaded)
+      }, 3000)
+    </script>
   </head>
   <body>
     <script>
