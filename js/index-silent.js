@@ -54,8 +54,9 @@ const init = function () {
         break;
     }
   });
+  window.removeEventListener(`error`, collectErr);
   window.addEventListener(`error`, (evt) => {
-    jsConsole.error(evt.error);
+    jsConsole.error(evt.message);
   });
 };
 
