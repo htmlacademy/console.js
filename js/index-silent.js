@@ -9,7 +9,7 @@ const CSS_URL = `//htmlacademy.github.io/console.js/0.4.3/css/style.min.css`;
 const messages = [];
 
 const collectErr = function (evt) {
-  messages.push({mode: Mode.ERROR, args: [evt.error]});
+  messages.push({mode: Mode.ERROR, args: [evt.message]});
 };
 
 window.addEventListener(`error`, collectErr);
