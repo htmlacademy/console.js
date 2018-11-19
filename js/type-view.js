@@ -384,7 +384,11 @@ export default class TypeView extends AbstractView {
       enumerableProperties.sort(TypeView.compareProperties);
       notEnumerableProperties.sort(TypeView.compareProperties);
     }
-    const symbols = this._ownPropertySymbols;
+
+    let symbols = [];
+    if (this._console.params[this.rootView.viewType] && this._viewTypeParams.showSymbols) {
+      symbols = this._ownPropertySymbols;
+    }
 
     const keys = new Set(enumerableProperties.concat(notEnumerableProperties).concat(symbols));
 

@@ -69,6 +69,22 @@ export default class Console {
     return parsedParams;
   }
 
+  /**
+   * @param {ViewType} viewType
+   * @param {{}} params
+   * @param {number} params.minFieldsToAutoexpand=0 — min number of fields in obj to expand
+   * @param {number} params.maxFieldsToAutoexpand=Number.POSITIVE_INFINITY - max number of fields in obj to expand
+   * @param {number} params.maxFieldsInHead=DEFAULT_MAX_FIELDS_IN_HEAD — max number of preview fields inside head
+   * @param {number} params.expandDepth=0 — level of depth to expand
+   * @param {[string]} params.removeProperties=[] — array of properties those won't show up
+   * @param {[string]} params.excludePropertiesFromAutoexpand=[] — array of properties those won't autoexpand
+   * @param {[ViewType]} params.excludeViewTypesFromAutoexpand=[] — array of view types those won't autoexpand
+   * @param {boolean} params.showGetters=true — show getters in view or not
+   * @param {boolean} params.showSymbols=true — show symbols in view or not
+   * @param {boolean} params.countEntriesWithoutKeys=false — (applies only to ArrayView) count indexed entries or not
+   * @param {boolean} params.nowrapOnLog=false — specifies if functions bodies will be collapsed
+   * @return {{}} parsed params
+   */
   _parseViewParams(viewType, params = {}) {
     // Set this._expandDepth and this._minFieldsToExpand only if expandDepth provided and > 0
 
@@ -117,8 +133,14 @@ export default class Console {
     params.showGetters = typeof params.showGetters === `boolean` ?
       params.showGetters : true;
 
+    params.showSymbols = typeof params.showSymbols === `boolean` ?
+      params.showSymbols : true;
+
     params.countEntriesWithoutKeys = typeof params.countEntriesWithoutKeys === `boolean` ?
       params.countEntriesWithoutKeys : false;
+
+    params.nowrapOnLog = typeof params.nowrapOnLog === `boolean` ?
+      params.nowrapOnLog : false;
 
     return params;
   }
