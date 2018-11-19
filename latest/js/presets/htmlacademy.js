@@ -1,1 +1,1 @@
-!function(){"use strict";window.jsConsole.addConfig({function:{nowrapOnLog:!0},common:{excludePropertiesFromAutoexpand:["__proto__"],maxFieldsInHead:5,minFieldsToAutoexpand:5,maxFieldsToAutoexpand:15}})}();
+!function(){"use strict";window.jsConsole.addConfig({common:{excludePropertiesFromAutoexpand:["__proto__"],maxFieldsInHead:5,minFieldsToAutoexpand:1,maxFieldsToAutoexpand:15}})}();
