@@ -1,5 +1,5 @@
 /* eslint-env node */
-
+'use strict'; // eslint-disable-line
 const del = require(`del`);
 const gulp = require(`gulp`);
 const gulpIf = require(`gulp-if`);

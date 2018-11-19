@@ -1,4 +1,4 @@
-const params = {
+window.jsConsole.addConfig({
   function: {
     nowrapOnLog: true
   },
@@ -8,10 +8,4 @@ const params = {
     minFieldsToAutoexpand: 5,
     maxFieldsToAutoexpand: 15
   }
-};
-
-if (Array.isArray(window.jsConsolePresets)) {
-  window.jsConsolePresets.push(params);
-} else {
-  window.jsConsolePresets = [params];
-}
+});

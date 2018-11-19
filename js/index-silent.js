@@ -1,7 +1,5 @@
 /* eslint no-invalid-this: "off"*/
 import Console from './console';
-import mergeWith from 'lodash.mergewith';
-import {customizer} from './utils';
 import {Mode} from './enums';
 
 const CSS_URL = `//htmlacademy.github.io/console.js/0.4.3/css/style.min.css`;
@@ -25,38 +23,37 @@ window.console.dir = collectMessages.bind({mode: Mode.DIR});
 window.console.warn = collectMessages.bind({mode: Mode.ERROR});
 window.console.error = collectMessages.bind({mode: Mode.ERROR});
 
+let container = null;
+
 const init = function () {
-  const div = window.document.createElement(`div`);
-  div.classList.add(`console-container`);
-  let config;
-  if (Array.isArray(window.jsConsolePresets)) {
-    config = mergeWith({}, ...window.jsConsolePresets.slice().reverse(), customizer);
-  } else {
-    window.jsConsolePresets = [];
-  }
-  const jsConsole = new Console(div, config);
-  window.document.body.appendChild(div);
+  container = window.document.createElement(`div`);
+  container.classList.add(`console-container`);
+  const jsConsole = new Console(container);
+  window.jsConsole = jsConsole;
 
   jsConsole.extend(window.console);
+};
+
+const processMessages = () => {
   messages.forEach(({mode, args}) => {
     switch (mode) {
       case Mode.LOG:
-        jsConsole.log(...args);
+        window.jsConsole.log(...args);
         break;
       case Mode.DIR:
-        jsConsole.dir(...args);
+        window.jsConsole.dir(...args);
         break;
       case Mode.LOG_HTML:
-        jsConsole.logHTML(...args);
+        window.jsConsole.logHTML(...args);
         break;
       case Mode.ERROR:
-        jsConsole.error(...args);
+        window.jsConsole.error(...args);
         break;
     }
   });
   window.removeEventListener(`error`, collectErr);
   window.addEventListener(`error`, (evt) => {
-    jsConsole.error(evt.error ? evt.error : evt.message);
+    window.jsConsole.error(evt.error ? evt.error : evt.message);
   });
 };
 
@@ -67,7 +64,11 @@ window.addEventListener(`DOMContentLoaded`, () => {
   link.rel = `stylesheet`;
   link.href = CSS_URL;
   link.addEventListener(`load`, () => {
-    init();
+    // init();
+    processMessages();
+    window.document.body.appendChild(container);
   });
   window.document.head.appendChild(link);
 });
+
+init();
