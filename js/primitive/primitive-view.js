@@ -5,6 +5,9 @@ import {escapeHTML} from '../utils';
 export default class PrimitiveView extends TypeView {
   constructor(params, cons) {
     super(params, cons);
+    if (params.parentView) {
+      this._parentView = params.parentView;
+    }
     this.viewType = ViewType.PRIMITIVE;
   }
 
@@ -39,7 +42,7 @@ export default class PrimitiveView extends TypeView {
         } else {
           str = value;
         }
-        html = `<pre class="console__item item item--primitive c-string ${this._mode === Mode.PROP || this._mode === Mode.PREVIEW ? `nowrap` : ``} ${this._mode === Mode.PROP ? `pointer` : ``} ${this._mode === Mode.ERROR ? `${this._mode}` : ``}">${str}</pre>`;
+        html = `<pre class="console__item item item--primitive c-string ${this._parentView ? `c-string--with-parent` : `` } ${this._mode === Mode.PROP || this._mode === Mode.PREVIEW ? `nowrap` : ``} ${this._mode === Mode.PROP ? `pointer` : ``} ${this._mode === Mode.ERROR ? `${this._mode}` : ``}">${str}</pre>`;
         break;
       case `symbol`:
         html = `<div class="console__item item item--primitive c-symbol">${value}</div>`;
