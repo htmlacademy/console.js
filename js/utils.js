@@ -4,11 +4,13 @@ export const getElement = (htmlMarkup) => {
   return div.firstElementChild;
 };
 
-export const customizer = (objValue, srcValue) => {
-  if (Array.isArray(objValue)) {
-    return objValue.concat(srcValue);
-  }
-  return void 0;
+export const mergeParams = (mergeWith, configs) => {
+  return mergeWith({}, ...configs.slice(), (objValue, srcValue) => {
+    if (Array.isArray(objValue)) {
+      return objValue.concat(srcValue);
+    }
+    return void 0;
+  });
 };
 
 export const checkObjectisPrototype = (obj) => {

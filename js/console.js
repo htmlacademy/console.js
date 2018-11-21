@@ -1,5 +1,4 @@
 /* eslint no-empty: "off"*/
-import mergeWith from 'lodash.mergewith';
 import ObjectView from './object/object-view';
 import MapSetView from './object/map-set-view';
 import PromiseView from './object/promise-view';
@@ -7,7 +6,8 @@ import StringNumberView from './object/string-number-view';
 import ArrayView from './array/array-view';
 import FunctionView from './function/function-view';
 import PrimitiveView from './primitive/primitive-view';
-import {getElement, customizer, checkObjectisPrototype, checkEnumContainsValue} from './utils';
+import mergeParams from './utils/merge-params';
+import {getElement, checkObjectisPrototype, checkEnumContainsValue} from './utils';
 import {Mode, ViewType, Env} from './enums';
 
 const DEFAULT_MAX_FIELDS_IN_HEAD = 5;
@@ -22,13 +22,13 @@ export default class Console {
   /**
    * Initialize console into container
    * @param {HTMLElement} container — console container
-   * @param {{}} params — parameters
+   * @param {{}} config — parameters
    * @param {number} params.minFieldsToAutoexpand — min number of fields in obj to expand
    * @param {number} params.maxFieldsInHead — max number of preview fields inside head
    * @param {number} params.expandDepth — level of depth to expand
    * @param {Env} params.env — environment
    **/
-  constructor(container, params = {}) {
+  constructor(container, config = {}) {
     if (!container) {
       throw new Error(`Console is not inited!`);
     } else if (!(container instanceof HTMLElement)) {
@@ -39,14 +39,22 @@ export default class Console {
     this._el.classList.add(`console`);
     container.appendChild(this._el);
 
-    this.params = {
-      object: this._parseViewParams(ViewType.OBJECT, mergeWith({}, params.common, params.object, customizer)),
-      array: this._parseViewParams(ViewType.ARRAY, mergeWith({}, params.common, params.array, customizer)),
-      function: this._parseViewParams(ViewType.FUNCTION, mergeWith({}, params.common, params.function, customizer))
-    };
-
-    Object.assign(this.params, this._parseConsoleParams(params));
+    this.addConfig(config);
     this.params.global.TypedArray = Object.getPrototypeOf(Int8Array);
+  }
+
+  addConfig(config = {}) {
+    if (!this._configs) {
+      this._configs = [];
+    }
+    this._configs.push(config);
+    const mergedParams = mergeParams(this._configs);
+    this.params = {
+      object: this._parseViewParams(ViewType.OBJECT, mergeParams([{}, mergedParams.common, mergedParams.object])),
+      array: this._parseViewParams(ViewType.ARRAY, mergeParams([{}, mergedParams.common, mergedParams.array])),
+      function: this._parseViewParams(ViewType.FUNCTION, mergeParams([{}, mergedParams.common, mergedParams.function]))
+    };
+    Object.assign(this.params, this._parseConsoleParams(mergedParams));
   }
 
   _parseConsoleParams(params) {
@@ -61,6 +69,22 @@ export default class Console {
     return parsedParams;
   }
 
+  /**
+   * @param {ViewType} viewType
+   * @param {{}} params
+   * @param {number} params.minFieldsToAutoexpand=0 — min number of fields in obj to expand
+   * @param {number} params.maxFieldsToAutoexpand=Number.POSITIVE_INFINITY - max number of fields in obj to expand
+   * @param {number} params.maxFieldsInHead=DEFAULT_MAX_FIELDS_IN_HEAD — max number of preview fields inside head
+   * @param {number} params.expandDepth=0 — level of depth to expand
+   * @param {[string]} params.removeProperties=[] — array of properties those won't show up
+   * @param {[string]} params.excludePropertiesFromAutoexpand=[] — array of properties those won't autoexpand
+   * @param {[ViewType]} params.excludeViewTypesFromAutoexpand=[] — array of view types those won't autoexpand
+   * @param {boolean} params.showGetters=true — show getters in view or not
+   * @param {boolean} params.showSymbols=true — show symbols in view or not
+   * @param {boolean} params.countEntriesWithoutKeys=false — (applies only to ArrayView) count indexed entries or not
+   * @param {boolean} params.nowrapOnLog=false — specifies if functions bodies will be collapsed
+   * @return {{}} parsed params
+   */
   _parseViewParams(viewType, params = {}) {
     // Set this._expandDepth and this._minFieldsToExpand only if expandDepth provided and > 0
 
@@ -109,8 +133,14 @@ export default class Console {
     params.showGetters = typeof params.showGetters === `boolean` ?
       params.showGetters : true;
 
+    params.showSymbols = typeof params.showSymbols === `boolean` ?
+      params.showSymbols : true;
+
     params.countEntriesWithoutKeys = typeof params.countEntriesWithoutKeys === `boolean` ?
       params.countEntriesWithoutKeys : false;
+
+    params.nowrapOnLog = typeof params.nowrapOnLog === `boolean` ?
+      params.nowrapOnLog : false;
 
     return params;
   }
@@ -185,6 +215,14 @@ export default class Console {
       onPrint(rowEl);
     }
     this.onAny(rowEl);
+  }
+
+  _getRowEl(entries, mode, modifier) {
+    const el = getElement(`<div class="console__row ${modifier ? `console__row--${modifier}` : ``}"></div>`);
+    entries.forEach((val) => {
+      el.appendChild(this.createTypedView(val, mode).el);
+    });
+    return el;
   }
 
   /**
@@ -324,14 +362,6 @@ export default class Console {
       default:
         return new PrimitiveView(params, this);
     }
-  }
-
-  _getRowEl(entries, mode, modifier) {
-    const el = getElement(`<div class="console__row ${modifier ? `console__row--${modifier}` : ``}"></div>`);
-    entries.forEach((val) => {
-      el.appendChild(this.createTypedView(val, mode).el);
-    });
-    return el;
   }
 
   /**

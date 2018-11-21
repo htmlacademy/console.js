@@ -9,5 +9,6 @@ env:
   commonjs: true
 globals:
   assert: true
+  expect: true
 
 extends: 'htmlacademy/es6'
