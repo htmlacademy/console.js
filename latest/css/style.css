@@ -499,12 +499,14 @@ __elem — element
 
 .c-string {
   margin: 0;
-  color: green;
-  white-space: pre-wrap; }
-  .c-string::before {
-    content: '"'; }
-  .c-string::after {
-    content: '"'; }
+  white-space: pre-wrap;
+  color: #333333; }
+  .c-string--with-parent {
+    color: green; }
+    .c-string--with-parent::before {
+      content: '"'; }
+    .c-string--with-parent::after {
+      content: '"'; }
 
 .c-number,
 .c-boolean {
