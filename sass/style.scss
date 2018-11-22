@@ -153,18 +153,33 @@ __elem — element
 .c-string {
   margin: 0;
   white-space: pre-wrap;
-  color: #333333;
-  &--with-parent {
-    color: green;
-    &::before {
-      content: '"';
-    }
+  color: green;
+  &::before {
+    content: '"';
+  }
 
-    &::after {
-      content: '"';
-    }
+  &::after {
+    content: '"';
   }
 }
+
+// TODO
+// .c-string {
+//   margin: 0;
+//   white-space: pre-wrap;
+//   color: #333333;
+//   &--with-parent {
+//     color: green;
+//     &::before {
+//       content: '"';
+//     }
+//
+//     &::after {
+//       content: '"';
+//     }
+//   }
+// }
+
 
 .c-number,
 .c-boolean {
