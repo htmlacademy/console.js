@@ -501,12 +501,10 @@ __elem — element
   margin: 0;
   white-space: pre-wrap;
   color: green; }
-.c-string::before {
-   content: '"';
-}
-.c-string::after {
-   content: '"';
-}
+  .c-string::before {
+    content: '"'; }
+  .c-string::after {
+    content: '"'; }
 
 .c-number,
 .c-boolean {

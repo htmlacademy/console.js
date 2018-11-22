@@ -500,13 +500,11 @@ __elem — element
 .c-string {
   margin: 0;
   white-space: pre-wrap;
-  color: #333333; }
-  .c-string--with-parent {
-    color: green; }
-    .c-string--with-parent::before {
-      content: '"'; }
-    .c-string--with-parent::after {
-      content: '"'; }
+  color: green; }
+  .c-string::before {
+    content: '"'; }
+  .c-string::after {
+    content: '"'; }
 
 .c-number,
 .c-boolean {
