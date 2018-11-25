@@ -5,10 +5,11 @@
   padding: 8px;
   border-top: 1px solid #eeeeee;
   box-sizing: border-box;
-  font: 0.8em/normal SFMono-Regular, Consolas, "Liberation Mono", Menlo, Courier, "Courier New", monospace;
+  font: 0.8em/normal "SFMono-Regular", "Consolas", "Liberation Mono", "Menlo", "Courier", "Courier New", monospace;
   line-height: 1.4;
 
-  pre, code {
+  pre,
+  code {
     font: inherit;
   }
 
@@ -50,12 +51,5 @@
     width: 26px;
     height: 26px;
     transform: rotate(-90deg);
-  }
-}
-
-.send-icon {
-  &--grey {
-    fill: #858f99;
-    stroke: white;
   }
 }

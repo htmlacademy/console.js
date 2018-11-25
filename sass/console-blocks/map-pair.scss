@@ -1,0 +1,18 @@
+.map-pair {
+  display: inline-block;
+
+  &__key,
+  &__value {
+    display: inline-block;
+  }
+
+  &--braced {
+    &::before {
+      content: "{";
+    }
+
+    &::after {
+      content: "}";
+    }
+  }
+}

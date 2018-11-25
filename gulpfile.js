@@ -25,7 +25,7 @@ const debug = require(`gulp-debug`);
 const KarmaServer = require(`karma`).Server;
 
 gulp.task(`style`, () => {
-  return gulp.src([`sass/**/*.{css,scss,sass}`])
+  return gulp.src([`sass/style.scss`])
       .pipe(plumber())
       .pipe(sass())
       .pipe(concat(`style.css`))

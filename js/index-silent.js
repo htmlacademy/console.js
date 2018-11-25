@@ -2,7 +2,7 @@
 import Console from './console';
 import {Mode} from './enums';
 
-const CSS_URL = `//htmlacademy.github.io/console.js/1.0.0/css/style.min.css`;
+const CSS_URL = `//htmlacademy.github.io/console.js/1.0.1/css/style.min.css`;
 
 const messages = [];
 

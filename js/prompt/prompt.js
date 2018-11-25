@@ -1,4 +1,3 @@
-/* eslint no-eval: "off" */
 import acorn from 'acorn/dist/acorn';
 import PromptView from './prompt-view';
 

@@ -1,0 +1,38 @@
+.item {
+  $parent: &;
+
+  &__head {
+    display: inline-block;
+    white-space: nowrap;
+
+    &::before {
+      display: inline-block;
+      width: 9px;
+      height: 9px;
+      background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewbox%3D%220%200%2040%2040%22%20width%3D%2240%22%20height%3D%2240%22%3E%3Cpolygon%20points%3D%220%2C40%2040%2C20%200%2C0%22%20fill%3D%22%236e6e6e%22%2F%3E%3C%2Fsvg%3E");
+      background-size: contain;
+      background-repeat: no-repeat;
+      vertical-align: baseline;
+    }
+
+    &--arrow-pointer {
+      cursor: pointer;
+
+      &::before {
+        content: "";
+      }
+    }
+
+    &--arrow-bottom {
+      &::before {
+        transform: rotate(90deg);
+      }
+    }
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    margin-left: 12px;
+  }
+}

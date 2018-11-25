@@ -1,0 +1,9 @@
+.length {
+  &::before {
+    content: "(";
+  }
+
+  &::after {
+    content: ")";
+  }
+}

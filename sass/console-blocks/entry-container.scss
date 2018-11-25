@@ -9,8 +9,10 @@
 
   &--head {
     white-space: normal;
+
     #{$parent}__entry:not(:last-child) {
       margin-right: 5px;
+
       &::after {
         content: ",";
         white-space: pre;
@@ -21,46 +23,50 @@
   &--braced {
     &#{$parent}--object {
       &::before {
-        content: '{';
+        content: "{";
       }
 
       &::after {
-        content: '}';
+        content: "}";
       }
 
       &#{$parent}--oversize {
         #{$parent}__entry:last-child {
           margin-right: 5px;
+
           &::after {
             content: ",";
             white-space: pre;
           }
         }
+
         &::after {
-          content: '…}';
+          content: "…}";
         }
       }
     }
 
     &#{$parent}--array {
       &::before {
-        content: '[';
+        content: "[";
       }
 
       &::after {
-        content: ']';
+        content: "]";
       }
 
       &#{$parent}--oversize {
         #{$parent}__entry:last-child {
           margin-right: 5px;
+
           &::after {
             content: ",";
             white-space: pre;
           }
         }
+
         &::after {
-          content: '…]';
+          content: "…]";
         }
       }
     }
@@ -74,6 +80,7 @@
 
   &__key {
     color: #565656;
+
     &--with-colon::after {
       content: ":";
       white-space: pre;
