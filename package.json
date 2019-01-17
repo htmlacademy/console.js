@@ -6,10 +6,11 @@
   "scripts": {
     "eslint": "eslint gulpfile.js js/",
     "build": "gulp build",
+    "build:prod": "NODE_ENV=production gulp build",
     "start": "gulp serve",
     "test": "gulp test && npm run eslint",
     "stylelint": "stylelint 'sass/**/*.scss' --syntax scss",
-    "deploy": "NODE_ENV=production gulp build && ./deploy.sh",
+    "deploy": "npm run build:prod && ./deploy.sh",
     "deploy:exact-version": "NODE_ENV=production gulp build && ONLY_VERSION=true ./deploy.sh"
   },
   "devDependencies": {

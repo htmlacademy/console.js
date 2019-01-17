@@ -198,13 +198,20 @@ gulp.task(`copy-html`, () => {
       .pipe(server.stream());
 });
 
-gulp.task(`copy`, gulp.series(`copy-html`, `build-scripts`, `build-prompt`, `build-js-presets`, `build-tests`, `style`, `style-prism`, () => {
-  return gulp.src([
-    `fonts/**/*.{woff,woff2}`,
-    `img/**.*`
-  ], {base: `.`})
-      .pipe(gulp.dest(`build`));
-}));
+gulp.task(`copy`, gulp.series(
+    `copy-html`,
+    `build-scripts`,
+    `build-prompt`,
+    `build-js-presets`,
+    process.env.NODE_ENV !== `production` ? `build-tests` : (done) => { done() }, // eslint-disable-line
+    `style`,
+    `style-prism`, () => {
+      return gulp.src([
+        `fonts/**/*.{woff,woff2}`,
+        `img/**.*`
+      ], {base: `.`})
+        .pipe(gulp.dest(`build`));
+    }));
 
 gulp.task(`imagemin`, gulp.series(`copy`, () => {
   return gulp.src(`build/img/**/*.{jpg,png,gif}`)
