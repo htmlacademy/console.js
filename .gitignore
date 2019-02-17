@@ -4,6 +4,7 @@ node_modules
 tests/coverage
 tests/report-lcovonly.txt
 build/
+tests/
 .idea
 .DS_Store
 out

@@ -12,12 +12,12 @@ const mqpacker = require(`css-mqpacker`);
 const minify = require(`gulp-csso`);
 const rename = require(`gulp-rename`);
 const imagemin = require(`gulp-imagemin`);
-const babel = require(`rollup-plugin-babel`);
+// const babel = require(`rollup-plugin-babel`);
 const nodeResolve = require(`rollup-plugin-node-resolve`);
 const commonjs = require(`rollup-plugin-commonjs`);
 const json = require(`rollup-plugin-json`);
 const rollup = require(`gulp-better-rollup`);
-const uglify = require(`gulp-uglify`);
+const terser = require(`gulp-terser`);
 const sourcemaps = require(`gulp-sourcemaps`);
 const concat = require(`gulp-concat`);
 // const mocha = require(`gulp-mocha`);
@@ -84,16 +84,19 @@ gulp.task(`build-scripts`, () => {
           }),
           commonjs(),
           json(),
-          babel({
-            babelrc: false,
-            exclude: [`node_modules/**`, `js/tests/**`],
-            presets: [
-              [`@babel/preset-env`, {modules: false, useBuiltIns: `entry`}]
-            ]
-          })
+          // babel({
+          //   babelrc: false,
+          //   exclude: [`node_modules/**`, `js/tests/**`],
+          //   presets: [
+          //     [`@babel/preset-env`, {modules: false, useBuiltIns: `entry`}]
+          //   ]
+          // })
         ]
       }, `iife`))
-      .pipe(gulpIf(process.env.NODE_ENV === `production`, uglify()))
+      .pipe(gulpIf(process.env.NODE_ENV === `production`, terser({
+        safari10: true,
+        keep_fnames: true // eslint-disable-line
+      })))
       .pipe(sourcemaps.write(``))
       .pipe(gulp.dest(`build/js`));
 });
@@ -111,19 +114,21 @@ gulp.task(`build-prompt`, () => {
           }),
           commonjs(),
           json(),
-          babel({
-            babelrc: false,
-            exclude: [`node_modules/**`, `js/tests/**`],
-            presets: [
-              [`@babel/preset-env`, {modules: false}]
-            ],
-            plugins: [[`prismjs`, {
-              "languages": [`javascript`]
-            }]]
-          })
+          // babel({
+          //   babelrc: false,
+          //   exclude: [`node_modules/**`, `js/tests/**`],
+          //   presets: [
+          //     [`@babel/preset-env`, {modules: false}]
+          //   ],
+          //   plugins: [[`prismjs`, {
+          //     "languages": [`javascript`]
+          //   }]]
+          // })
         ]
       }, `iife`))
-      .pipe(gulpIf(process.env.NODE_ENV === `production`, uglify()))
+      .pipe(gulpIf(process.env.NODE_ENV === `production`, terser({
+        keep_fnames: true // eslint-disable-line
+      })))
       .pipe(sourcemaps.write(``))
       .pipe(gulp.dest(`build/js`));
 });
@@ -136,15 +141,17 @@ gulp.task(`build-js-presets`, () => {
         plugins: [
           nodeResolve(),
           commonjs(),
-          babel({
-            babelrc: false,
-            presets: [
-              [`@babel/preset-env`, {modules: false}]
-            ]
-          })
+          // babel({
+          //   babelrc: false,
+          //   presets: [
+          //     [`@babel/preset-env`, {modules: false}]
+          //   ]
+          // })
         ]
       }, `iife`))
-      .pipe(gulpIf(process.env.NODE_ENV === `production`, uglify()))
+      .pipe(gulpIf(process.env.NODE_ENV === `production`, terser({
+        keep_fnames: true // eslint-disable-line
+      })))
       .pipe(gulp.dest(`build/js/presets`));
 });
 
@@ -160,7 +167,7 @@ gulp.task(`build-tests`, () => {
         ]
       }, `iife`))
       .pipe(sourcemaps.write(``))
-      .pipe(gulp.dest(`build/js/tests`));
+      .pipe(gulp.dest(`tests`));
 });
 
 gulp.task(`test`, function (done) {
@@ -171,7 +178,6 @@ gulp.task(`test`, function (done) {
       .split(/\s*\,\s*|\s+/)
       .join(`|`);
   }
-  const testsGlob = `build/js/tests/**/${testOnlyFiles ? `+(${testOnlyFiles})` : `*`}.test.js`;
 
   new KarmaServer({
     configFile: __dirname + `/karma.conf.js`,
@@ -181,7 +187,7 @@ gulp.task(`test`, function (done) {
       `node_modules/chai/chai.js`,
       `karma-chai-adapter.js`,
       `build/js/index.js`,
-      testsGlob
+      `tests/**/${testOnlyFiles ? `+(${testOnlyFiles})` : `*`}.test.js`
     ]
   }, done).start();
 });
@@ -227,7 +233,7 @@ gulp.task(`imagemin`, gulp.series(`copy`, () => {
 // });
 
 gulp.task(`clean`, () => {
-  return del(`build`);
+  return del([`build`, `tests`]);
 });
 
 gulp.task(`js-watch`, gulp.series(`build-scripts`, `build-prompt`, `build-js-presets`, `build-tests`, (done) => {
