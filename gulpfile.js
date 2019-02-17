@@ -228,10 +228,6 @@ gulp.task(`imagemin`, gulp.series(`copy`, () => {
       .pipe(gulp.dest(`build/img`));
 }));
 
-// gulp.task(`examples`, () => {
-//   return gulp.src(`index.html`).pipe(gulp.dest(`examples`));
-// });
-
 gulp.task(`clean`, () => {
   return del([`build`, `tests`]);
 });
