@@ -4,7 +4,7 @@
   "description": "Inbrowser Demo Console",
   "author": "nikolayemrikh",
   "scripts": {
-    "eslint": "eslint gulpfile.js js/",
+    "eslint": "eslint gulpfile.js src/",
     "build": "gulp build",
     "build:prod": "NODE_ENV=production gulp build",
     "start": "gulp serve",

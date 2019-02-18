@@ -72,7 +72,7 @@ gulp.task(`style-prism`, () => {
 });
 
 gulp.task(`build-scripts`, () => {
-  return gulp.src([`js/index.js`, `js/index-silent.js`])
+  return gulp.src([`src/index.js`, `src/index-silent.js`])
       .pipe(debug({title: `debug`}))
       .pipe(plumber())
       .pipe(sourcemaps.init())
@@ -102,7 +102,7 @@ gulp.task(`build-scripts`, () => {
 });
 
 gulp.task(`build-prompt`, () => {
-  return gulp.src([`js/index-prompt.js`])
+  return gulp.src([`src/index-prompt.js`])
       .pipe(debug({title: `debug`}))
       .pipe(plumber())
       .pipe(sourcemaps.init())
@@ -134,7 +134,7 @@ gulp.task(`build-prompt`, () => {
 });
 
 gulp.task(`build-js-presets`, () => {
-  return gulp.src([`js/presets/**/*.js`])
+  return gulp.src([`src/presets/**/*.js`])
       .pipe(debug({title: `debug`}))
       .pipe(plumber())
       .pipe(rollup({
@@ -156,7 +156,7 @@ gulp.task(`build-js-presets`, () => {
 });
 
 gulp.task(`build-tests`, () => {
-  return gulp.src([`js/tests/**/*.js`])
+  return gulp.src([`src/tests/**/*.js`])
       .pipe(debug({title: `debug`}))
       .pipe(plumber())
       .pipe(sourcemaps.init())
@@ -167,7 +167,7 @@ gulp.task(`build-tests`, () => {
         ]
       }, `iife`))
       .pipe(sourcemaps.write(``))
-      .pipe(gulp.dest(`tests`));
+      .pipe(gulp.dest(`build/js/tests`));
 });
 
 gulp.task(`test`, function (done) {
@@ -187,7 +187,7 @@ gulp.task(`test`, function (done) {
       `node_modules/chai/chai.js`,
       `karma-chai-adapter.js`,
       `build/js/index.js`,
-      `tests/**/${testOnlyFiles ? `+(${testOnlyFiles})` : `*`}.test.js`
+      `build/js/tests/**/${testOnlyFiles ? `+(${testOnlyFiles})` : `*`}.test.js`
     ]
   }, done).start();
 });
