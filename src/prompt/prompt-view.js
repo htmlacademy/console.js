@@ -33,6 +33,7 @@ export default class PromptView extends AbstractView {
     this._inputEl = this.el.querySelector(`.prompt__input`);
     this._sendBtnEl = this.el.querySelector(`.prompt__send-btn`);
 
+    this._sendBtnEl.addEventListener(`touchstart`, () => {}, {passive: true}); // Чтобы :active на кнопку отправки работал на мобильных устройствах
     this._sendBtnEl.addEventListener(`click`, this._handleSendClick.bind(this));
     this._inputEl.addEventListener(`keydown`, this._handleKeyDown.bind(this));
     this._sendBtnEl.addEventListener(`mousedown`, this._handleMouseDown.bind(this));

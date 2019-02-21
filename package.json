@@ -1,23 +1,24 @@
 {
   "name": "console.js",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Inbrowser Demo Console",
   "author": "nikolayemrikh",
   "scripts": {
-    "eslint": "eslint gulpfile.js js/",
+    "test": "npm run test:eslint && npm run test:stylelint && npm run test:karma",
+    "test:karma": "gulp test",
+    "test:eslint": "eslint gulpfile.js src/",
+    "test:stylelint": "stylelint 'sass/**/*.scss' --syntax scss",
     "build": "gulp build",
     "build:prod": "NODE_ENV=production gulp build",
     "start": "gulp serve",
-    "test": "gulp test && npm run eslint",
-    "stylelint": "stylelint 'sass/**/*.scss' --syntax scss",
     "deploy": "npm run build:prod && ./deploy.sh",
-    "deploy:exact-version": "NODE_ENV=production gulp build && ONLY_VERSION=true ./deploy.sh"
+    "deploy:exact-version": "npm run build:prod && ONLY_VERSION=true ./deploy.sh"
   },
   "devDependencies": {
-    "@babel/core": "7.0.0-beta.51",
-    "@babel/plugin-external-helpers": "7.0.0-beta.51",
-    "@babel/polyfill": "7.0.0-beta.51",
-    "@babel/preset-env": "7.0.0-beta.51",
+    "@babel/core": "7.3.3",
+    "@babel/plugin-external-helpers": "7.2.0",
+    "@babel/polyfill": "7.2.5",
+    "@babel/preset-env": "7.3.1",
     "acorn": "5.7.1",
     "autoprefixer": "8.6.4",
     "babel-plugin-prismjs": "1.0.2",
@@ -25,7 +26,7 @@
     "chai": "4.1.2",
     "css-mqpacker": "6.0.2",
     "del": "3.0.0",
-    "eslint": "5.0.1",
+    "eslint": "^5.14.1",
     "eslint-config-htmlacademy": "0.5.2",
     "estraverse": "4.2.0",
     "gh-pages": "1.2.0",
@@ -43,7 +44,7 @@
     "gulp-rename": "1.3.0",
     "gulp-sass": "4.0.1",
     "gulp-sourcemaps": "2.6.4",
-    "gulp-uglify": "3.0.0",
+    "gulp-terser": "1.1.7",
     "karma": "3.1.1",
     "karma-babel-preprocessor": "8.0.0-beta.0",
     "karma-chrome-launcher": "2.2.0",
@@ -53,14 +54,14 @@
     "misbehave": "0.3.0",
     "mocha": "5.2.0",
     "prismjs": "1.15.0",
-    "rollup-plugin-babel": "4.0.0-beta.7",
+    "rollup-plugin-babel": "^4.3.2",
     "rollup-plugin-commonjs": "9.1.3",
     "rollup-plugin-json": "3.0.0",
     "rollup-plugin-node-resolve": "3.3.0",
-    "stylelint": "9.8.0",
+    "stylelint": "^9.10.1",
     "stylelint-config-htmlacademy": "0.1.1"
   },
   "engines": {
-    "node": "^9.4"
+    "node": "^8.15"
   }
 }

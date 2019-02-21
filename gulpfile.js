@@ -17,10 +17,9 @@ const nodeResolve = require(`rollup-plugin-node-resolve`);
 const commonjs = require(`rollup-plugin-commonjs`);
 const json = require(`rollup-plugin-json`);
 const rollup = require(`gulp-better-rollup`);
-const uglify = require(`gulp-uglify`);
+const terser = require(`gulp-terser`);
 const sourcemaps = require(`gulp-sourcemaps`);
 const concat = require(`gulp-concat`);
-// const mocha = require(`gulp-mocha`);
 const debug = require(`gulp-debug`);
 const KarmaServer = require(`karma`).Server;
 
@@ -72,7 +71,7 @@ gulp.task(`style-prism`, () => {
 });
 
 gulp.task(`build-scripts`, () => {
-  return gulp.src([`js/index.js`, `js/index-silent.js`])
+  return gulp.src([`src/index.js`, `src/index-silent.js`])
       .pipe(debug({title: `debug`}))
       .pipe(plumber())
       .pipe(sourcemaps.init())
@@ -93,13 +92,16 @@ gulp.task(`build-scripts`, () => {
           })
         ]
       }, `iife`))
-      .pipe(gulpIf(process.env.NODE_ENV === `production`, uglify()))
+      .pipe(gulpIf(process.env.NODE_ENV === `production`, terser({
+        safari10: true,
+        keep_fnames: true // eslint-disable-line
+      })))
       .pipe(sourcemaps.write(``))
       .pipe(gulp.dest(`build/js`));
 });
 
 gulp.task(`build-prompt`, () => {
-  return gulp.src([`js/index-prompt.js`])
+  return gulp.src([`src/index-prompt.js`])
       .pipe(debug({title: `debug`}))
       .pipe(plumber())
       .pipe(sourcemaps.init())
@@ -123,33 +125,37 @@ gulp.task(`build-prompt`, () => {
           })
         ]
       }, `iife`))
-      .pipe(gulpIf(process.env.NODE_ENV === `production`, uglify()))
+      .pipe(gulpIf(process.env.NODE_ENV === `production`, terser({
+        keep_fnames: true // eslint-disable-line
+      })))
       .pipe(sourcemaps.write(``))
       .pipe(gulp.dest(`build/js`));
 });
 
 gulp.task(`build-js-presets`, () => {
-  return gulp.src([`js/presets/**/*.js`])
+  return gulp.src([`src/presets/**/*.js`])
       .pipe(debug({title: `debug`}))
       .pipe(plumber())
       .pipe(rollup({
         plugins: [
           nodeResolve(),
           commonjs(),
-          babel({
-            babelrc: false,
-            presets: [
-              [`@babel/preset-env`, {modules: false}]
-            ]
-          })
+          // babel({
+          //   babelrc: false,
+          //   presets: [
+          //     [`@babel/preset-env`, {modules: false}]
+          //   ]
+          // })
         ]
       }, `iife`))
-      .pipe(gulpIf(process.env.NODE_ENV === `production`, uglify()))
+      .pipe(gulpIf(process.env.NODE_ENV === `production`, terser({
+        keep_fnames: true // eslint-disable-line
+      })))
       .pipe(gulp.dest(`build/js/presets`));
 });
 
 gulp.task(`build-tests`, () => {
-  return gulp.src([`js/tests/**/*.js`])
+  return gulp.src([`src/tests/**/*.js`])
       .pipe(debug({title: `debug`}))
       .pipe(plumber())
       .pipe(sourcemaps.init())
@@ -171,7 +177,6 @@ gulp.task(`test`, function (done) {
       .split(/\s*\,\s*|\s+/)
       .join(`|`);
   }
-  const testsGlob = `build/js/tests/**/${testOnlyFiles ? `+(${testOnlyFiles})` : `*`}.test.js`;
 
   new KarmaServer({
     configFile: __dirname + `/karma.conf.js`,
@@ -181,7 +186,7 @@ gulp.task(`test`, function (done) {
       `node_modules/chai/chai.js`,
       `karma-chai-adapter.js`,
       `build/js/index.js`,
-      testsGlob
+      `build/js/tests/**/${testOnlyFiles ? `+(${testOnlyFiles})` : `*`}.test.js`
     ]
   }, done).start();
 });
@@ -222,12 +227,8 @@ gulp.task(`imagemin`, gulp.series(`copy`, () => {
       .pipe(gulp.dest(`build/img`));
 }));
 
-// gulp.task(`examples`, () => {
-//   return gulp.src(`index.html`).pipe(gulp.dest(`examples`));
-// });
-
 gulp.task(`clean`, () => {
-  return del(`build`);
+  return del([`build`, `tests`]);
 });
 
 gulp.task(`js-watch`, gulp.series(`build-scripts`, `build-prompt`, `build-js-presets`, `build-tests`, (done) => {
@@ -247,18 +248,8 @@ gulp.task(`serve`, gulp.series(`assemble`, () => {
   });
 
   gulp.watch(`sass/**/*.{scss,sass}`, gulp.series(`style`));
-  gulp.watch(`*.html`).on(`change`, gulp.series(`copy-html`));
-  gulp.watch(`js/**/*.js`, gulp.series(`js-watch`));
+  gulp.watch(`*.html`, gulp.series(`copy-html`));
+  gulp.watch(`src/**/*.js`, gulp.series(`js-watch`));
 }));
 
-gulp.task(`test-watch`, gulp.series(`assemble`, `test:noerror`, () => {
-  gulp.watch(`sass/**/*.{scss,sass}`, gulp.series(`style`, `style-prism`));
-  gulp.watch(`*.html`).on(`change`, (e) => {
-    if (e.type !== `deleted`) {
-      gulp.series(`copy-html`);
-    }
-  });
-  gulp.series(`test`);
-  gulp.watch(`js/**/*.js`, gulp.series(`build-tests`));
-}));
 gulp.task(`build`, gulp.series(`assemble`, `imagemin`));
