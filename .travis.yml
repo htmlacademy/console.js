@@ -3,11 +3,9 @@ language: node_js
 node_js:
   - "8.15"
 
-cache:
-  directories:
-    - node_modules
+before_script:
+  - npm run build
+
 script:
-  - npm run build && npm run test
-branches:
-  only:
-  - /.*/
+  - npm run test:eslint
+  - npm run test:karma

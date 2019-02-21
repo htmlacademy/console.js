@@ -8,6 +8,7 @@ export default class Prompt {
     } else if (!(container instanceof HTMLElement)) {
       throw new TypeError(`HTML element must be passed as container`);
     }
+
     this._container = container;
     this._consGlobalName = consoleGlobalName;
     this._isMobile = /iPhone|iPad|iPod|Android/i.test(window.navigator.userAgent);

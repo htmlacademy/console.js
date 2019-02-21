@@ -12,7 +12,7 @@ const mqpacker = require(`css-mqpacker`);
 const minify = require(`gulp-csso`);
 const rename = require(`gulp-rename`);
 const imagemin = require(`gulp-imagemin`);
-// const babel = require(`rollup-plugin-babel`);
+const babel = require(`rollup-plugin-babel`);
 const nodeResolve = require(`rollup-plugin-node-resolve`);
 const commonjs = require(`rollup-plugin-commonjs`);
 const json = require(`rollup-plugin-json`);
@@ -20,7 +20,6 @@ const rollup = require(`gulp-better-rollup`);
 const terser = require(`gulp-terser`);
 const sourcemaps = require(`gulp-sourcemaps`);
 const concat = require(`gulp-concat`);
-// const mocha = require(`gulp-mocha`);
 const debug = require(`gulp-debug`);
 const KarmaServer = require(`karma`).Server;
 
@@ -84,13 +83,13 @@ gulp.task(`build-scripts`, () => {
           }),
           commonjs(),
           json(),
-          // babel({
-          //   babelrc: false,
-          //   exclude: [`node_modules/**`, `js/tests/**`],
-          //   presets: [
-          //     [`@babel/preset-env`, {modules: false, useBuiltIns: `entry`}]
-          //   ]
-          // })
+          babel({
+            babelrc: false,
+            exclude: [`node_modules/**`, `js/tests/**`],
+            presets: [
+              [`@babel/preset-env`, {modules: false, useBuiltIns: `entry`}]
+            ]
+          })
         ]
       }, `iife`))
       .pipe(gulpIf(process.env.NODE_ENV === `production`, terser({
@@ -114,16 +113,16 @@ gulp.task(`build-prompt`, () => {
           }),
           commonjs(),
           json(),
-          // babel({
-          //   babelrc: false,
-          //   exclude: [`node_modules/**`, `js/tests/**`],
-          //   presets: [
-          //     [`@babel/preset-env`, {modules: false}]
-          //   ],
-          //   plugins: [[`prismjs`, {
-          //     "languages": [`javascript`]
-          //   }]]
-          // })
+          babel({
+            babelrc: false,
+            exclude: [`node_modules/**`, `js/tests/**`],
+            presets: [
+              [`@babel/preset-env`, {modules: false}]
+            ],
+            plugins: [[`prismjs`, {
+              "languages": [`javascript`]
+            }]]
+          })
         ]
       }, `iife`))
       .pipe(gulpIf(process.env.NODE_ENV === `production`, terser({
@@ -249,18 +248,8 @@ gulp.task(`serve`, gulp.series(`assemble`, () => {
   });
 
   gulp.watch(`sass/**/*.{scss,sass}`, gulp.series(`style`));
-  gulp.watch(`*.html`).on(`change`, gulp.series(`copy-html`));
-  gulp.watch(`js/**/*.js`, gulp.series(`js-watch`));
+  gulp.watch(`*.html`, gulp.series(`copy-html`));
+  gulp.watch(`src/**/*.js`, gulp.series(`js-watch`));
 }));
 
-gulp.task(`test-watch`, gulp.series(`assemble`, `test:noerror`, () => {
-  gulp.watch(`sass/**/*.{scss,sass}`, gulp.series(`style`, `style-prism`));
-  gulp.watch(`*.html`).on(`change`, (e) => {
-    if (e.type !== `deleted`) {
-      gulp.series(`copy-html`);
-    }
-  });
-  gulp.series(`test`);
-  gulp.watch(`js/**/*.js`, gulp.series(`build-tests`));
-}));
 gulp.task(`build`, gulp.series(`assemble`, `imagemin`));
