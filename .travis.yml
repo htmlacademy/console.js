@@ -8,4 +8,5 @@ before_script:
 
 script:
   - npm run test:eslint
+  - npm run test:stylelint
   - npm run test:karma
