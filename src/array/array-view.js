@@ -1,4 +1,5 @@
 import TypeView from '../type-view';
+import EntryView from '../entry-view';
 import MapEntryView from '../object/map-entry-view';
 import {getElement} from '../utils';
 import {Mode, ViewType} from '../enums';
@@ -139,7 +140,7 @@ export default class ArrayView extends TypeView {
       }
       if (inHead && emptyCount !== 0 && (hasKey || i === l - 1)) {
         TypeView.appendEntryElIntoFragment(
-            this._createEntryEl({key, el: getElement(`<span class="grey">${EMPTY}${emptyCount > 1 ? ` ${MULTIPLY_SIGN} ${emptyCount}` : ``}</span>`), withoutKey: true}),
+            new EntryView({key, entryEl: getElement(`<span class="grey">${EMPTY}${emptyCount > 1 ? ` ${MULTIPLY_SIGN} ${emptyCount}` : ``}</span>`), withoutKey: true}).el,
             fragment
         );
         if (inHead && countEntriesWithoutKeys) {
@@ -150,9 +151,9 @@ export default class ArrayView extends TypeView {
       if (hasKey) {
         if (isMapEntriesSpecialValue) {
           const pair = arr[i];
-          const el = new MapEntryView({val: pair, mode, depth: this.nextNestingLevel, parentView: this, propKey: this._propKey}, this._console).el;
+          const entryEl = new MapEntryView({val: pair, mode, depth: this.nextNestingLevel, parentView: this, propKey: this._propKey}, this._console).el;
           TypeView.appendEntryElIntoFragment(
-              this._createEntryEl({key, el, withoutKey: inHead}),
+              new EntryView({key, entryEl, withoutKey: inHead}).el,
               fragment
           );
         } else {

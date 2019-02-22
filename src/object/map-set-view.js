@@ -1,4 +1,5 @@
 import TypeView from '../type-view';
+import EntryView from '../entry-view';
 import ObjectView from './object-view';
 import MapEntryView from '../object/map-entry-view';
 import {Mode} from '../enums';
@@ -30,7 +31,7 @@ export default class MapSetView extends ObjectView {
         let entryEl;
         if (this._console.checkInstanceOf(this._value, `Map`)) {
           const el = new MapEntryView({val: entry, mode, depth: this.nextNestingLevel, parentView: this, propKey: this._propKey}, this._console).el;
-          entryEl = this._createEntryEl({key: i, el, withoutKey: true});
+          entryEl = new EntryView({key: i, entryEl: el, withoutKey: true});
         }
         if (this._console.checkInstanceOf(this.value, `Set`)) {
           entryEl = this._createTypedEntryEl({obj: entriesArr, key: i, mode, withoutKey: true, notCheckDescriptors: true});
@@ -46,7 +47,7 @@ export default class MapSetView extends ObjectView {
       const entriesArrView = this._console.createTypedView(entriesArr, Mode.PROP, this.nextNestingLevel, this, `[[Entries]]`);
       entriesArrView.isAutoExpandNeeded = true;
       TypeView.appendEntryElIntoFragment(
-          this._createEntryEl({key: `[[Entries]]`, el: entriesArrView.el, withoutKey: false}),
+          new EntryView({key: `[[Entries]]`, entryEl: entriesArrView.el, withoutKey: false}).el,
           fragment
       );
     }

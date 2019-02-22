@@ -1,4 +1,5 @@
 import TypeView from '../type-view';
+import EntryView from '../entry-view';
 import {Mode, ViewType} from '../enums';
 
 export default class MapEntryView extends TypeView {
@@ -65,11 +66,11 @@ export default class MapEntryView extends TypeView {
     const valueEl = this._console.createTypedView(this._pairValue, this._mode, this.nextNestingLevel, this, this._propKey).el;
 
     TypeView.appendEntryElIntoFragment(
-        this._createEntryEl({key: `key`, el: keyEl, withoutKey: false}),
+        new EntryView({key: `key`, entryEl: keyEl, withoutKey: false}).el,
         fragment
     );
     TypeView.appendEntryElIntoFragment(
-        this._createEntryEl({key: `value`, el: valueEl, withoutKey: false}),
+        new EntryView({key: `value`, entryEl: valueEl, withoutKey: false}).el,
         fragment
     );
 

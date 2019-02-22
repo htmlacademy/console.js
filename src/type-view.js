@@ -1,6 +1,7 @@
 /* eslint no-empty: "off"*/
 /* eslint no-unused-vars: "off"*/
 import AbstractView from './abstract-view';
+import EntryView from './entry-view';
 import {getElement, escapeHTML} from './utils';
 import {Mode, Env} from './enums';
 
@@ -517,63 +518,19 @@ export default class TypeView extends AbstractView {
       if (descriptor.get !== void 0) {
         const getterEl = this._console.createTypedView(descriptor.get, mode, this.nextNestingLevel, this, key).el;
         TypeView.appendEntryElIntoFragment(
-            this._createEntryEl({key: `get ${key}`, el: getterEl, mode, isGrey: true}),
+            new EntryView({key: `get ${key}`, entryEl: getterEl, mode, isGrey: true}),
             fragment
         );
       }
       if (descriptor.set !== void 0) {
         const setterEl = this._console.createTypedView(descriptor.set, mode, this.nextNestingLevel, this, key).el;
         TypeView.appendEntryElIntoFragment(
-            this._createEntryEl({key: `set ${key}`, el: setterEl, mode, isGrey: true}),
+            new EntryView({key: `set ${key}`, entryEl: setterEl, mode, isGrey: true}),
             fragment
         );
       }
     }
     return fragment;
-  }
-
-  /**
-   * Create entry element
-   * @protected
-   * @param {{}} params
-   * @param {string} params.key — key, index of array or field name
-   * @param {HTMLSpanElement|undefined} params.el — HTML span element to append into container
-   * @param {Mode} params.mode — log mode
-   * @param {boolean} [params.withoutKey] — create entry without key element
-   * @param {function} [params.getViewEl] — function to get element if so wasn't present while calling this method
-   * @return {HTMLSpanElement}
-   */
-  _createEntryEl({key, el, mode, withoutKey, withoutValue, getViewEl, isGrey}) {
-    const entryEl = getElement(`\
-<div class="entry-container__entry">\
-${withoutKey ? `` : `<span class="entry-container__key ${withoutValue ? `` : `entry-container__key--with-colon`} ${isGrey ? `grey` : ``}">${escapeHTML(key.toString())}</span>`}${withoutValue ? `` : `<div class="entry-container__value-container"></div>`}\
-</div>`);
-    if (withoutValue) {
-      return entryEl;
-    }
-    const valueContEl = entryEl.querySelector(`.entry-container__value-container`);
-
-    if (el) {
-      valueContEl.appendChild(el);
-    } else {
-      valueContEl.textContent = `(...)`;
-      valueContEl.classList.add(`entry-container__value-container--underscore`);
-      const insertEl = () => {
-        valueContEl.textContent = ``;
-        valueContEl.classList.remove(`entry-container__value-container--underscore`);
-        let viewEl;
-        try {
-          viewEl = getViewEl();
-          valueContEl.appendChild(viewEl);
-        } catch (err) {
-          valueContEl.textContent = `[Exception: ${err.stack}]`;
-        }
-        valueContEl.removeEventListener(`click`, insertEl);
-      };
-      valueContEl.addEventListener(`click`, insertEl);
-    }
-
-    return entryEl;
   }
 
   /**
@@ -607,10 +564,10 @@ ${withoutKey ? `` : `<span class="entry-container__key ${withoutValue ? `` : `en
       }
       return this._console.createTypedView(val, mode, this.nextNestingLevel, this, key).el;
     };
-    let el;
+    let entryEl;
     try {
       if (notCheckDescriptors) {
-        el = getViewEl();
+        entryEl = getViewEl();
       } else {
         const descriptorsWithGetters = this._allPropertyDescriptorsWithGetters;
         const descriptorWithGetter = descriptorsWithGetters[key];
@@ -618,13 +575,13 @@ ${withoutKey ? `` : `<span class="entry-container__key ${withoutValue ? `` : `en
         if (!isProtoChainGetterCall) {
           // if it's not a getter or it's a __proto__
           if (!Object.prototype.hasOwnProperty.call(descriptorsWithGetters, key) || key === `__proto__`) {
-            el = getViewEl();
+            entryEl = getViewEl();
           // if it's a native getter
           } else if (isNativeFunction(descriptorWithGetter.get)) {
             if (mode === Mode.PREVIEW && canReturnNull && !descriptorWithGetter.enumerable) {
               return null;
             }
-            el = getViewEl();
+            entryEl = getViewEl();
           }
         }
       }
@@ -634,7 +591,7 @@ ${withoutKey ? `` : `<span class="entry-container__key ${withoutValue ? `` : `en
         return null;
       }
     }
-    return this._createEntryEl({key, el, mode, withoutKey, getViewEl, isGrey});
+    return new EntryView({key, entryEl, mode, withoutKey, getViewEl, isGrey}).el;
   }
 
   /**
