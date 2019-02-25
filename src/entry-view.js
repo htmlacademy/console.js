@@ -12,12 +12,13 @@ export default class EntryView extends AbstractView {
     this._getViewEl = getViewEl;
     this._isGrey = isGrey;
   }
+
   get template() {
-    return `\
-<div class="entry-container__entry">\
-  ${this._withoutKey ? `` : `<span class="entry-container__key ${this._withoutValue ? `` : `entry-container__key--with-colon`} ${this._isGrey ? `grey` : ``}">${escapeHTML(this._key.toString())}</span>`}\
-  ${this._withoutValue ? `` : `<div class="entry-container__value-container ${this._entryEl ? `` : `entry-container__value-container--underscore`}">${this._entryEl ? `` : `(...)`}</div>`}\
-</div>`;
+    return `<div class="entry-container__entry">${this._withoutKey ? `` :
+      `<span class="entry-container__key ${this._withoutValue ? `` : `entry-container__key--with-colon`} ${this._isGrey ? `grey` : ``}">${escapeHTML(this._key.toString())}</span>`
+    }${this._withoutValue ? `` :
+      `<div class="entry-container__value-container ${this._entryEl ? `` : `entry-container__value-container--underscore`}">${this._entryEl ? `` : `(...)`}</div>`
+    }</div>`;
   }
 
   _bind() {
