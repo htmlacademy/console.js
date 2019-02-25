@@ -2,10 +2,12 @@ import TypeView from '../type-view';
 import EntryView from '../entry-view';
 import MapEntryView from '../object/map-entry-view';
 import {getElement} from '../utils';
-import {Mode, ViewType} from '../enums';
+import {Mode, ViewType, GET_STATE_DESCRIPTORS_KEY_NAME} from '../enums';
 
 const EMPTY = `empty`;
 const MULTIPLY_SIGN = `&times;`;
+
+const getStateDescriptorsKey = Symbol(GET_STATE_DESCRIPTORS_KEY_NAME);
 
 export default class ArrayView extends TypeView {
   constructor(params, cons) {
@@ -15,6 +17,8 @@ export default class ArrayView extends TypeView {
     if (!params.parentView) {
       this.rootView = this;
     }
+
+    this._stateDescriptorsQueue.push(this[getStateDescriptorsKey]());
   }
 
   get template() {
@@ -43,7 +47,7 @@ export default class ArrayView extends TypeView {
     this._state.isOpened = this.isOpeningAllowed;
   }
 
-  _getStateDescriptors() {
+  [getStateDescriptorsKey]() {
     const self = this;
     return {
       set isHeadContentShowed(bool) {

@@ -1,9 +1,9 @@
 /* eslint no-empty: "off"*/
 /* eslint no-unused-vars: "off"*/
-import AbstractView from './abstract-view';
+import BaseView from './base-view';
 import EntryView from './entry-view';
 import {getElement, escapeHTML} from './utils';
-import {Mode, Env} from './enums';
+import {Mode, Env, GET_STATE_DESCRIPTORS_KEY_NAME} from './enums';
 
 const isNativeFunction = (fn) => {
   return /{\s*\[native code\]\s*}/g.test(fn);
@@ -29,45 +29,12 @@ const getFirstProtoContainingObject = (typeView) => {
   return typeView.value;
 };
 
-export default class TypeView extends AbstractView {
+const getStateDescriptorsKey = Symbol(GET_STATE_DESCRIPTORS_KEY_NAME);
+
+export default class TypeView extends BaseView {
   constructor(params, cons) {
-    super();
-    if (params.parentView) {
-      this._parentView = params.parentView;
-      this.rootView = params.parentView.rootView;
-    }
-    /** @abstract must be overriden */
-    this._viewTypeParams = void 0;
-    this._console = cons;
-    this._value = params.val;
-    this._mode = params.mode;
-    this._type = params.type;
-    this._propKey = params.propKey;
-    this._currentDepth = typeof params.depth === `number` ? params.depth : 1;
-
-    this._cache = {};
-  }
-
-  /**
-   * @abstract
-   * @protected
-   */
-  _afterRender() {}
-
-  _bind() {
-    if (!this.viewType) {
-      throw new Error(`this.viewType must be specified`);
-    }
-    if (!this.rootView) {
-      throw new Error(`this.rootView must be specified`);
-    }
-
-    this._headEl = this.el.querySelector(`.head`);
-    this._headContentEl = this.el.querySelector(`.head__content`);
-    this._infoEl = this.el.querySelector(`.info`);
-    this._contentEl = this.el.querySelector(`.item__content`);
-
-    this._afterRender();
+    super(params, cons);
+    this._stateDescriptorsQueue.push(this[getStateDescriptorsKey]());
   }
 
   get protoConstructorName() {
@@ -106,38 +73,9 @@ export default class TypeView extends AbstractView {
   }
 
   /**
-   * Current state
-   * @type {{}}
-   * @param {{}} params — object with values which will be assigned throught setters
-   */
-  get _state() {
-    if (!this._viewState) {
-      this._viewState = {};
-      Object.defineProperties(
-          this._viewState,
-          Object.getOwnPropertyDescriptors(this._getStateCommonDescriptors())
-      );
-      Object.defineProperties(
-          this._viewState,
-          Object.getOwnPropertyDescriptors(this._getStateDescriptors())
-      );
-      Object.seal(this._viewState);
-    }
-    return this._viewState;
-  }
-
-  /**
-   * @abstract
-   * @return {{}} if not overriden return object without descriptors
-   */
-  _getStateDescriptors() {
-    return {};
-  }
-
-  /**
    * @return {{}} — object that contains descriptors only
    */
-  _getStateCommonDescriptors() {
+  [getStateDescriptorsKey]() {
     const self = this;
     return {
       set isShowInfo(bool) {
@@ -476,7 +414,6 @@ export default class TypeView extends AbstractView {
 
   get isChangeHeaderOnExpandNeeded() {
     const typeParams = this._viewTypeParams;
-
   }
 
   get info() {
