@@ -1,6 +1,8 @@
 import TypeView from '../type-view';
 import EntryView from '../entry-view';
-import {Mode, ViewType} from '../enums';
+import {Mode, ViewType, GET_STATE_DESCRIPTORS_KEY_NAME} from '../enums';
+
+const getStateDescriptorsKey = Symbol(GET_STATE_DESCRIPTORS_KEY_NAME);
 
 export default class MapEntryView extends TypeView {
   constructor(params, cons) {
@@ -12,6 +14,8 @@ export default class MapEntryView extends TypeView {
 
     this._pairKey = this._value[0];
     this._pairValue = this._value[1];
+
+    this._stateDescriptorsQueue.push(this[getStateDescriptorsKey]());
   }
   get template() {
     return `\
@@ -34,7 +38,7 @@ export default class MapEntryView extends TypeView {
     this._state.isOpened = this.isOpeningAllowed;
   }
 
-  _getStateDescriptors() {
+  [getStateDescriptorsKey]() {
     const self = this;
     return {
       set isHeadContentShowed(bool) {

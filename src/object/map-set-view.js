@@ -29,9 +29,10 @@ export default class MapSetView extends ObjectView {
         }
         const entry = entriesArr[i];
         let entryEl;
+
         if (this._console.checkInstanceOf(this._value, `Map`)) {
           const el = new MapEntryView({val: entry, mode, depth: this.nextNestingLevel, parentView: this, propKey: this._propKey}, this._console).el;
-          entryEl = new EntryView({key: i, entryEl: el, withoutKey: true});
+          entryEl = new EntryView({key: i, entryEl: el, withoutKey: true}).el;
         }
         if (this._console.checkInstanceOf(this.value, `Set`)) {
           entryEl = this._createTypedEntryEl({obj: entriesArr, key: i, mode, withoutKey: true, notCheckDescriptors: true});
