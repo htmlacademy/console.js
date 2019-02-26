@@ -29,6 +29,7 @@ export default class EntryView extends AbstractView {
 
     if (this._entryEl) {
       this._valueContEl.appendChild(this._entryEl);
+      return;
     }
 
     this._valueContEl.addEventListener(`click`, this._onClickInsertEl.bind(this), {
