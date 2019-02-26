@@ -34,7 +34,7 @@ const getStateDescriptorsKey = Symbol(GET_STATE_DESCRIPTORS_KEY_NAME);
 export default class TypeView extends BaseView {
   constructor(params, cons) {
     super(params, cons);
-    this._stateDescriptorsQueue.push(this[getStateDescriptorsKey]());
+    // this._stateDescriptorsQueue.push(this[getStateDescriptorsKey]());
   }
 
   get protoConstructorName() {
@@ -70,80 +70,6 @@ export default class TypeView extends BaseView {
 
   get parentView() {
     return this._parentView;
-  }
-
-  /**
-   * @return {{}} — object that contains descriptors only
-   */
-  [getStateDescriptorsKey]() {
-    const self = this;
-    return {
-      set isShowInfo(bool) {
-        if (!self._infoEl) {
-          return;
-        }
-        if (bool && !self._infoEl.textContent) {
-          self._infoEl.textContent = self.info;
-        }
-        self._isShowInfo = self.toggleInfoShowed(bool);
-      },
-      get isShowInfo() {
-        return self._isShowInfo;
-      },
-      set isHeadContentShowed(bool) {
-        self.toggleHeadContentShowed(bool);
-      },
-      set isOpeningDisabled(bool) {
-        if (!bool && self._mode === Mode.PREVIEW) {
-          throw new Error(`Enabling opening object in preview mode is forbidden`);
-        }
-        if (self._isOpeningDisabled === bool) {
-          return;
-        }
-        self.toggleArrowPointer(!bool);
-        self._addOrRemoveHeadClickHandler(!bool);
-        self._isOpeningDisabled = bool;
-      },
-      get isOpeningDisabled() {
-        return self._isOpeningDisabled;
-      },
-      set isBraced(bool) {
-        self.toggleHeadContentBraced(bool);
-      },
-      set isOpened(bool) {
-        if (bool === self._isOpened) {
-          return;
-        }
-
-        self._isOpened = bool;
-        self.toggleArrowBottom(bool);
-        self._state.isContentShowed = bool;
-      },
-      get isOpened() {
-        return self._isOpened;
-      },
-      set isContentShowed(bool) {
-        if (bool === self._isContentShowed) {
-          return;
-        }
-        self._isContentShowed = self.toggleContentShowed(bool);
-        if (self._isContentShowed && self._contentEl.childElementCount === 0) {
-          self._contentEl.appendChild(self.createContent(self._value, false).fragment);
-        }
-      },
-      get isContentShowed() {
-        return self._isContentShowed;
-      },
-      set isOversized(bool) {
-        self.toggleHeadContentOversized(bool);
-      },
-      set isItalicEnabled(bool) {
-        self._isItalicEnabled = self.toggleItalic(bool);
-      },
-      get isItalicEnabled() {
-        return self._isItalicEnabled;
-      }
-    };
   }
 
   toggleHeadContentBraced(isEnable) {
@@ -426,22 +352,6 @@ export default class TypeView extends BaseView {
     }
   }
 
-  _headClickHandler(evt) {
-    evt.preventDefault();
-    this._state.isOpened = !this._state.isOpened;
-  }
-
-  _addOrRemoveHeadClickHandler(bool) {
-    if (bool) {
-      if (!this._bindedHeadClickHandler) {
-        this._bindedHeadClickHandler = this._headClickHandler.bind(this);
-      }
-      this._headEl.addEventListener(`click`, this._bindedHeadClickHandler);
-    } else if (this._bindedHeadClickHandler) {
-      this._headEl.removeEventListener(`click`, this._bindedHeadClickHandler);
-    }
-  }
-
   _createGettersEntriesFragment() {
     const fragment = document.createDocumentFragment();
     const mode = Mode.PROP;
@@ -455,14 +365,14 @@ export default class TypeView extends BaseView {
       if (descriptor.get !== void 0) {
         const getterEl = this._console.createTypedView(descriptor.get, mode, this.nextNestingLevel, this, key).el;
         TypeView.appendEntryElIntoFragment(
-            new EntryView({key: `get ${key}`, entryEl: getterEl, mode, isGrey: true}),
+            new EntryView({key: `get ${key}`, entryEl: getterEl, mode, isGrey: true}).el,
             fragment
         );
       }
       if (descriptor.set !== void 0) {
         const setterEl = this._console.createTypedView(descriptor.set, mode, this.nextNestingLevel, this, key).el;
         TypeView.appendEntryElIntoFragment(
-            new EntryView({key: `set ${key}`, entryEl: setterEl, mode, isGrey: true}),
+            new EntryView({key: `set ${key}`, entryEl: setterEl, mode, isGrey: true}).el,
             fragment
         );
       }
@@ -529,22 +439,6 @@ export default class TypeView extends BaseView {
       }
     }
     return new EntryView({key, entryEl, mode, withoutKey, getViewEl, isGrey}).el;
-  }
-
-  /**
-   * @param {HTMLElement|null} entryEl
-   * @param {DocumentFragment} fragment
-   */
-  static appendEntryElIntoFragment(entryEl, fragment) {
-    if (entryEl !== null) {
-      fragment.appendChild(entryEl);
-    }
-  }
-
-  static prependEntryElIntoFragment(entryEl, fragment) {
-    if (entryEl !== null) {
-      fragment.insertBefore(entryEl, fragment.firstElementChild);
-    }
   }
 
   static compareProperties(a, b) {

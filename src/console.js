@@ -6,6 +6,7 @@ import StringNumberView from './object/string-number-view';
 import ArrayView from './array/array-view';
 import FunctionView from './function/function-view';
 import PrimitiveView from './primitive/primitive-view';
+// import NodeView from './object/node-view';
 import mergeParams from './utils/merge-params';
 import {getElement, checkObjectisPrototype, checkEnumContainsValue} from './utils';
 import {Mode, ViewType, Env} from './enums';
@@ -345,10 +346,12 @@ export default class Console {
             view = new ArrayView(params, this);
           } else if (!objectIsPrototype && (this.checkInstanceOf(val, `Map`) || this.checkInstanceOf(val, `Set`))) {
             view = new MapSetView(params, this);
-          } else if (!objectIsPrototype && val instanceof Promise) {
+          } else if (!objectIsPrototype && this.checkInstanceOf(val, `Promise`)) {
             view = new PromiseView(params, this);
           } else if (!objectIsPrototype && (this.checkInstanceOf(val, `String`) || this.checkInstanceOf(val, `Number`))) {
             view = new StringNumberView(params, this);
+          // } else if (!objectIsPrototype && this.checkInstanceOf(val, `Node`) && ) {
+            // view = new NodeView(params, this);
           } else {
             view = new ObjectView(params, this);
           }
