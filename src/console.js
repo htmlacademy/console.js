@@ -3,9 +3,11 @@ import ObjectView from './object/object-view';
 import MapSetView from './object/map-set-view';
 import PromiseView from './object/promise-view';
 import StringNumberView from './object/string-number-view';
+import ObjectNodeView from './object/object-node-view';
 import ArrayView from './array/array-view';
 import FunctionView from './function/function-view';
 import PrimitiveView from './primitive/primitive-view';
+import NodeView from './node/node-view';
 // import NodeView from './object/node-view';
 import mergeParams from './utils/merge-params';
 import {getElement, checkObjectisPrototype, checkEnumContainsValue} from './utils';
@@ -350,8 +352,12 @@ export default class Console {
             view = new PromiseView(params, this);
           } else if (!objectIsPrototype && (this.checkInstanceOf(val, `String`) || this.checkInstanceOf(val, `Number`))) {
             view = new StringNumberView(params, this);
-          // } else if (!objectIsPrototype && this.checkInstanceOf(val, `Node`) && ) {
-            // view = new NodeView(params, this);
+          } else if (!objectIsPrototype && this.checkInstanceOf(val, `Node`)) {
+            if (mode === Mode.LOG || mode === Mode.LOG_HTML || mode === Mode.ERROR) {
+              view = new NodeView(params, this);
+            } else {
+              view = new ObjectNodeView(params, this);
+            }
           } else {
             view = new ObjectView(params, this);
           }
