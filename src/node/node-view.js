@@ -1,5 +1,8 @@
 import {ViewType, GET_STATE_DESCRIPTORS_KEY_NAME, Mode} from '../enums';
 import BaseView from '../base-view';
+import {escapeHTML} from '../utils';
+
+const elsWithoutEndTag = [`input`, `br`, `hr`, `img`, `base`, `link`, `meta`, `wbr`, `source`, `embed`, `param`, `track`, `area`, `col`];
 
 const MAX_PREVIEW_CONTENT_LENGTH = 43;
 
@@ -38,9 +41,7 @@ export default class NodeView extends BaseView {
     return `\
 <div class="console__item item item--${this.viewType}">
   <div class="head item__head">
-    <div class="head__content tag-pair hidden"><!--
-    --><span class="tag-pair__opening">${this._getMainHeadContent()}</span><span class="tag-pair__rest"></span><!--
- --></div>\
+    <div class="head__content tag-pair hidden"><span class="tag-pair__opening">${escapeHTML(this._getMainHeadContent())}</span><span class="tag-pair__rest">${escapeHTML(this._getRestHeadContent())}</span></div>\
   </div>
   <div class="item__content entry-container entry-container--${this.viewType} hidden"></div>
 </div>`;
@@ -48,8 +49,7 @@ export default class NodeView extends BaseView {
 
   _afterRender() {
     this._tagContentEl = this._headContentEl.querySelector(`.tag-pair__content`);
-    this._tagOpeningEl = this._headContentEl.querySelector(`.tag-pair__opening`);
-    this._tagClosingEl = this._headContentEl.querySelector(`.tag-pair__closing`);
+    this._tagRestContentEl = this._headContentEl.querySelector(`.tag-pair__rest`);
 
     this._state.isHeadContentShowed = true;
     this._state.isOpeningDisabled = this._mode !== Mode.PREVIEW;
@@ -60,16 +60,8 @@ export default class NodeView extends BaseView {
   [getStateDescriptorsKey]() {
     const self = this;
     return {
-      set isHeadContentShowed(bool) {
-        if (bool && !self._headContentEl.innerHTML) {
-          self._tagContentEl.innerHTML =
-          self._tagOpeningEl.innerHTML =
-          self._tagClosingEl.innerHTML =
-        }
-        self._isHeadContentShowed = self.toggleHeadContentShowed(bool);
-      },
-      get isHeadContentShowed() {
-        return self._isHeadContentShowed;
+      set isShowRestHeadContent(bool) {
+        self._tagRestContentEl.classList.toggle(`hidden`, bool);
       },
       set isErrorEnabled(bool) {
         self._isErrorEnabled = self.toggleError(bool);
@@ -85,9 +77,7 @@ export default class NodeView extends BaseView {
         self._isOpened = bool;
         self.toggleArrowBottom(bool);
         self._state.isContentShowed = bool;
-
-        self._state.isHeadContentShowed = self.isShowHeadContent;
-        self._state.isShowInfo = self.isShowInfo;
+        self._state.isShowRestHeadContent = bool;
       },
       get isOpened() {
         return self._isOpened;
@@ -97,10 +87,9 @@ export default class NodeView extends BaseView {
 
   /**
    * Возвращает строку контента ноды. Если это Элемент — первый, открывающий, тег.
-   * @param {ContentType} type
    * @return {string}
    */
-  _getMainHeadContent(type) {
+  _getMainHeadContent() {
     let val;
     switch (this._contentType) {
       case ContentType.NODES:
@@ -116,17 +105,20 @@ export default class NodeView extends BaseView {
   _getHeadNodesContent(v) {
     let val;
     if (this._console.checkInstanceOf(v, `Element`)) {
-      val = `<${v.tagName.toLowerCase()} ${getElementAttributesStr(v)}>`;
+      const attrs = getElementAttributesStr(v);
+      val = `<${v.tagName.toLowerCase()}${attrs ? ` ${attrs}` : ``}>`;
+    } else if (this._console.checkInstanceOf(v, `Text`)) {
+      val = v.data;
     } else if (this._console.checkInstanceOf(v, `DocumentFragment`)) {
       val = `#document-fragment`;
     } else if (this._console.checkInstanceOf(v, `Document`)) {
       val = `#document`;
-    } else if (this._console.checkInstanceOf(v, `Text`)) {
-      val = v.data;
     } else if (this._console.checkInstanceOf(v, `Comment`)) {
-      val = `<!--${v.data}-->`;
+      val = `<!-- ${v.data} -->`;
     } else if (this._console.checkInstanceOf(v, `Attr`)) {
       val = v.name;
+    } else if (this._console.checkInstanceOf(v, `DocumentType`)) {
+      val = `<!DOCTYPE html>`;
     } else {
       val = `not implemented`;
     }
@@ -157,22 +149,26 @@ export default class NodeView extends BaseView {
    * @param {ContentType} type
    * @return {string}
    */
-  _getOtherHeadContent() {
-    let val = ``;
-    if (this._contentType === ContentType.NODES && this._console.checkInstanceOf(this._value, `Element`)) {
-      let content = ``;
-      if (!checkElementIsEmpty(v) && !this._console.checkInstanceOf(this._value, `HTMLTemplateElement`)) {
-        if (v.innerHTML.length > MAX_PREVIEW_CONTENT_LENGTH) {
-          content = `…`
-        } else {
-          content = v.innerHTML;
-        }
-      }
-
-
-      val = `${!checkElementIsEmpty(v) || this._value.innerHTML.length > MAX_PREVIEW_CONTENT_LENGTH ? `…` : ``}<${v.tagName.toLowerCase()}>`
+  _getRestHeadContent() {
+    if (!this._console.checkInstanceOf(this._value, `Element`)) {
+      return ``;
     }
-    return val;
+
+    let content = ``;
+    if (!checkElementIsEmpty(this._value) && !this._console.checkInstanceOf(this._value, `HTMLTemplateElement`)) {
+      if (this._value.innerHTML.length > MAX_PREVIEW_CONTENT_LENGTH) {
+        content = `…`;
+      } else {
+        content = this._value.innerHTML;
+      }
+    }
+
+    let closingTag = ``;
+    const tagNameLower = this._value.tagName.toLowerCase();
+    if (content || !elsWithoutEndTag.includes(tagNameLower)) {
+      closingTag = `\</${tagNameLower}\>`;
+    }
+    return `${content}${closingTag}`;
   }
 
   _getContentType() {
