@@ -335,6 +335,7 @@ export default class Console {
           const stringTagName = stringTag.substring(8, stringTag.length - 1);
 
           const objectIsPrototype = checkObjectisPrototype(val);
+
           if (stringTagName !== `Object` && (
             Array.isArray(val) || (
               !objectIsPrototype && (

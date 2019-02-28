@@ -17,7 +17,6 @@ export default class BaseView extends AbstractView {
     this._value = params.val;
     this._mode = params.mode;
     this._type = params.type;
-    this._propKey = params.propKey;
     this._currentDepth = params.depth ? params.depth : DEFAULT_DEPTH;
 
     this._cache = {};
@@ -73,10 +72,6 @@ export default class BaseView extends AbstractView {
 
   get value() {
     return this._value;
-  }
-
-  get propKey() {
-    return this._propKey;
   }
 
   get parentView() {
@@ -244,8 +239,7 @@ export default class BaseView extends AbstractView {
 
       if (this._parentView) {
         if (!(this._parentView.isAutoExpandNeeded &&
-        !rootViewTypeParams.excludeViewTypesFromAutoexpand.includes(this.viewType) &&
-        !rootViewTypeParams.excludePropertiesFromAutoexpand.includes(this._propKey))) {
+        !rootViewTypeParams.excludeViewTypesFromAutoexpand.includes(this.viewType))) {
           return this._cache.isAutoExpandNeeded;
         }
       }

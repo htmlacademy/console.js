@@ -34,6 +34,7 @@ const getStateDescriptorsKey = Symbol(GET_STATE_DESCRIPTORS_KEY_NAME);
 export default class TypeView extends BaseView {
   constructor(params, cons) {
     super(params, cons);
+    this._propKey = params.propKey;
     // this._stateDescriptorsQueue.push(this[getStateDescriptorsKey]());
   }
 
