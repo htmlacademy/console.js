@@ -1,7 +1,7 @@
 import {ViewType, GET_STATE_DESCRIPTORS_KEY_NAME, Mode} from '../enums';
 import BaseView from '../base-view';
 import EntryView from '../entry-view';
-import {escapeHTML, getElement} from '../utils';
+import {getElement} from '../utils';
 
 const ELS_WITHOUT_ENDING_TAG = [`input`, `br`, `hr`, `img`, `base`, `link`, `meta`, `wbr`, `source`, `embed`, `param`, `track`, `area`, `col`];
 

@@ -1,7 +1,6 @@
 /* eslint guard-for-in: "off"*/
 /* eslint no-empty: "off"*/
 import TypeView from '../type-view';
-import NodeView from '../node/node-view';
 import {Mode, ViewType, GET_STATE_DESCRIPTORS_KEY_NAME} from '../enums';
 import {checkObjectisPrototype} from '../utils';
 
