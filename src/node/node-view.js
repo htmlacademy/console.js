@@ -34,6 +34,7 @@ export default class NodeView extends BaseView {
       this.rootView = this;
     }
     this._contentType = this._getContentType();
+
     this._stateDescriptorsQueue.push(this[getStateDescriptorsKey]());
   }
 
@@ -41,7 +42,7 @@ export default class NodeView extends BaseView {
     return `\
 <div class="console__item item item--${this.viewType}">
   <div class="head item__head">
-    <div class="head__content tag-pair hidden"><span class="tag-pair__opening">${escapeHTML(this._getMainHeadContent())}</span><span class="tag-pair__rest">${escapeHTML(this._getRestHeadContent())}</span></div>\
+    <div class="head__content tag-pair hidden"><span class="tag-pair__opening">${escapeHTML(this._getMainHeadContent())}</span><span class="tag-pair__rest hidden">${escapeHTML(this._getRestHeadContent())}</span></div>\
   </div>
   <div class="item__content entry-container entry-container--${this.viewType} hidden"></div>
 </div>`;
@@ -52,7 +53,8 @@ export default class NodeView extends BaseView {
     this._tagRestContentEl = this._headContentEl.querySelector(`.tag-pair__rest`);
 
     this._state.isHeadContentShowed = true;
-    this._state.isOpeningDisabled = this._mode !== Mode.PREVIEW;
+    this._state.isRestHeadContentShowed = this.isShowRestHeadContent;
+    this._state.isOpeningDisabled = this.isDisableOpening;
 
     this._state.isOpened = this.isOpeningAllowed;
   }
@@ -60,8 +62,11 @@ export default class NodeView extends BaseView {
   [getStateDescriptorsKey]() {
     const self = this;
     return {
-      set isShowRestHeadContent(bool) {
-        self._tagRestContentEl.classList.toggle(`hidden`, bool);
+      set isRestHeadContentShowed(bool) {
+        self._isRestHeadContentShowed = !self._tagRestContentEl.classList.toggle(`hidden`, !bool);
+      },
+      get isRestHeadContentShowed() {
+        return self._isRestHeadContentShowed;
       },
       set isErrorEnabled(bool) {
         self._isErrorEnabled = self.toggleError(bool);
@@ -77,12 +82,33 @@ export default class NodeView extends BaseView {
         self._isOpened = bool;
         self.toggleArrowBottom(bool);
         self._state.isContentShowed = bool;
-        self._state.isShowRestHeadContent = bool;
+        self._state.isRestHeadContentShowed = self.isShowRestHeadContent;
       },
       get isOpened() {
         return self._isOpened;
       }
     };
+  }
+
+  get isShowRestHeadContent() {
+    return this._contentType === ContentType.NODES && !this._state.isOpened;
+  }
+
+  get isDisableOpening() {
+    if (!(this._mode === Mode.LOG || this._mode === Mode.LOG_HTML || this._mode === Mode.ERROR || this._mode === Mode.PREVIEW)) {
+      throw new Error(`NodeView must be created with mode LOG, LOG_HTML, ERROR or PREVIEW`);
+    }
+
+    if (this._mode === Mode.PREVIEW) {
+      return true;
+    }
+
+    const nt = this._value.nodeType;
+    if (nt === Node.ELEMENT_NODE || nt === Node.DOCUMENT_NODE || nt === Node.DOCUMENT_FRAGMENT_NODE || nt === Node.DOCUMENT_TYPE_NODE) {
+      return false;
+    }
+
+    return true;
   }
 
   /**
@@ -104,20 +130,20 @@ export default class NodeView extends BaseView {
 
   _getHeadNodesContent(v) {
     let val;
-    if (this._console.checkInstanceOf(v, `Element`)) {
+    if (v.nodeType === Node.ELEMENT_NODE) {
       const attrs = getElementAttributesStr(v);
       val = `<${v.tagName.toLowerCase()}${attrs ? ` ${attrs}` : ``}>`;
-    } else if (this._console.checkInstanceOf(v, `Text`)) {
+    } else if (v.nodeType === Node.TEXT_NODE) {
       val = v.data;
-    } else if (this._console.checkInstanceOf(v, `DocumentFragment`)) {
+    } else if (v.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
       val = `#document-fragment`;
-    } else if (this._console.checkInstanceOf(v, `Document`)) {
+    } else if (v.nodeType === Node.DOCUMENT_NODE) {
       val = `#document`;
-    } else if (this._console.checkInstanceOf(v, `Comment`)) {
+    } else if (v.nodeType === Node.COMMENT_NODE) {
       val = `<!-- ${v.data} -->`;
-    } else if (this._console.checkInstanceOf(v, `Attr`)) {
+    } else if (v.nodeType === Node.ATTRIBUTE_NODE) {
       val = v.name;
-    } else if (this._console.checkInstanceOf(v, `DocumentType`)) {
+    } else if (v.nodeType === Node.DOCUMENT_TYPE_NODE) {
       val = `<!DOCTYPE html>`;
     } else {
       val = `not implemented`;
@@ -128,7 +154,7 @@ export default class NodeView extends BaseView {
   _getHeadPropertiesContent(v) {
     // https://developer.mozilla.org/en-US/docs/Web/API/Node/nodeName#Value
     let val;
-    if (this._console.checkInstanceOf(v, `Element`)) {
+    if (v.nodeType === Node.ELEMENT_NODE) {
       val = v.tagName.toLowerCase();
       if (v.id) {
         val += `#${v.id}`;
@@ -150,25 +176,27 @@ export default class NodeView extends BaseView {
    * @return {string}
    */
   _getRestHeadContent() {
-    if (!this._console.checkInstanceOf(this._value, `Element`)) {
-      return ``;
-    }
-
-    let content = ``;
-    if (!checkElementIsEmpty(this._value) && !this._console.checkInstanceOf(this._value, `HTMLTemplateElement`)) {
-      if (this._value.innerHTML.length > MAX_PREVIEW_CONTENT_LENGTH) {
-        content = `…`;
-      } else {
-        content = this._value.innerHTML;
+    if (this._value.nodeType === Node.ELEMENT_NODE) {
+      let content = ``;
+      if (!checkElementIsEmpty(this._value) && !this._console.checkInstanceOf(this._value, `HTMLTemplateElement`)) {
+        if (this._value.innerHTML.length > MAX_PREVIEW_CONTENT_LENGTH) {
+          content = `…`;
+        } else {
+          content = this._value.innerHTML;
+        }
       }
-    }
 
-    let closingTag = ``;
-    const tagNameLower = this._value.tagName.toLowerCase();
-    if (content || !elsWithoutEndTag.includes(tagNameLower)) {
-      closingTag = `\</${tagNameLower}\>`;
+      let closingTag = ``;
+      const tagNameLower = this._value.tagName.toLowerCase();
+      if (content || !elsWithoutEndTag.includes(tagNameLower)) {
+        closingTag = `</${tagNameLower}>`;
+      }
+      return `${content}${closingTag}`;
+    } else if (this._value.nodeType === Node.ATTRIBUTE_NODE) {
+      const attrValue = this._value.value;
+      return attrValue ? `="${attrValue}"` : ``;
     }
-    return `${content}${closingTag}`;
+    return ``;
   }
 
   _getContentType() {

@@ -55,7 +55,8 @@ export default class Console {
     this.params = {
       object: this._parseViewParams(ViewType.OBJECT, mergeParams([{}, mergedParams.common, mergedParams.object])),
       array: this._parseViewParams(ViewType.ARRAY, mergeParams([{}, mergedParams.common, mergedParams.array])),
-      function: this._parseViewParams(ViewType.FUNCTION, mergeParams([{}, mergedParams.common, mergedParams.function]))
+      function: this._parseViewParams(ViewType.FUNCTION, mergeParams([{}, mergedParams.common, mergedParams.function])),
+      node: this._parseViewParams(ViewType.NODE, mergeParams([{}, mergedParams.common, mergedParams.node]))
     };
     Object.assign(this.params, this._parseConsoleParams(mergedParams));
   }

@@ -131,6 +131,7 @@ export default class BaseView extends AbstractView {
         if (self._isOpeningDisabled === bool) {
           return;
         }
+
         self.toggleArrowPointer(!bool);
         self._addOrRemoveHeadClickHandler(!bool);
         self._isOpeningDisabled = bool;
