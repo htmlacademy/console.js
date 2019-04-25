@@ -1,7 +1,7 @@
 import {ViewType, GET_STATE_DESCRIPTORS_KEY_NAME, Mode} from '../enums';
 import BaseView from '../base-view';
 import EntryView from '../entry-view';
-import {getElement} from '../utils';
+import {getElement, escapeHTML} from '../utils';
 
 const ELS_WITHOUT_ENDING_TAG = [`input`, `br`, `hr`, `img`, `base`, `link`, `meta`, `wbr`, `source`, `embed`, `param`, `track`, `area`, `col`];
 
@@ -170,10 +170,10 @@ export default class NodeView extends BaseView {
     if (this._value.nodeType === Node.ELEMENT_NODE) {
       let content = ``;
       if (!checkElementIsEmpty(this._value) && !this._console.checkInstanceOf(this._value, `HTMLTemplateElement`)) {
-        if (this._value.innerHTML.length > MAX_PREVIEW_CONTENT_LENGTH) {
+        if (this._value.children.length || this._value.innerHTML.length > MAX_PREVIEW_CONTENT_LENGTH) {
           content = `…`;
         } else {
-          content = this._value.innerHTML;
+          content = escapeHTML(this._value.innerHTML);
         }
       }
 
