@@ -24,7 +24,6 @@ jobs:
       - name: install dependencies
         run: |
           npm i
-          npm run bootstrap
 
       - name: test build
         run: npm run build
