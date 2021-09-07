@@ -67,5 +67,8 @@
   "types": "types/console.d.ts",
   "engines": {
     "node": "12.22.5"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
   }
 }
