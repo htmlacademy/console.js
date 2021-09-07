@@ -30,7 +30,7 @@ gulp.task(`style`, () => {
       .pipe(concat(`style.css`))
       .pipe(postcss([
         autoprefixer({
-          browsers: [
+          overrideBrowserslist: [
             `last 1 version`,
             `last 2 Chrome versions`,
             `last 2 Firefox versions`,
@@ -53,7 +53,7 @@ gulp.task(`style-prism`, () => {
       .pipe(concat(`prism.css`))
       .pipe(postcss([
         autoprefixer({
-          browsers: [
+          overrideBrowserslist: [
             `last 1 version`,
             `last 2 Chrome versions`,
             `last 2 Firefox versions`,
@@ -222,7 +222,7 @@ gulp.task(`imagemin`, gulp.series(`copy`, () => {
   return gulp.src(`build/img/**/*.{jpg,png,gif}`)
       .pipe(imagemin([
         imagemin.optipng({optimizationLevel: 3}),
-        imagemin.jpegtran({progressive: true})
+        imagemin.mozjpeg({progressive: true})
       ]))
       .pipe(gulp.dest(`build/img`));
 }));
