@@ -40,7 +40,7 @@ jobs:
     - name: build packages
       run: |
         VERSION=${GITHUB_REF##*/}
-        npm version ${VERSION}
+        npm --no-git-tag-version version ${VERSION}
 
     - name: publish npm package
       run: npm publish
