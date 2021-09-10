@@ -27,7 +27,7 @@ jobs:
         NPM_TOKEN_GITHUB: ${{ secrets.NPM_TOKEN_GITHUB }}
       run: |
         echo "//npm.pkg.github.com/:_authToken=${NPM_TOKEN_GITHUB}" > $HOME/.npmrc
-        git config --global user.email "raccon@htmlacademy.ru"
+        git config --global user.email "github+racconbot@htmlacademy.ru"
         git config --global user.name "racconbot"
 
     - name: install dependencies
@@ -37,7 +37,7 @@ jobs:
     - name: build packages
       run: npm run build:prod
 
-    - name: build packages
+    - name: version
       run: |
         VERSION=${GITHUB_REF##*/}
         npm --no-git-tag-version version ${VERSION}
