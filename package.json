@@ -5,7 +5,6 @@
   "author": "nikolayemrikh",
   "scripts": {
     "test": "npm run test:eslint && npm run test:stylelint && npm run test:karma",
-    "prepack": "npm run build",
     "test:karma": "gulp test",
     "test:eslint": "eslint gulpfile.js src/",
     "test:stylelint": "stylelint 'sass/**/*.scss' --syntax scss",

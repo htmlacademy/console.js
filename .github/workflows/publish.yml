@@ -1,0 +1,49 @@
+name: publish
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-18.04
+
+    timeout-minutes:
+      10
+
+    steps:
+    - uses: actions/checkout@master
+      with:
+        token: ${{ secrets.GH_ACTION_REPOS_TOKEN }}
+
+    - name: Use Node.js
+      uses: actions/setup-node@v1
+      with:
+        node-version: 12
+
+    - name: setup
+      env:
+        NPM_TOKEN_GITHUB: ${{ secrets.NPM_TOKEN_GITHUB }}
+      run: |
+        echo "//npm.pkg.github.com/:_authToken=${NPM_TOKEN_GITHUB}" > $HOME/.npmrc
+        git config --global user.email "raccon@htmlacademy.ru"
+        git config --global user.name "racconbot"
+
+    - name: install dependencies
+      run: |
+        npm ci
+
+    - name: build packages
+      run: npm run build:prod
+
+    - name: test
+      run: npm run test
+
+    - name: build packages
+      run: |
+        VERSION=${GITHUB_REF##*/}
+        npm version ${VERSION}
+
+    - name: publish npm package
+      run: npm publish
