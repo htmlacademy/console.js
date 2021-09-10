@@ -6,3 +6,4 @@ tests/report-lcovonly.txt
 .idea
 .DS_Store
 out
+build/

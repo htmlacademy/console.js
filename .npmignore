@@ -2,7 +2,6 @@
 *.log.*
 tests/coverage
 tests/report-lcovonly.txt
-build/
 .idea
 .DS_Store
 out
