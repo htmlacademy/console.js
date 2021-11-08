@@ -41,6 +41,8 @@ export default class Console {
 
     this.addConfig(config);
     this.params.global.TypedArray = Object.getPrototypeOf(Int8Array);
+    this.container = container;
+    this.customEvent = new Event(`console-outputs`);
   }
 
   addConfig(config = {}) {
@@ -210,6 +212,7 @@ export default class Console {
     values.forEach((val) => {
       rowEl.appendChild(this.createTypedView(val, mode).el);
     });
+    this.container.dispatchEvent(new CustomEvent(`console-outputs`));
     this._el.appendChild(rowEl);
     if (onPrint) {
       onPrint(rowEl);
