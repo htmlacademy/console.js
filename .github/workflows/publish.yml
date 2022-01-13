@@ -16,6 +16,9 @@ jobs:
     - uses: actions/checkout@master
       with:
         token: ${{ secrets.GH_ACTION_REPOS_TOKEN }}
+        # "ref" specifies the branch to check out.
+        # "github.event.release.target_commitish" is a global variable and specifies the branch the release targeted
+        ref: ${{ github.event.release.target_commitish }}
 
     - name: Use Node.js
       uses: actions/setup-node@v1
@@ -27,20 +30,25 @@ jobs:
         NPM_TOKEN_GITHUB: ${{ secrets.NPM_TOKEN_GITHUB }}
       run: |
         echo "//npm.pkg.github.com/:_authToken=${NPM_TOKEN_GITHUB}" > $HOME/.npmrc
-        git config --global user.email "github+racconbot@htmlacademy.ru"
         git config --global user.name "racconbot"
 
     - name: install dependencies
       run: |
-        npm ci
+        npm install
 
     - name: build packages
-      run: npm run build:prod
-
-    - name: version
       run: |
-        VERSION=${GITHUB_REF##*/}
-        npm --no-git-tag-version version ${VERSION}
+        npm run build:prod
 
-    - name: publish npm package
-      run: npm publish
+    - name: bump npm version
+      run: |
+        npm version ${{ github.event.release.tag_name }}
+
+    - name: publish
+      run: |
+        npm publish
+
+    - name: push updates
+      run: git push
+      env:
+        github-token: ${{ secrets.GH_ACTION_REPOS_TOKEN }}
