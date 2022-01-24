@@ -1,3 +1,6 @@
 {
-  "extends": "stylelint-config-htmlacademy"
+  "extends": "stylelint-config-htmlacademy",
+  "rules": {
+    "max-nesting-depth": 5
+  }
 }
