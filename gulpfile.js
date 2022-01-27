@@ -11,7 +11,6 @@ const server = require(`browser-sync`).create();
 const mqpacker = require(`css-mqpacker`);
 const minify = require(`gulp-csso`);
 const rename = require(`gulp-rename`);
-const imagemin = require(`gulp-imagemin`);
 const babel = require(`rollup-plugin-babel`);
 const nodeResolve = require(`rollup-plugin-node-resolve`);
 const commonjs = require(`rollup-plugin-commonjs`);
@@ -218,14 +217,6 @@ gulp.task(`copy`, gulp.series(
         .pipe(gulp.dest(`build`));
     }));
 
-gulp.task(`imagemin`, gulp.series(`copy`, () => {
-  return gulp.src(`build/img/**/*.{jpg,png,gif}`)
-      .pipe(imagemin([
-        imagemin.optipng({optimizationLevel: 3}),
-        imagemin.mozjpeg({progressive: true})
-      ]))
-      .pipe(gulp.dest(`build/img`));
-}));
 
 gulp.task(`clean`, () => {
   return del([`build`, `tests`]);
@@ -252,4 +243,4 @@ gulp.task(`serve`, gulp.series(`assemble`, () => {
   gulp.watch(`src/**/*.js`, gulp.series(`js-watch`));
 }));
 
-gulp.task(`build`, gulp.series(`assemble`, `imagemin`));
+gulp.task(`build`, gulp.series(`assemble`));
