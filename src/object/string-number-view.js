@@ -1,4 +1,5 @@
 import TypeView from '../type-view';
+import EntryView from '../entry-view';
 import ObjectView from './object-view';
 import {Mode} from '../enums';
 
@@ -30,15 +31,15 @@ export default class StringNumberView extends ObjectView {
     const insertFn = inHead ? TypeView.prependEntryElIntoFragment : TypeView.appendEntryElIntoFragment;
     const mode = inHead ? Mode.PREVIEW : Mode.PROP;
     if (this._console.checkInstanceOf(obj, `String`)) {
-      const el = this._console.createTypedView(this._value.toString(), mode, this.nextNestingLevel, this).el;
+      const entryEl = this._console.createTypedView(this._value.toString(), mode, this.nextNestingLevel, this).el;
       insertFn(
-          this._createEntryEl({key: `[[PrimitiveValue]]`, el, withoutKey: inHead}),
+          new EntryView({key: `[[PrimitiveValue]]`, entryEl, withoutKey: inHead}).el,
           fragment
       );
     } else if (this._console.checkInstanceOf(obj, `Number`)) {
-      const el = this._console.createTypedView(this._value * 1, mode, this.nextNestingLevel, this).el;
+      const entryEl = this._console.createTypedView(this._value * 1, mode, this.nextNestingLevel, this).el;
       insertFn(
-          this._createEntryEl({key: `[[PrimitiveValue]]`, el, withoutKey: inHead}),
+          new EntryView({key: `[[PrimitiveValue]]`, entryEl, withoutKey: inHead}).el,
           fragment
       );
     }

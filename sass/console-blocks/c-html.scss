@@ -1,0 +1,31 @@
+.c-html {
+  &__tag {
+    color: #a894a6;
+  }
+
+  &__tag-name {
+    color: #881280;
+  }
+
+  &__attr-name {
+    color: #994500;
+  }
+
+  &__attr-value,
+  &__id {
+    color: #1a1aa6;
+  }
+
+  &__comment,
+  &__doctype {
+    color: slategray;
+  }
+
+  // &__punctuation {
+  //   color: #999999;
+  // }
+
+  &__link {
+    color: #4855cc;
+  }
+}

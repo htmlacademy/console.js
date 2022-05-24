@@ -1,4 +1,5 @@
 import TypeView from '../type-view';
+import EntryView from '../entry-view';
 import ObjectView from './object-view';
 import {Mode, PromiseStatus} from '../enums';
 
@@ -37,27 +38,27 @@ export default class PromiseView extends ObjectView {
     const mode = inHead ? Mode.PREVIEW : Mode.PROP;
     if (inHead) {
       TypeView.prependEntryElIntoFragment(
-          this._createEntryEl({
+          new EntryView({
             key: `<${this._promiseStatus}>`,
-            el: this._console.createTypedView(this._promiseValue, mode, this.nextNestingLevel, this).el,
+            entryEl: this._console.createTypedView(this._promiseValue, mode, this.nextNestingLevel, this).el,
             withoutValue: this._promiseStatus === PromiseStatus.pending,
             isGrey: true
-          }),
+          }).el,
           fragment
       );
     } else {
       TypeView.appendEntryElIntoFragment(
-          this._createEntryEl({
+          new EntryView({
             key: `[[PromiseStatus]]`,
-            el: this._console.createTypedView(this._promiseStatus, mode, this.nextNestingLevel, this).el
-          }),
+            entryEl: this._console.createTypedView(this._promiseStatus, mode, this.nextNestingLevel, this).el
+          }).el,
           fragment
       );
       TypeView.appendEntryElIntoFragment(
-          this._createEntryEl({
+          new EntryView({
             key: `[[PromiseValue]]`,
-            el: this._console.createTypedView(this._promiseValue, mode, this.nextNestingLevel, this).el
-          }),
+            entryEl: this._console.createTypedView(this._promiseValue, mode, this.nextNestingLevel, this).el
+          }).el,
           fragment
       );
     }

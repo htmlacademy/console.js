@@ -3,9 +3,12 @@ import ObjectView from './object/object-view';
 import MapSetView from './object/map-set-view';
 import PromiseView from './object/promise-view';
 import StringNumberView from './object/string-number-view';
+import ObjectNodeView from './object/object-node-view';
 import ArrayView from './array/array-view';
 import FunctionView from './function/function-view';
 import PrimitiveView from './primitive/primitive-view';
+import NodeView from './node/node-view';
+// import NodeView from './object/node-view';
 import mergeParams from './utils/merge-params';
 import {getElement, checkObjectisPrototype, checkEnumContainsValue} from './utils';
 import {Mode, ViewType, Env} from './enums';
@@ -54,7 +57,8 @@ export default class Console {
     this.params = {
       object: this._parseViewParams(ViewType.OBJECT, mergeParams([{}, mergedParams.common, mergedParams.object])),
       array: this._parseViewParams(ViewType.ARRAY, mergeParams([{}, mergedParams.common, mergedParams.array])),
-      function: this._parseViewParams(ViewType.FUNCTION, mergeParams([{}, mergedParams.common, mergedParams.function]))
+      function: this._parseViewParams(ViewType.FUNCTION, mergeParams([{}, mergedParams.common, mergedParams.function])),
+      node: this._parseViewParams(ViewType.NODE, mergeParams([{}, mergedParams.common, mergedParams.node]))
     };
     Object.assign(this.params, this._parseConsoleParams(mergedParams));
   }
@@ -334,6 +338,7 @@ export default class Console {
           const stringTagName = stringTag.substring(8, stringTag.length - 1);
 
           const objectIsPrototype = checkObjectisPrototype(val);
+
           if (stringTagName !== `Object` && (
             Array.isArray(val) || (
               !objectIsPrototype && (
@@ -348,10 +353,16 @@ export default class Console {
             view = new ArrayView(params, this);
           } else if (!objectIsPrototype && (this.checkInstanceOf(val, `Map`) || this.checkInstanceOf(val, `Set`))) {
             view = new MapSetView(params, this);
-          } else if (!objectIsPrototype && val instanceof Promise) {
+          } else if (!objectIsPrototype && this.checkInstanceOf(val, `Promise`)) {
             view = new PromiseView(params, this);
           } else if (!objectIsPrototype && (this.checkInstanceOf(val, `String`) || this.checkInstanceOf(val, `Number`))) {
             view = new StringNumberView(params, this);
+          } else if (!objectIsPrototype && this.checkInstanceOf(val, `Node`)) {
+            if (mode === Mode.LOG || mode === Mode.LOG_HTML || mode === Mode.ERROR) {
+              view = new NodeView(params, this);
+            } else {
+              view = new ObjectNodeView(params, this);
+            }
           } else {
             view = new ObjectView(params, this);
           }

@@ -1,8 +1,10 @@
 /* eslint guard-for-in: "off"*/
 /* eslint no-empty: "off"*/
 import TypeView from '../type-view';
-import {Mode, ViewType} from '../enums';
+import {Mode, ViewType, GET_STATE_DESCRIPTORS_KEY_NAME} from '../enums';
 import {checkObjectisPrototype} from '../utils';
+
+const getStateDescriptorsKey = Symbol(GET_STATE_DESCRIPTORS_KEY_NAME);
 
 export default class ObjectView extends TypeView {
   constructor(params, cons) {
@@ -12,6 +14,7 @@ export default class ObjectView extends TypeView {
     if (!params.parentView) {
       this.rootView = this;
     }
+    this._stateDescriptorsQueue.push(this[getStateDescriptorsKey]());
   }
 
   get template() {
@@ -41,7 +44,7 @@ export default class ObjectView extends TypeView {
     this._state.isOpened = this.isOpeningAllowed;
   }
 
-  _getStateDescriptors() {
+  [getStateDescriptorsKey]() {
     const self = this;
     return {
       set isHeadContentShowed(bool) {
@@ -212,7 +215,6 @@ export default class ObjectView extends TypeView {
     return this.el.classList.toggle(`error`, isEnable);
   }
 
-
   get headContentClassName() {
     if (this._console.checkInstanceOf(this._value, `RegExp`) && this._mode !== Mode.DIR) {
       return `c-regexp`;
@@ -226,22 +228,24 @@ export default class ObjectView extends TypeView {
     this.protoConstructorName === `Object`) {
       return `…`;
     }
-
-    if (!Object.prototype.hasOwnProperty.call(this._value, `constructor`)) {
-      if (this._console.checkInstanceOf(this._value, `Node`)) {
-        if (this._console.checkInstanceOf(this._value, `HTMLElement`)) {
-          let str = this._value.tagName.toLowerCase();
-          if (this._value.id) {
-            str += `#${this._value.id}`;
-          }
-          if (this._value.classList.length) {
-            str += `.` + Array.prototype.join.call(this._value.classList, `.`);
-          }
-          return str;
-        } else {
-          return this._value.nodeName;
-        }
-      } else if (this._console.checkInstanceOf(this._value, `Error`)) {
+    if (!checkObjectisPrototype(this._value)) {
+      // Что пишем, если у нас элемент, отнаследованный от Node
+      // https://developer.mozilla.org/en-US/docs/Web/API/Node/nodeName#Value
+      // if (this._console.checkInstanceOf(this._value, `Node`)) {
+      //   if (this._console.checkInstanceOf(this._value, `HTMLElement`)) {
+      //     let str = this._value.tagName.toLowerCase();
+      //     if (this._value.id) {
+      //       str += `#${this._value.id}`;
+      //     }
+      //     if (this._value.classList.length) {
+      //       str += `.` + Array.prototype.join.call(this._value.classList, `.`);
+      //     }
+      //     return str;
+      //   } else {
+      //     return this._value.nodeName;
+      //   }
+      // } else
+      if (this._console.checkInstanceOf(this._value, `Error`)) {
         let str = this._value.name;
         if (this._value.message) {
           str += `: ${this._value.message}`;

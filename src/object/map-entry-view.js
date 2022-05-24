@@ -1,5 +1,8 @@
 import TypeView from '../type-view';
-import {Mode, ViewType} from '../enums';
+import EntryView from '../entry-view';
+import {Mode, ViewType, GET_STATE_DESCRIPTORS_KEY_NAME} from '../enums';
+
+const getStateDescriptorsKey = Symbol(GET_STATE_DESCRIPTORS_KEY_NAME);
 
 export default class MapEntryView extends TypeView {
   constructor(params, cons) {
@@ -11,6 +14,8 @@ export default class MapEntryView extends TypeView {
 
     this._pairKey = this._value[0];
     this._pairValue = this._value[1];
+
+    this._stateDescriptorsQueue.push(this[getStateDescriptorsKey]());
   }
   get template() {
     return `\
@@ -33,7 +38,7 @@ export default class MapEntryView extends TypeView {
     this._state.isOpened = this.isOpeningAllowed;
   }
 
-  _getStateDescriptors() {
+  [getStateDescriptorsKey]() {
     const self = this;
     return {
       set isHeadContentShowed(bool) {
@@ -65,11 +70,11 @@ export default class MapEntryView extends TypeView {
     const valueEl = this._console.createTypedView(this._pairValue, this._mode, this.nextNestingLevel, this, this._propKey).el;
 
     TypeView.appendEntryElIntoFragment(
-        this._createEntryEl({key: `key`, el: keyEl, withoutKey: false}),
+        new EntryView({key: `key`, entryEl: keyEl, withoutKey: false}).el,
         fragment
     );
     TypeView.appendEntryElIntoFragment(
-        this._createEntryEl({key: `value`, el: valueEl, withoutKey: false}),
+        new EntryView({key: `value`, entryEl: valueEl, withoutKey: false}).el,
         fragment
     );
 

@@ -19,7 +19,8 @@ export const ViewType = {
   FUNCTION: `function`,
   OBJECT: `object`,
   ARRAY: `array`,
-  PRIMITIVE: `primitive`
+  PRIMITIVE: `primitive`,
+  NODE: `node`
 };
 
 /**
@@ -47,3 +48,5 @@ export const WhereChangeHeaderOnExpand = {
   ANY_DEPTH: `any-depth`,
   ANY_DEPTH_EXCEPT_ROOT: `any-depth-except-root`
 };
+
+export const GET_STATE_DESCRIPTORS_KEY_NAME = `get-state-descriptors`;

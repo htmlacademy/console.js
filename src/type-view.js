@@ -1,8 +1,9 @@
 /* eslint no-empty: "off"*/
 /* eslint no-unused-vars: "off"*/
-import AbstractView from './abstract-view';
+import BaseView from './base-view';
+import EntryView from './entry-view';
 import {getElement, escapeHTML} from './utils';
-import {Mode, Env} from './enums';
+import {Mode, Env, GET_STATE_DESCRIPTORS_KEY_NAME} from './enums';
 
 const isNativeFunction = (fn) => {
   return /{\s*\[native code\]\s*}/g.test(fn);
@@ -28,45 +29,13 @@ const getFirstProtoContainingObject = (typeView) => {
   return typeView.value;
 };
 
-export default class TypeView extends AbstractView {
+const getStateDescriptorsKey = Symbol(GET_STATE_DESCRIPTORS_KEY_NAME);
+
+export default class TypeView extends BaseView {
   constructor(params, cons) {
-    super();
-    if (params.parentView) {
-      this._parentView = params.parentView;
-      this.rootView = params.parentView.rootView;
-    }
-    /** @abstract must be overriden */
-    this._viewTypeParams = void 0;
-    this._console = cons;
-    this._value = params.val;
-    this._mode = params.mode;
-    this._type = params.type;
+    super(params, cons);
     this._propKey = params.propKey;
-    this._currentDepth = typeof params.depth === `number` ? params.depth : 1;
-
-    this._cache = {};
-  }
-
-  /**
-   * @abstract
-   * @protected
-   */
-  _afterRender() {}
-
-  _bind() {
-    if (!this.viewType) {
-      throw new Error(`this.viewType must be specified`);
-    }
-    if (!this.rootView) {
-      throw new Error(`this.rootView must be specified`);
-    }
-
-    this._headEl = this.el.querySelector(`.head`);
-    this._headContentEl = this.el.querySelector(`.head__content`);
-    this._infoEl = this.el.querySelector(`.info`);
-    this._contentEl = this.el.querySelector(`.item__content`);
-
-    this._afterRender();
+    // this._stateDescriptorsQueue.push(this[getStateDescriptorsKey]());
   }
 
   get protoConstructorName() {
@@ -102,109 +71,6 @@ export default class TypeView extends AbstractView {
 
   get parentView() {
     return this._parentView;
-  }
-
-  /**
-   * Current state
-   * @type {{}}
-   * @param {{}} params — object with values which will be assigned throught setters
-   */
-  get _state() {
-    if (!this._viewState) {
-      this._viewState = {};
-      Object.defineProperties(
-          this._viewState,
-          Object.getOwnPropertyDescriptors(this._getStateCommonDescriptors())
-      );
-      Object.defineProperties(
-          this._viewState,
-          Object.getOwnPropertyDescriptors(this._getStateDescriptors())
-      );
-      Object.seal(this._viewState);
-    }
-    return this._viewState;
-  }
-
-  /**
-   * @abstract
-   * @return {{}} if not overriden return object without descriptors
-   */
-  _getStateDescriptors() {
-    return {};
-  }
-
-  /**
-   * @return {{}} — object that contains descriptors only
-   */
-  _getStateCommonDescriptors() {
-    const self = this;
-    return {
-      set isShowInfo(bool) {
-        if (!self._infoEl) {
-          return;
-        }
-        if (bool && !self._infoEl.textContent) {
-          self._infoEl.textContent = self.info;
-        }
-        self._isShowInfo = self.toggleInfoShowed(bool);
-      },
-      get isShowInfo() {
-        return self._isShowInfo;
-      },
-      set isHeadContentShowed(bool) {
-        self.toggleHeadContentShowed(bool);
-      },
-      set isOpeningDisabled(bool) {
-        if (!bool && self._mode === Mode.PREVIEW) {
-          throw new Error(`Enabling opening object in preview mode is forbidden`);
-        }
-        if (self._isOpeningDisabled === bool) {
-          return;
-        }
-        self.toggleArrowPointer(!bool);
-        self._addOrRemoveHeadClickHandler(!bool);
-        self._isOpeningDisabled = bool;
-      },
-      get isOpeningDisabled() {
-        return self._isOpeningDisabled;
-      },
-      set isBraced(bool) {
-        self.toggleHeadContentBraced(bool);
-      },
-      set isOpened(bool) {
-        if (bool === self._isOpened) {
-          return;
-        }
-
-        self._isOpened = bool;
-        self.toggleArrowBottom(bool);
-        self._state.isContentShowed = bool;
-      },
-      get isOpened() {
-        return self._isOpened;
-      },
-      set isContentShowed(bool) {
-        if (bool === self._isContentShowed) {
-          return;
-        }
-        self._isContentShowed = self.toggleContentShowed(bool);
-        if (self._isContentShowed && self._contentEl.childElementCount === 0) {
-          self._contentEl.appendChild(self.createContent(self._value, false).fragment);
-        }
-      },
-      get isContentShowed() {
-        return self._isContentShowed;
-      },
-      set isOversized(bool) {
-        self.toggleHeadContentOversized(bool);
-      },
-      set isItalicEnabled(bool) {
-        self._isItalicEnabled = self.toggleItalic(bool);
-      },
-      get isItalicEnabled() {
-        return self._isItalicEnabled;
-      }
-    };
   }
 
   toggleHeadContentBraced(isEnable) {
@@ -475,7 +341,6 @@ export default class TypeView extends AbstractView {
 
   get isChangeHeaderOnExpandNeeded() {
     const typeParams = this._viewTypeParams;
-
   }
 
   get info() {
@@ -485,22 +350,6 @@ export default class TypeView extends AbstractView {
       return this.stringTagName;
     } else {
       return this.protoConstructorName;
-    }
-  }
-
-  _headClickHandler(evt) {
-    evt.preventDefault();
-    this._state.isOpened = !this._state.isOpened;
-  }
-
-  _addOrRemoveHeadClickHandler(bool) {
-    if (bool) {
-      if (!this._bindedHeadClickHandler) {
-        this._bindedHeadClickHandler = this._headClickHandler.bind(this);
-      }
-      this._headEl.addEventListener(`click`, this._bindedHeadClickHandler);
-    } else if (this._bindedHeadClickHandler) {
-      this._headEl.removeEventListener(`click`, this._bindedHeadClickHandler);
     }
   }
 
@@ -517,63 +366,19 @@ export default class TypeView extends AbstractView {
       if (descriptor.get !== void 0) {
         const getterEl = this._console.createTypedView(descriptor.get, mode, this.nextNestingLevel, this, key).el;
         TypeView.appendEntryElIntoFragment(
-            this._createEntryEl({key: `get ${key}`, el: getterEl, mode, isGrey: true}),
+            new EntryView({key: `get ${key}`, entryEl: getterEl, mode, isGrey: true}).el,
             fragment
         );
       }
       if (descriptor.set !== void 0) {
         const setterEl = this._console.createTypedView(descriptor.set, mode, this.nextNestingLevel, this, key).el;
         TypeView.appendEntryElIntoFragment(
-            this._createEntryEl({key: `set ${key}`, el: setterEl, mode, isGrey: true}),
+            new EntryView({key: `set ${key}`, entryEl: setterEl, mode, isGrey: true}).el,
             fragment
         );
       }
     }
     return fragment;
-  }
-
-  /**
-   * Create entry element
-   * @protected
-   * @param {{}} params
-   * @param {string} params.key — key, index of array or field name
-   * @param {HTMLSpanElement|undefined} params.el — HTML span element to append into container
-   * @param {Mode} params.mode — log mode
-   * @param {boolean} [params.withoutKey] — create entry without key element
-   * @param {function} [params.getViewEl] — function to get element if so wasn't present while calling this method
-   * @return {HTMLSpanElement}
-   */
-  _createEntryEl({key, el, mode, withoutKey, withoutValue, getViewEl, isGrey}) {
-    const entryEl = getElement(`\
-<div class="entry-container__entry">\
-${withoutKey ? `` : `<span class="entry-container__key ${withoutValue ? `` : `entry-container__key--with-colon`} ${isGrey ? `grey` : ``}">${escapeHTML(key.toString())}</span>`}${withoutValue ? `` : `<div class="entry-container__value-container"></div>`}\
-</div>`);
-    if (withoutValue) {
-      return entryEl;
-    }
-    const valueContEl = entryEl.querySelector(`.entry-container__value-container`);
-
-    if (el) {
-      valueContEl.appendChild(el);
-    } else {
-      valueContEl.textContent = `(...)`;
-      valueContEl.classList.add(`entry-container__value-container--underscore`);
-      const insertEl = () => {
-        valueContEl.textContent = ``;
-        valueContEl.classList.remove(`entry-container__value-container--underscore`);
-        let viewEl;
-        try {
-          viewEl = getViewEl();
-          valueContEl.appendChild(viewEl);
-        } catch (err) {
-          valueContEl.textContent = `[Exception: ${err.stack}]`;
-        }
-        valueContEl.removeEventListener(`click`, insertEl);
-      };
-      valueContEl.addEventListener(`click`, insertEl);
-    }
-
-    return entryEl;
   }
 
   /**
@@ -607,10 +412,10 @@ ${withoutKey ? `` : `<span class="entry-container__key ${withoutValue ? `` : `en
       }
       return this._console.createTypedView(val, mode, this.nextNestingLevel, this, key).el;
     };
-    let el;
+    let entryEl;
     try {
       if (notCheckDescriptors) {
-        el = getViewEl();
+        entryEl = getViewEl();
       } else {
         const descriptorsWithGetters = this._allPropertyDescriptorsWithGetters;
         const descriptorWithGetter = descriptorsWithGetters[key];
@@ -618,13 +423,13 @@ ${withoutKey ? `` : `<span class="entry-container__key ${withoutValue ? `` : `en
         if (!isProtoChainGetterCall) {
           // if it's not a getter or it's a __proto__
           if (!Object.prototype.hasOwnProperty.call(descriptorsWithGetters, key) || key === `__proto__`) {
-            el = getViewEl();
+            entryEl = getViewEl();
           // if it's a native getter
           } else if (isNativeFunction(descriptorWithGetter.get)) {
             if (mode === Mode.PREVIEW && canReturnNull && !descriptorWithGetter.enumerable) {
               return null;
             }
-            el = getViewEl();
+            entryEl = getViewEl();
           }
         }
       }
@@ -634,23 +439,7 @@ ${withoutKey ? `` : `<span class="entry-container__key ${withoutValue ? `` : `en
         return null;
       }
     }
-    return this._createEntryEl({key, el, mode, withoutKey, getViewEl, isGrey});
-  }
-
-  /**
-   * @param {HTMLElement|null} entryEl
-   * @param {DocumentFragment} fragment
-   */
-  static appendEntryElIntoFragment(entryEl, fragment) {
-    if (entryEl !== null) {
-      fragment.appendChild(entryEl);
-    }
-  }
-
-  static prependEntryElIntoFragment(entryEl, fragment) {
-    if (entryEl !== null) {
-      fragment.insertBefore(entryEl, fragment.firstElementChild);
-    }
+    return new EntryView({key, entryEl, mode, withoutKey, getViewEl, isGrey}).el;
   }
 
   static compareProperties(a, b) {

@@ -1,10 +1,13 @@
 import TypeView from '../type-view';
+import EntryView from '../entry-view';
 import MapEntryView from '../object/map-entry-view';
 import {getElement} from '../utils';
-import {Mode, ViewType} from '../enums';
+import {Mode, ViewType, GET_STATE_DESCRIPTORS_KEY_NAME} from '../enums';
 
 const EMPTY = `empty`;
 const MULTIPLY_SIGN = `&times;`;
+
+const getStateDescriptorsKey = Symbol(GET_STATE_DESCRIPTORS_KEY_NAME);
 
 export default class ArrayView extends TypeView {
   constructor(params, cons) {
@@ -14,6 +17,8 @@ export default class ArrayView extends TypeView {
     if (!params.parentView) {
       this.rootView = this;
     }
+
+    this._stateDescriptorsQueue.push(this[getStateDescriptorsKey]());
   }
 
   get template() {
@@ -42,7 +47,7 @@ export default class ArrayView extends TypeView {
     this._state.isOpened = this.isOpeningAllowed;
   }
 
-  _getStateDescriptors() {
+  [getStateDescriptorsKey]() {
     const self = this;
     return {
       set isHeadContentShowed(bool) {
@@ -139,7 +144,7 @@ export default class ArrayView extends TypeView {
       }
       if (inHead && emptyCount !== 0 && (hasKey || i === l - 1)) {
         TypeView.appendEntryElIntoFragment(
-            this._createEntryEl({key, el: getElement(`<span class="grey">${EMPTY}${emptyCount > 1 ? ` ${MULTIPLY_SIGN} ${emptyCount}` : ``}</span>`), withoutKey: true}),
+            new EntryView({key, entryEl: getElement(`<span class="grey">${EMPTY}${emptyCount > 1 ? ` ${MULTIPLY_SIGN} ${emptyCount}` : ``}</span>`), withoutKey: true}).el,
             fragment
         );
         if (inHead && countEntriesWithoutKeys) {
@@ -150,9 +155,9 @@ export default class ArrayView extends TypeView {
       if (hasKey) {
         if (isMapEntriesSpecialValue) {
           const pair = arr[i];
-          const el = new MapEntryView({val: pair, mode, depth: this.nextNestingLevel, parentView: this, propKey: this._propKey}, this._console).el;
+          const entryEl = new MapEntryView({val: pair, mode, depth: this.nextNestingLevel, parentView: this, propKey: this._propKey}, this._console).el;
           TypeView.appendEntryElIntoFragment(
-              this._createEntryEl({key, el, withoutKey: inHead}),
+              new EntryView({key, entryEl, withoutKey: inHead}).el,
               fragment
           );
         } else {

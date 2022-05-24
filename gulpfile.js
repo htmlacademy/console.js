@@ -84,7 +84,7 @@ gulp.task(`build-scripts`, () => {
           json(),
           babel({
             babelrc: false,
-            exclude: [`node_modules/**`, `js/tests/**`],
+            exclude: [`node_modules/**`, `src/tests/**`],
             presets: [
               [`@babel/preset-env`, {modules: false, useBuiltIns: `entry`}]
             ]
@@ -114,7 +114,7 @@ gulp.task(`build-prompt`, () => {
           json(),
           babel({
             babelrc: false,
-            exclude: [`node_modules/**`, `js/tests/**`],
+            exclude: [`node_modules/**`, `src/tests/**`],
             presets: [
               [`@babel/preset-env`, {modules: false}]
             ],
