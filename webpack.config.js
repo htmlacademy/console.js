@@ -1,6 +1,10 @@
 // webpack.config.js
 // link: https://webpack.js.org/configuration/
 
+// TODO: добавить возможность строить .min файл и не .min
+// TODO: нужно строить ещё и test-скрипты
+// TODO: а потом можно будет вычистить gulp совсем
+
 const { join } = require("path");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
@@ -19,6 +23,14 @@ const jsEntries = () => [
     {}
   );
 
+const cssEntries = {
+  "css/style.min": "./sass/style.scss",
+  "css/prism.min": join(
+    __dirname,
+    "node_modules/prismjs/themes/prism.css"
+  )
+};
+
 const jsPath = join(__dirname, "build");
 
 module.exports = () => {
@@ -35,9 +47,7 @@ module.exports = () => {
 
   const cssConfig = {
     mode: env(),
-    entry: {
-      "css/style.min": "./sass/style.scss",
-    },
+    entry: cssEntries,
     output: {
       path: jsPath,
     },
@@ -53,7 +63,14 @@ module.exports = () => {
           "postcss-loader",
           "sass-loader",
         ]
-      }]
+      }, {
+        test: /\.css/i,
+        use: [
+          MiniCssExtractPlugin.loader,
+          "css-loader",
+          "postcss-loader",
+        ]
+      }],
     },
     optimization: {
       minimizer: [
