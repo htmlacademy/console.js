@@ -24,7 +24,9 @@ export default class Prompt {
   }
 
   _handleSend(code, highlightedMarkup) {
-    const ast = acorn.parse(code);
+    const ast = acorn.parse(code, {
+      ecmaVersion: 2020
+    });
     const body = ast.body;
     let l = body.length;
     let lastExpressionStatementNode;
