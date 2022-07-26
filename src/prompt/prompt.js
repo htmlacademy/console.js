@@ -1,7 +1,7 @@
-import acorn from 'acorn/dist/acorn';
+import { parse } from 'acorn';
 import PromptView from './prompt-view';
 
-export default class Prompt {
+export class Prompt {
   constructor(container, consoleGlobalName, params = {}) {
     if (!container) {
       throw new Error(`Prompt is not inited!`);
@@ -24,7 +24,7 @@ export default class Prompt {
   }
 
   _handleSend(code, highlightedMarkup) {
-    const ast = acorn.parse(code, {
+    const ast = parse(code, {
       ecmaVersion: 2020
     });
     const body = ast.body;
