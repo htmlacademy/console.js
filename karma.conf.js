@@ -1,10 +1,11 @@
+// karma.conf.js
+
+process.env.CHROME_BIN = require('puppeteer').executablePath();
+
 module.exports = function (config) {
   config.set({
     basePath: ``,
     frameworks: [`mocha`],
-    // files: [
-    //   `build/js/tests/**/*.test.js`,
-    // ],
     browserConsoleLogOpptions: {
       level: `debug`,
       format: `%b %T: %m`,
