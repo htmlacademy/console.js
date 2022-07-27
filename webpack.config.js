@@ -10,7 +10,7 @@
 //  * [x] css/style.css, css/style.min.css
 //  * [x] css/prism.css, css/prism.min.css
 //  * [x] js/index{,-silent,-prompt}.js
-//  * [ ] js/presets ?
+//  * [x] js/presets (минифицированные сразу)
 //  * [ ] js/tests
 
 const { join } = require("path");
