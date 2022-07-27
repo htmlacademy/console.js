@@ -1,4 +1,4 @@
-import { parse } from 'acorn';
+import {parse} from 'acorn';
 import PromptView from './prompt-view';
 
 export class Prompt {
