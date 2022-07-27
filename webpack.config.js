@@ -1,8 +1,8 @@
 // webpack.config.js
 // link: https://webpack.js.org/configuration/
 
-// TODO: добавить возможность строить .min файл и не .min
 // TODO: нужно строить ещё и test-скрипты
+// TODO: добавить возможность строить в процессе разработки
 // TODO: а потом можно будет вычистить gulp совсем
 
 const { join } = require("path");
@@ -14,6 +14,35 @@ const env = () => (
   "production" : "development"
 );
 
+const overrideBrowserslist = [
+  "last 1 version",
+  "last 2 Chrome versions",
+  "last 2 Firefox versions",
+  "last 2 Opera versions",
+  "last 2 Edge versions"
+];
+
+const getPostcssOptions = (minify) => {
+  const plugins = [
+    require("autoprefixer")({
+      overrideBrowserslist
+    }),
+    require("css-mqpacker")({
+      sort: true
+    })
+  ];
+
+  if (minify) {
+    plugins.push(require("postcss-csso"));
+  }
+
+  return {
+    postcssOptions: {
+      plugins
+    }
+  };
+}
+
 const jsEntries = () => [
   "index",           // window.Console
   "index-prompt",    // window.Prompt
@@ -23,15 +52,22 @@ const jsEntries = () => [
     {}
   );
 
-const cssEntries = {
-  "css/style.min": "./sass/style.scss",
-  "css/prism.min": join(
-    __dirname,
-    "node_modules/prismjs/themes/prism.css"
-  )
+const fixWithMinify = (minify) => (
+  minify ? (id) => id + ".min" : (id) => id
+);
+
+const cssEntries = (minify) => {
+  const fixId = fixWithMinify(minify);
+  return {
+    [fixId("css/style")]: "./sass/style.scss",
+    [fixId("css/prism")]: join(
+      __dirname,
+      "node_modules/prismjs/themes/prism.css"
+    )
+  }
 };
 
-const jsPath = join(__dirname, "build");
+const targetPath = join(__dirname, "build");
 
 module.exports = () => {
   const jsConfig = {
@@ -40,47 +76,56 @@ module.exports = () => {
     entry: jsEntries(),
     output: {
       iife: true,
-      path: jsPath,
+      path: targetPath,
       library: { type: "window" }
     }
   };
 
-  const cssConfig = {
-    mode: env(),
-    entry: cssEntries,
-    output: {
-      path: jsPath,
-    },
-    plugins: [
-      new MiniCssExtractPlugin(),
-    ],
-    module: {
-      rules: [{
-        test: /\.scss/i,
-        use: [
-          MiniCssExtractPlugin.loader,
-          "css-loader",
-          "postcss-loader",
-          "sass-loader",
+  const cssConfig = (minify) => {
+    const getStyleRule = (re, withSass) => {
+      const options = getPostcssOptions(minify);
+      const loaders = [
+        MiniCssExtractPlugin.loader,
+        "css-loader",
+        { loader: "postcss-loader", options },
+      ];
+
+      if (withSass) {
+        loaders.push("sass-loader");
+      }
+
+      return {
+        test: re,
+        use: loaders,
+      };
+    };
+
+    return {
+      mode: "development", // env(),
+      entry: cssEntries(minify),
+      output: {
+        path: targetPath,
+      },
+      plugins: [
+        new MiniCssExtractPlugin(),
+      ],
+      module: {
+        rules: [
+          getStyleRule(/\.scss/i, true),
+          getStyleRule(/\.css/i, false)
+        ],
+      },
+      optimization: {
+        minimizer: minify ? [] : [
+          new CssMinimizerPlugin(),
         ]
-      }, {
-        test: /\.css/i,
-        use: [
-          MiniCssExtractPlugin.loader,
-          "css-loader",
-          "postcss-loader",
-        ]
-      }],
-    },
-    optimization: {
-      minimizer: [
-        new CssMinimizerPlugin(),
-      ]
-    }
+      }
+    };
   };
 
   return [
     jsConfig,
-    cssConfig
+    cssConfig(false),
+    cssConfig(true),
   ];
 }
