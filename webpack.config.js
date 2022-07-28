@@ -1,18 +1,6 @@
 // webpack.config.js
 // link: https://webpack.js.org/configuration/
 
-// TODO: нужно строить ещё и test-скрипты
-// TODO: добавить возможность строить в процессе разработки
-// TODO: а потом можно будет вычистить gulp совсем
-
-// ## Artefacts to build
-//
-//  * [x] css/style.css, css/style.min.css
-//  * [x] css/prism.css, css/prism.min.css
-//  * [x] js/index{,-silent,-prompt}.js
-//  * [x] js/presets (минифицированные сразу)
-//  * [x] js/tests
-
 const { join } = require("path");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
