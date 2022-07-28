@@ -119,7 +119,7 @@ module.exports = () => {
   };
 
   const cssConfig = (minify) => {
-    const getStyleRule = (re, withSass) => {
+    const getStyleRule = (re, {minify, sass = false} = {}) => {
       const options = getPostcssOptions(minify);
       const loaders = [
         MiniCssExtractPlugin.loader,
@@ -127,7 +127,7 @@ module.exports = () => {
         { loader: "postcss-loader", options },
       ];
 
-      if (withSass) {
+      if (sass) {
         loaders.push("sass-loader");
       }
 
@@ -138,7 +138,7 @@ module.exports = () => {
     };
 
     return {
-      mode: "development", // env(),
+      mode: "development",
       entry: cssEntries(minify),
       output: {
         path: targetPath,
@@ -148,8 +148,8 @@ module.exports = () => {
       ],
       module: {
         rules: [
-          getStyleRule(/\.scss/i, true),
-          getStyleRule(/\.css/i, false)
+          getStyleRule(/\.scss/i, { minify, sass: true }),
+          getStyleRule(/\.css/i, { minify })
         ],
       },
       optimization: {
