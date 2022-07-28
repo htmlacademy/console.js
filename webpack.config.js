@@ -23,6 +23,10 @@ const env = () => (
   "production" : "development"
 );
 
+const testing = () => (
+  process.env.NODE_ENV === "test"
+);
+
 const overrideBrowserslist = [
   "last 1 version",
   "last 2 Chrome versions",
@@ -64,7 +68,10 @@ const jsIndexEntries = () => [
 const jsPresetEntries = () => {
   const files = glob("./src/presets/*.js");
   return files.reduce((entries, file) => {
-    const id = "js/" + file.slice("./src/".length);
+    const id = ("js/" + file.slice(
+      "./src/".length,
+      file.length - ".js".length
+    ));
     return {...entries, [id]: file};
   }, {});
 };
@@ -73,6 +80,17 @@ const jsEntries = () => ({
   ...jsPresetEntries(),
   ...jsIndexEntries(),
 });
+
+const jsTestEntries = () => {
+  const files = glob("./src/tests/**/*.js");
+  return files.reduce((entries, file) => {
+    const id = ("js/" + file.slice(
+      "./src/".length,
+      file.length - ".js".length
+    ));
+    return {...entries, [id]: file};
+  }, {});
+};
 
 const fixWithMinify = (minify) => (
   minify ? (id) => id + ".min" : (id) => id
@@ -100,6 +118,15 @@ module.exports = () => {
       iife: true,
       path: targetPath,
       library: { type: "window" }
+    }
+  };
+
+  const jsTestConfig = {
+    mode: "development",
+    target: "node",
+    entry: jsTestEntries(),
+    output: {
+      path: targetPath
     }
   };
 
@@ -145,7 +172,9 @@ module.exports = () => {
     };
   };
 
-  return [
+  return testing ? [
+    jsTestConfig
+  ] : [
     jsConfig,
     cssConfig(false),
     cssConfig(true),
