@@ -3,7 +3,6 @@
 
 const { join } = require("path");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 const { sync: glob } = require("glob");
 
 const env = () => (
@@ -151,11 +150,6 @@ module.exports = () => {
           getStyleRule(/\.scss/i, { minify, sass: true }),
           getStyleRule(/\.css/i, { minify })
         ],
-      },
-      optimization: {
-        minimizer: minify ? [] : [
-          new CssMinimizerPlugin(),
-        ]
       }
     };
   };
