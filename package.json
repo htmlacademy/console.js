@@ -4,6 +4,7 @@
   "description": "Inbrowser Demo Console",
   "author": "nikolayemrikh",
   "scripts": {
+    "clear": "rm -rf build",
     "copy": "./scripts/copy.sh",
     "test": "npm run test:eslint && npm run test:stylelint && npm run test:karma",
     "test:karma": "gulp test",
@@ -12,8 +13,8 @@
     "build": "npm run webpack && npm run copy",
     "webpack": "NODE_ENV=production webpack --progress --no-stats",
     "build:prod": "npm run webpack",
-    "serve": "http-server build -p 3501",
-    "start": "npm run webpack && npm run serve",
+    "serve": "http-server build -p 3501 -o .",
+    "start": "npm run copy && npm run webpack && npm run serve",
     "deploy": "npm run build:prod && ./deploy.sh",
     "deploy:exact-version": "npm run build:prod && ONLY_VERSION=true ./deploy.sh"
   },
