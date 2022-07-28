@@ -173,7 +173,8 @@ module.exports = () => {
   };
 
   return testing ? [
-    jsTestConfig
+    jsConfig,
+    jsTestConfig,
   ] : [
     jsConfig,
     cssConfig(false),
