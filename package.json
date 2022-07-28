@@ -4,11 +4,12 @@
   "description": "Inbrowser Demo Console",
   "author": "nikolayemrikh",
   "scripts": {
+    "copy": "./scripts/copy.sh",
     "test": "npm run test:eslint && npm run test:stylelint && npm run test:karma",
     "test:karma": "gulp test",
     "eslint": "eslint src/",
     "test:stylelint": "stylelint 'sass/**/*.scss' --syntax scss",
-    "build": "NODE_ENV=development webpack --progress --no-stats",
+    "build": "npm run webpack && npm run copy",
     "webpack": "NODE_ENV=production webpack --progress --no-stats",
     "build:prod": "npm run webpack",
     "serve": "http-server build -p 3501",
