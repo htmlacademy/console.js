@@ -11,7 +11,7 @@
 //  * [x] css/prism.css, css/prism.min.css
 //  * [x] js/index{,-silent,-prompt}.js
 //  * [x] js/presets (минифицированные сразу)
-//  * [ ] js/tests
+//  * [x] js/tests
 
 const { join } = require("path");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
@@ -172,7 +172,7 @@ module.exports = () => {
     };
   };
 
-  return testing ? [
+  return testing() ? [
     jsConfig,
     jsTestConfig,
   ] : [
