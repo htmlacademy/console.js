@@ -3,6 +3,11 @@
   "version": "1.2.8",
   "description": "Inbrowser Demo Console",
   "author": "nikolayemrikh",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@github.com:htmlacademy/console.js.git"
+  },
   "scripts": {
     "clear": "rm -rf build",
     "copy": "./scripts/copy.sh",
@@ -19,12 +24,17 @@
     "deploy": "npm run build:prod && ./deploy.sh",
     "deploy:exact-version": "npm run build:prod && ONLY_VERSION=true ./deploy.sh"
   },
+  "dependencies": {
+    "acorn": "8.7.0",
+    "lodash.mergewith": "4.6.2",
+    "misbehave": "0.3.0",
+    "prismjs": "1.28.0"
+  },
   "devDependencies": {
     "@babel/core": "7.16.12",
     "@babel/plugin-external-helpers": "7.16.7",
     "@babel/polyfill": "7.2.5",
     "@babel/preset-env": "7.16.11",
-    "acorn": "8.7.0",
     "autoprefixer": "10.4.2",
     "babel-plugin-prismjs": "2.1.0",
     "chai": "4.3.4",
@@ -37,8 +47,6 @@
     "karma-babel-preprocessor": "8.0.2",
     "karma-chrome-launcher": "3.1.1",
     "karma-mocha": "2.0.1",
-    "lodash.mergewith": "4.6.2",
-    "misbehave": "0.3.0",
     "mocha": "10.0.0",
     "stylelint": "13.13.1",
     "stylelint-config-htmlacademy": "0.1.12",
@@ -50,7 +58,6 @@
     "postcss": "8.4.14",
     "postcss-csso": "6.0.0",
     "postcss-loader": "7.0.1",
-    "prismjs": "1.28.0",
     "puppeteer": "15.5.0",
     "sass": "1.49.0",
     "sass-loader": "13.0.2",
